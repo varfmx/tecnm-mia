@@ -1,0 +1,28 @@
+# PDFs compilados
+*.pdf
+
+# Carpetas de código
+codigo/
+
+# Entornos virtuales de Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Auxiliares de LaTeX (por si una compilación falla y quedan)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.listing
+
+# macOS
+.DS_Store

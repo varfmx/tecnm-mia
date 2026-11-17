@@ -1,0 +1,390 @@
+%% =======================================================
+%% Actividad 2: Proyecto "Constructor de Dataset Climático"
+%%
+%% Compilar desde actividades/: ./compilar.sh act02
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range, DataFrame, Categorical, crosstab, product, drop_duplicates, astype},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Modelos Estadísticos para el Aprendizaje \\ Automático y Ciencia de Datos}
+\actividad{Tema 1.1
+Introducción a Conjuntos de Datos Reales y Abiertos \\ Actividad 2 - Proyecto Constructor de Dataset Climático}
+
+\profesor{Dr. José Ismael Ojeda Campaña}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ---- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+El análisis de datos y el aprendizaje automático parten siempre de un conjunto de datos bien estructurado. Antes de aplicar cualquier método es necesario conocer qué atributos describen cada instancia, qué valores pueden tomar y cuál es la variable que se desea predecir. Por esta razón, los cursos introductorios suelen apoyarse en conjuntos de datos pequeños y conocidos, que permiten concentrarse en los conceptos sin la complejidad de un problema real de gran escala \parencite{tecnm2026_documento_fuente}.
+
+Uno de los ejemplos clásicos es el \textit{Weather Dataset}, también llamado problema del clima, popularizado en la literatura de minería de datos \parencite{witten2017}. En este documento se reporta la construcción de dicho conjunto de datos en Python mediante la biblioteca \texttt{pandas}, a partir del código base proporcionado en la actividad. El código se extiende para incluir las 14 instancias completas, asignar tipos de datos adecuados a cada atributo, verificar la distribución de las variables y exportar el resultado a un archivo CSV.
+
+\section{Marco conceptual}
+
+\subsection{Conjuntos de datos reales y abiertos}
+
+Los conjuntos de datos reales provienen de situaciones del mundo real y pueden obtenerse de fuentes como encuestas, experimentos científicos, registros médicos o datos socioeconómicos. Sus variables describen fenómenos específicos y se utilizan tanto para entrenar modelos predictivos como para realizar análisis descriptivos \parencite{tecnm2026_documento_fuente}.
+
+Los conjuntos de datos abiertos, por su parte, son accesibles de manera libre y gratuita para su consulta, uso y distribución. Pueden ser modificados o combinados con otros conjuntos para fines de análisis, lo que facilita la democratización del conocimiento y permite a la comunidad científica y académica realizar experimentos en distintos campos \parencite{tecnm2026_documento_fuente}. Repositorios como el UCI Machine Learning Repository y Kaggle Datasets son fuentes habituales de este tipo de datos.
+
+\subsection{El Weather Dataset}
+
+El problema del clima es un conjunto de datos breve y completamente ficticio que se usa para ilustrar métodos de aprendizaje automático. Describe las condiciones que son adecuadas para jugar un juego no especificado \parencite{witten2017,tecnm2026_documento_fuente}. Contiene cuatro atributos y una clase:
+
+\begin{itemize}
+    \item \textbf{Clima} (\texttt{outlook}): soleado (\textit{sunny}), nublado (\textit{overcast}) o lluvioso (\textit{rainy}).
+    \item \textbf{Temperatura} (\texttt{temperature}): caliente (\textit{hot}), templado (\textit{mild}) o fresco (\textit{cool}).
+    \item \textbf{Humedad} (\texttt{humidity}): alta (\textit{high}) o normal (\textit{normal}).
+    \item \textbf{Viento} (\texttt{windy}): verdadero (\textit{true}) o falso (\textit{false}).
+    \item \textbf{Clase} (\texttt{play}): jugar (\textit{yes}) o no jugar (\textit{no}).
+\end{itemize}
+
+Al combinar los valores de los cuatro atributos se obtienen $3 \times 3 \times 2 \times 2 = 36$ combinaciones posibles, de las cuales solo 14 aparecen en el conjunto de ejemplos \parencite{tecnm2026_documento_fuente}. La Tabla~\ref{tab:weather} muestra las 14 instancias.
+
+\begin{table}[htbp]
+\centering
+\caption{Jugar según el clima \parencite{tecnm2026_documento_fuente}.}
+\label{tab:weather}
+\begin{tabular}{clllcc}
+\hline
+\textbf{\#} & \textbf{Outlook} & \textbf{Temperature} & \textbf{Humidity} & \textbf{Windy} & \textbf{Play} \\
+\hline
+1  & Sunny    & Hot  & High   & False & No  \\
+2  & Sunny    & Hot  & High   & True  & No  \\
+3  & Overcast & Hot  & High   & False & Yes \\
+4  & Rainy    & Mild & High   & False & Yes \\
+5  & Rainy    & Cool & Normal & False & Yes \\
+6  & Rainy    & Cool & Normal & True  & No  \\
+7  & Overcast & Cool & Normal & True  & Yes \\
+8  & Sunny    & Mild & High   & False & No  \\
+9  & Sunny    & Cool & Normal & False & Yes \\
+10 & Rainy    & Mild & Normal & False & Yes \\
+11 & Sunny    & Mild & Normal & True  & Yes \\
+12 & Overcast & Mild & High   & True  & Yes \\
+13 & Overcast & Hot  & Normal & False & Yes \\
+14 & Rainy    & Mild & High   & True  & No  \\
+\hline
+\end{tabular}
+\end{table}
+
+Todos los atributos de esta versión son nominales: toman valores de un conjunto finito de categorías sin un orden numérico. Existen también versiones del conjunto con atributos numéricos, por ejemplo con la temperatura y la humedad expresadas como números, en las que las reglas de decisión cambian al combinar atributos numéricos y nominales \parencite{tecnm2026_documento_fuente}.
+
+\subsection{Representación en pandas}
+
+La biblioteca \texttt{pandas} se utiliza para la manipulación y análisis de datos en Python \parencite{tecnm2026_documento_fuente}. Su estructura principal, el \texttt{DataFrame}, es una tabla en la que cada columna corresponde a un atributo y cada fila a una instancia. Para atributos nominales, \texttt{pandas} ofrece el tipo \texttt{category}, que almacena el conjunto de valores permitidos de la variable. Esto permite registrar el dominio completo de cada atributo, aunque alguno de sus valores no aparezca en los datos.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Crear un conjunto de datos similar al \textit{Weather Dataset} a partir del código base proporcionado.
+
+El código base (Código~\ref{cod:base}) crea un \texttt{DataFrame} con la estructura del Weather Dataset, pero solo con las primeras cinco instancias.
+
+\begin{codigo}[label=cod:base]{Código base proporcionado}
+import pandas as pd
+# Crear DataFrame vacío con la estructura del Weather Dataset
+weather_data = {
+'outlook': ['sunny', 'sunny', 'overcast', 'rainy', 'rainy'],
+'temperature': ['hot', 'hot', 'hot', 'mild', 'cool'],
+'humidity': ['high', 'high', 'high', 'high', 'normal'],
+'windy': [False, True, False, False, False],
+'play': ['no', 'no', 'yes', 'yes', 'yes']
+}
+df_weather = pd.DataFrame(weather_data)
+print(df_weather.head())
+\end{codigo}
+
+Para obtener un conjunto de datos equivalente al original, el código base se extendió con los siguientes pasos:
+
+\begin{enumerate}
+    \item \textbf{Definición de dominios.} Se declaró un diccionario con los valores posibles de cada atributo, tomados de la descripción del conjunto de datos.
+    \item \textbf{Completado de instancias.} Se agregaron las nueve instancias faltantes de la Tabla~\ref{tab:weather}. Las cinco instancias del código base se conservaron en su orden original.
+    \item \textbf{Asignación de tipos.} Los atributos \texttt{outlook}, \texttt{temperature}, \texttt{humidity} y la clase \texttt{play} se convirtieron al tipo \texttt{category} con su dominio completo. El atributo \texttt{windy} se mantuvo como booleano.
+    \item \textbf{Verificación.} Se revisó la estructura del \texttt{DataFrame} con \texttt{info()}, se contaron las frecuencias de la clase y de cada atributo con \texttt{value\_counts()} y se construyó una tabla de contingencia entre \texttt{outlook} y \texttt{play} con \texttt{pd.crosstab()}.
+    \item \textbf{Espacio de combinaciones.} Se generaron todas las combinaciones posibles de los atributos con \texttt{itertools.product()} y se compararon con las combinaciones distintas presentes en el conjunto de datos.
+    \item \textbf{Exportación.} El \texttt{DataFrame} se guardó en el archivo \texttt{weather.csv}.
+\end{enumerate}
+
+\section{Desarrollo}
+
+El Código~\ref{cod:weather} contiene el script completo, guardado como \texttt{act02.py}.
+
+\begin{codigo}[label=cod:weather]{Constructor del Weather Dataset}
+import itertools
+import pandas as pd
+
+# Dominio de cada atributo del Weather Dataset
+dominios = {
+    'outlook': ['sunny', 'overcast', 'rainy'],
+    'temperature': ['hot', 'mild', 'cool'],
+    'humidity': ['high', 'normal'],
+    'windy': [False, True],
+}
+
+# Las 14 instancias de la Tabla 1.1 (las 5 primeras son las del código base)
+weather_data = {
+    'outlook': ['sunny', 'sunny', 'overcast', 'rainy', 'rainy', 'rainy', 'overcast',
+                'sunny', 'sunny', 'rainy', 'sunny', 'overcast', 'overcast', 'rainy'],
+    'temperature': ['hot', 'hot', 'hot', 'mild', 'cool', 'cool', 'cool',
+                    'mild', 'cool', 'mild', 'mild', 'mild', 'hot', 'mild'],
+    'humidity': ['high', 'high', 'high', 'high', 'normal', 'normal', 'normal',
+                 'high', 'normal', 'normal', 'normal', 'high', 'normal', 'high'],
+    'windy': [False, True, False, False, False, True, True,
+              False, False, False, True, True, False, True],
+    'play': ['no', 'no', 'yes', 'yes', 'yes', 'no', 'yes',
+             'no', 'yes', 'yes', 'yes', 'yes', 'yes', 'no'],
+}
+df_weather = pd.DataFrame(weather_data)
+
+# Tipos categóricos con su dominio completo
+for col in ['outlook', 'temperature', 'humidity']:
+    df_weather[col] = pd.Categorical(df_weather[col], categories=dominios[col])
+df_weather['play'] = pd.Categorical(df_weather['play'], categories=['yes', 'no'])
+
+print("Dataset construido:")
+print(df_weather)
+
+print("\nEstructura del DataFrame:")
+df_weather.info()
+
+print("\nDistribución de la clase 'play':")
+print(df_weather['play'].value_counts())
+
+print("\nFrecuencia de cada atributo:")
+for col in dominios:
+    print(f"{col}: {df_weather[col].value_counts(sort=False).to_dict()}")
+
+print("\nTabla de contingencia outlook vs play:")
+print(pd.crosstab(df_weather['outlook'], df_weather['play']))
+
+# Espacio de combinaciones posibles de los atributos
+combinaciones = list(itertools.product(*dominios.values()))
+presentes = df_weather[list(dominios)].astype(object).drop_duplicates()
+print(f"\nCombinaciones posibles: {len(combinaciones)}")
+print(f"Combinaciones presentes en el dataset: {len(presentes)}")
+
+df_weather.to_csv('weather.csv', index=False)
+print("\nDataset exportado a weather.csv")
+\end{codigo}
+
+\section{Resultados}
+
+La Salida~\ref{out:weather} muestra la ejecución completa del script. El \texttt{DataFrame} resultante tiene 14 instancias y 5 columnas sin valores nulos, y coincide con la Tabla~\ref{tab:weather}.
+
+\begin{consola}[label=out:weather]{Ejecución en terminal de \texttt{act02.py}}
+Dataset construido:
+     outlook temperature humidity  windy play
+0      sunny         hot     high  False   no
+1      sunny         hot     high   True   no
+2   overcast         hot     high  False  yes
+3      rainy        mild     high  False  yes
+4      rainy        cool   normal  False  yes
+5      rainy        cool   normal   True   no
+6   overcast        cool   normal   True  yes
+7      sunny        mild     high  False   no
+8      sunny        cool   normal  False  yes
+9      rainy        mild   normal  False  yes
+10     sunny        mild   normal   True  yes
+11  overcast        mild     high   True  yes
+12  overcast         hot   normal  False  yes
+13     rainy        mild     high   True   no
+
+Estructura del DataFrame:
+<class 'pandas.DataFrame'>
+RangeIndex: 14 entries, 0 to 13
+Data columns (total 5 columns):
+ #   Column       Non-Null Count  Dtype
+---  ------       --------------  -----
+ 0   outlook      14 non-null     category
+ 1   temperature  14 non-null     category
+ 2   humidity     14 non-null     category
+ 3   windy        14 non-null     bool
+ 4   play         14 non-null     category
+dtypes: bool(1), category(4)
+memory usage: 714.0 bytes
+
+Distribución de la clase 'play':
+play
+yes    9
+no     5
+Name: count, dtype: int64
+
+Frecuencia de cada atributo:
+outlook: {'sunny': 5, 'overcast': 4, 'rainy': 5}
+temperature: {'hot': 4, 'mild': 6, 'cool': 4}
+humidity: {'high': 7, 'normal': 7}
+windy: {False: 8, True: 6}
+
+Tabla de contingencia outlook vs play:
+play      yes  no
+outlook
+sunny       2   3
+overcast    4   0
+rainy       3   2
+
+Combinaciones posibles: 36
+Combinaciones presentes en el dataset: 14
+
+Dataset exportado a weather.csv
+\end{consola}
+
+De la salida se obtienen las siguientes observaciones:
+
+\begin{itemize}
+    \item \textbf{Clase desbalanceada.} De las 14 instancias, 9 corresponden a \textit{jugar} (\textit{yes}) y 5 a \textit{no jugar} (\textit{no}), es decir, aproximadamente 64\,\% y 36\,\%.
+    \item \textbf{Atributos.} \texttt{humidity} está balanceado (7 y 7). En \texttt{outlook}, \textit{sunny} y \textit{rainy} tienen 5 instancias cada uno y \textit{overcast} 4. En \texttt{temperature}, \textit{mild} es el valor más frecuente con 6 instancias.
+    \item \textbf{Relación entre clima y clase.} La Tabla~\ref{tab:contingencia} muestra que todas las instancias con clima nublado (\textit{overcast}) pertenecen a la clase \textit{yes}. En cambio, con clima soleado predomina \textit{no} (3 de 5) y con clima lluvioso predomina \textit{yes} (3 de 5).
+    \item \textbf{Cobertura del espacio de atributos.} Las 14 instancias son combinaciones distintas entre sí y cubren 14 de las 36 combinaciones posibles, lo que coincide con lo descrito en el documento fuente \parencite{tecnm2026_documento_fuente}.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Tabla de contingencia entre el clima (\texttt{outlook}) y la clase (\texttt{play}).}
+\label{tab:contingencia}
+\begin{tabular}{lccc}
+\hline
+\textbf{Outlook} & \textbf{Yes} & \textbf{No} & \textbf{Total} \\
+\hline
+Sunny    & 2 & 3 & 5 \\
+Overcast & 4 & 0 & 4 \\
+Rainy    & 3 & 2 & 5 \\
+\hline
+\textbf{Total} & 9 & 5 & 14 \\
+\hline
+\end{tabular}
+\end{table}
+
+Finalmente, el conjunto de datos se exportó al archivo \texttt{weather.csv}. Este archivo puede cargarse posteriormente con \texttt{pd.read\_csv()} para usarlo en otras actividades.
+
+\section{Conclusiones}
+
+Se construyó en Python una versión completa del \textit{Weather Dataset} a partir del código base, que incluía solo cinco de las 14 instancias. Además de completar los datos, se asignó el tipo \texttt{category} a los atributos nominales con su dominio completo. Así, el \texttt{DataFrame} conserva los valores permitidos de cada variable, no solo los que aparecen en los datos.
+
+La verificación del conjunto mostró que la clase está desbalanceada (9 contra 5) y que el atributo \texttt{outlook} se relaciona claramente con la clase: siempre se juega cuando el clima está nublado. También se confirmó que los datos cubren solo 14 de las 36 combinaciones posibles. Esto significa que un modelo entrenado con ellos tendrá que generalizar a casos que nunca vio.
+
+Por su tamaño pequeño y su estructura sencilla, este conjunto de datos es útil para estudiar los conceptos básicos del aprendizaje automático: atributos, instancias, clase y espacio de combinaciones. El archivo \texttt{weather.csv} generado puede reutilizarse en las siguientes actividades del curso.
+
+\referencias
+
+\end{document}
