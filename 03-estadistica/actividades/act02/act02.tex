@@ -10,9 +10,11 @@
 
 \usepackage[indice]{tecnm}
 \usepackage[T1]{fontenc}
+\usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
 \tcbuselibrary{listings, skins, breakable}
+\usepackage{forest}          % Dibujo del árbol de decisión
 
 % Paleta de colores (estilo GitHub Light / VS Code)
 \definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
@@ -34,8 +36,8 @@
   keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
   stringstyle=\color{teal!80!black},
   commentstyle=\color{codecomm}\itshape,
-  morekeywords={as, True, False, None, with, yield, lambda},
-  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range, DataFrame, Categorical, crosstab, product, drop_duplicates, astype},
+  morekeywords={as, True, False, None, with, yield, lambda, assert},
+  morekeywords=[2]{itertuples, zip, tuple, all,  read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range, DataFrame, Categorical, crosstab, product, drop_duplicates, astype, isna, isin, duplicated, to_dict, insert, round, Series, log2, sum, max, sorted, enumerate, join, nunique, idxmax, isinstance, float},
   numbers=left,
   numberstyle=\tiny\ttfamily\color{codenum},
   stepnumber=1,
@@ -139,7 +141,7 @@ Introducción a Conjuntos de Datos Reales y Abiertos \\ Actividad 2 - Proyecto C
 
 El análisis de datos y el aprendizaje automático parten siempre de un conjunto de datos bien estructurado. Antes de aplicar cualquier método es necesario conocer qué atributos describen cada instancia, qué valores pueden tomar y cuál es la variable que se desea predecir. Por esta razón, los cursos introductorios suelen apoyarse en conjuntos de datos pequeños y conocidos, que permiten concentrarse en los conceptos sin la complejidad de un problema real de gran escala \parencite{tecnm2026_documento_fuente}.
 
-Uno de los ejemplos clásicos es el \textit{Weather Dataset}, también llamado problema del clima, popularizado en la literatura de minería de datos \parencite{witten2017}. En este documento se reporta la construcción de dicho conjunto de datos en Python mediante la biblioteca \texttt{pandas}, a partir del código base proporcionado en la actividad. El código se extiende para incluir las 14 instancias completas, asignar tipos de datos adecuados a cada atributo, verificar la distribución de las variables y exportar el resultado a un archivo CSV.
+Uno de los ejemplos clásicos es el \textit{Weather Dataset}, también llamado problema del clima, popularizado en la literatura de minería de datos \parencite{witten2017}. En este documento se reporta la construcción de dicho conjunto de datos en Python mediante la biblioteca \texttt{pandas}, a partir del código base proporcionado en la actividad. El trabajo se divide en tres tareas: completar y verificar las 14 instancias del conjunto, crear funciones de análisis para contar, calcular probabilidades y filtrar los datos, y desarrollar un generador de reglas basado en un árbol de decisión que permita predecir si se juega o no ante condiciones nuevas.
 
 \section{Marco conceptual}
 
@@ -195,9 +197,31 @@ Todos los atributos de esta versión son nominales: toman valores de un conjunto
 
 La biblioteca \texttt{pandas} se utiliza para la manipulación y análisis de datos en Python \parencite{tecnm2026_documento_fuente}. Su estructura principal, el \texttt{DataFrame}, es una tabla en la que cada columna corresponde a un atributo y cada fila a una instancia. Para atributos nominales, \texttt{pandas} ofrece el tipo \texttt{category}, que almacena el conjunto de valores permitidos de la variable. Esto permite registrar el dominio completo de cada atributo, aunque alguno de sus valores no aparezca en los datos.
 
+\subsection{Probabilidad condicional de la clase}
+
+Una forma sencilla de medir la relación entre un atributo y la clase es estimar la probabilidad de jugar dado cada valor del atributo. Si $n_v$ es el número de instancias en las que el atributo $A$ toma el valor $v$, y $n_{v,\text{yes}}$ el número de esas instancias con clase \textit{yes}, la probabilidad se estima por frecuencia relativa:
+\begin{equation}
+    P(\text{play} = \text{yes} \mid A = v) = \frac{n_{v,\text{yes}}}{n_v}.
+\end{equation}
+Un valor cercano a 1 o a 0 indica que el atributo, por sí solo, ayuda a anticipar la clase.
+
+\subsection{Árboles de decisión y el algoritmo ID3}
+
+Un árbol de decisión clasifica una instancia haciendo una pregunta sobre un atributo en cada nodo interno, siguiendo la rama que corresponde al valor de la instancia, hasta llegar a una hoja que indica la clase \parencite{mitchell1997}. Cada camino de la raíz a una hoja equivale a una regla del tipo \textit{SI condiciones ENTONCES clase}, por lo que un árbol es también un conjunto de reglas fácil de interpretar \parencite{witten2017}.
+
+El algoritmo ID3 construye el árbol de arriba hacia abajo \parencite{quinlan1986}. En cada nodo elige el atributo que mejor separa las clases, divide los datos según sus valores y repite el proceso en cada subconjunto hasta que todas las instancias de un nodo tienen la misma clase. Para elegir el atributo usa la entropía, que mide la impureza de un conjunto $S$ con proporciones $p_i$ de cada clase:
+\begin{equation}
+    H(S) = -\sum_{i} p_i \log_2 p_i,
+\end{equation}
+y la ganancia de información, que mide cuánto se reduce la entropía al dividir $S$ según el atributo $A$:
+\begin{equation}
+    G(S, A) = H(S) - \sum_{v \in \text{valores}(A)} \frac{|S_v|}{|S|}\, H(S_v),
+\end{equation}
+donde $S_v$ es el subconjunto de instancias con $A = v$. En cada nodo se elige el atributo de mayor ganancia \parencite{mitchell1997}.
+
 \section{Descripción de la actividad}
 
-\textbf{Objetivo:} Crear un conjunto de datos similar al \textit{Weather Dataset} a partir del código base proporcionado.
+\textbf{Objetivo:} Crear un conjunto de datos similar al \textit{Weather Dataset} a partir del código base proporcionado, analizarlo y generar reglas que permitan predecir la clase.
 
 El código base (Código~\ref{cod:base}) crea un \texttt{DataFrame} con la estructura del Weather Dataset, pero solo con las primeras cinco instancias.
 
@@ -215,23 +239,53 @@ df_weather = pd.DataFrame(weather_data)
 print(df_weather.head())
 \end{codigo}
 
-Para obtener un conjunto de datos equivalente al original, el código base se extendió con los siguientes pasos:
+El proyecto consta de las siguientes tareas:
 
 \begin{enumerate}
-    \item \textbf{Definición de dominios.} Se declaró un diccionario con los valores posibles de cada atributo, tomados de la descripción del conjunto de datos.
-    \item \textbf{Completado de instancias.} Se agregaron las nueve instancias faltantes de la Tabla~\ref{tab:weather}. Las cinco instancias del código base se conservaron en su orden original.
-    \item \textbf{Asignación de tipos.} Los atributos \texttt{outlook}, \texttt{temperature}, \texttt{humidity} y la clase \texttt{play} se convirtieron al tipo \texttt{category} con su dominio completo. El atributo \texttt{windy} se mantuvo como booleano.
-    \item \textbf{Verificación.} Se revisó la estructura del \texttt{DataFrame} con \texttt{info()}, se contaron las frecuencias de la clase y de cada atributo con \texttt{value\_counts()} y se construyó una tabla de contingencia entre \texttt{outlook} y \texttt{play} con \texttt{pd.crosstab()}.
-    \item \textbf{Espacio de combinaciones.} Se generaron todas las combinaciones posibles de los atributos con \texttt{itertools.product()} y se compararon con las combinaciones distintas presentes en el conjunto de datos.
-    \item \textbf{Exportación.} El \texttt{DataFrame} se guardó en el archivo \texttt{weather.csv}.
+    \item \textbf{Tarea 1: Completar el dataset.}
+    \begin{enumerate}
+        \item Completar las 14 combinaciones presentes en el documento.
+        \item Usar exactamente los mismos valores de la Tabla~\ref{tab:weather}.
+        \item Verificar que se tengan todas las instancias del documento.
+    \end{enumerate}
+    \item \textbf{Tarea 2: Funciones de análisis.} Crear funciones para:
+    \begin{enumerate}
+        \item Contar combinaciones por condición climática.
+        \item Calcular probabilidades de juego por categoría.
+        \item Filtrar datos por condiciones específicas.
+    \end{enumerate}
+    \item \textbf{Tarea 3: Generador de reglas.} Desarrollar código que:
+    \begin{enumerate}
+        \item Extraiga reglas automáticamente del dataset.
+        \item Genere un árbol de decisión básico.
+        \item Permita predecir \texttt{play} para nuevas condiciones.
+    \end{enumerate}
 \end{enumerate}
 
 \section{Desarrollo}
 
-El Código~\ref{cod:weather} contiene el script completo, guardado como \texttt{act02.py}.
+Todo el proyecto se implementó en un solo script, \texttt{act02.py}, que solo depende de \texttt{pandas} y \texttt{numpy}. Para facilitar su lectura, el script se presenta en tres partes, una por tarea (Códigos~\ref{cod:tarea1}, \ref{cod:tarea2} y \ref{cod:tarea3}). El cuaderno interactivo puede consultarse en Google Colab:
 
-\begin{codigo}[label=cod:weather]{Constructor del Weather Dataset}
+\begin{center}
+    \url{https://colab.research.google.com/drive/1uqFoDoSjRb9wixXzjUUQzDgyNtRfAc9M?usp=sharing}
+\end{center}
+
+\subsection{Tarea 1: Completar el dataset}
+
+El código base se extendió con los siguientes pasos:
+
+\begin{enumerate}
+    \item \textbf{Definición de dominios.} Se declaró un diccionario con los valores posibles de cada atributo, tomados de la descripción del conjunto de datos.
+    \item \textbf{Completado de instancias.} Se agregaron las nueve instancias faltantes de la Tabla~\ref{tab:weather}, con exactamente los mismos valores. Las cinco instancias del código base se conservaron en su orden original.
+    \item \textbf{Asignación de tipos.} Los atributos \texttt{outlook}, \texttt{temperature}, \texttt{humidity} y la clase \texttt{play} se convirtieron al tipo \texttt{category} con su dominio completo. El atributo \texttt{windy} se mantuvo como booleano.
+    \item \textbf{Comparación con la Tabla 1.1.} La Tabla~\ref{tab:weather} del documento se transcribió por separado en la lista \texttt{TABLA\_1\_1}, con una tupla por instancia. La función \texttt{comparar\_con\_tabla()} compara cada fila del \texttt{DataFrame} con la tupla en la misma posición. También busca las instancias de la tabla que falten en el \texttt{DataFrame} y las del \texttt{DataFrame} que no estén en la tabla. Si existe alguna diferencia, la imprime y el script se detiene.
+    \item \textbf{Verificación de consistencia.} La función \texttt{verificar\_dataset()} comprueba que existan 14 instancias, que no haya valores nulos, que todos los valores pertenezcan al dominio de su atributo, que no haya instancias repetidas y que la clase tenga 9 instancias \textit{yes} y 5 \textit{no}, como en el documento. Si alguna condición falla, el script se detiene con un mensaje de error.
+    \item \textbf{Espacio de combinaciones.} Se generaron todas las combinaciones posibles de los atributos con \texttt{itertools.product()} y se compararon con las combinaciones distintas presentes en el conjunto de datos.
+\end{enumerate}
+
+\begin{codigo}[label=cod:tarea1]{Tarea 1: construcción y verificación del dataset}
 import itertools
+import numpy as np
 import pandas as pd
 
 # Dominio de cada atributo del Weather Dataset
@@ -262,27 +316,234 @@ for col in ['outlook', 'temperature', 'humidity']:
     df_weather[col] = pd.Categorical(df_weather[col], categories=dominios[col])
 df_weather['play'] = pd.Categorical(df_weather['play'], categories=['yes', 'no'])
 
+# Tabla 1.1 del documento, transcrita fila por fila como referencia
+TABLA_1_1 = [
+    ('sunny', 'hot', 'high', False, 'no'),
+    ('sunny', 'hot', 'high', True, 'no'),
+    ('overcast', 'hot', 'high', False, 'yes'),
+    ('rainy', 'mild', 'high', False, 'yes'),
+    ('rainy', 'cool', 'normal', False, 'yes'),
+    ('rainy', 'cool', 'normal', True, 'no'),
+    ('overcast', 'cool', 'normal', True, 'yes'),
+    ('sunny', 'mild', 'high', False, 'no'),
+    ('sunny', 'cool', 'normal', False, 'yes'),
+    ('rainy', 'mild', 'normal', False, 'yes'),
+    ('sunny', 'mild', 'normal', True, 'yes'),
+    ('overcast', 'mild', 'high', True, 'yes'),
+    ('overcast', 'hot', 'normal', False, 'yes'),
+    ('rainy', 'mild', 'high', True, 'no'),
+]
+
+
+def comparar_con_tabla(df, referencia):
+    """Compara el DataFrame contra la Tabla 1.1, instancia por instancia."""
+    filas = [tuple(fila) for fila in df.astype(object).itertuples(index=False)]
+    coincidencias = [fila == ref for fila, ref in zip(filas, referencia)]
+    faltantes = [ref for ref in referencia if ref not in filas]
+    sobrantes = [fila for fila in filas if fila not in referencia]
+
+    print(f"Instancias en la Tabla 1.1: {len(referencia)}")
+    print(f"Instancias en el DataFrame: {len(filas)}")
+    print(f"Instancias que coinciden en la misma posición: "
+          f"{sum(coincidencias)}/{len(referencia)}")
+    print(f"Instancias de la tabla que faltan en el DataFrame: {len(faltantes)}")
+    print(f"Instancias del DataFrame que no están en la tabla: {len(sobrantes)}")
+    for i, ok in enumerate(coincidencias, start=1):
+        if not ok:
+            print(f"  Diferencia en la instancia {i}: {filas[i - 1]} vs {referencia[i - 1]}")
+    assert len(filas) == len(referencia) and all(coincidencias), \
+        "El DataFrame no coincide con la Tabla 1.1"
+    print("El DataFrame coincide exactamente con la Tabla 1.1")
+
+
+def verificar_dataset(df):
+    """Comprueba que el dataset tenga las 14 instancias del documento."""
+    assert len(df) == 14, "Deben existir 14 instancias"
+    # Un valor fuera del dominio se convierte en NaN al pasar a category
+    assert not df.isna().any().any(), "Hay valores nulos o fuera del dominio"
+    assert df['windy'].isin(dominios['windy']).all(), "windy debe ser booleano"
+    assert not df.duplicated().any(), "Hay instancias repetidas"
+    assert df['play'].value_counts().to_dict() == {'yes': 9, 'no': 5}, \
+        "La clase debe tener 9 yes y 5 no"
+    print("Verificación correcta: 14 instancias distintas, sin nulos, "
+          "valores dentro del dominio y clase 9 yes / 5 no")
+
+
 print("Dataset construido:")
 print(df_weather)
 
 print("\nEstructura del DataFrame:")
 df_weather.info()
 
+print("\nComparación con la Tabla 1.1:")
+comparar_con_tabla(df_weather, TABLA_1_1)
+
+print()
+verificar_dataset(df_weather)
+
 print("\nDistribución de la clase 'play':")
 print(df_weather['play'].value_counts())
-
-print("\nFrecuencia de cada atributo:")
-for col in dominios:
-    print(f"{col}: {df_weather[col].value_counts(sort=False).to_dict()}")
-
-print("\nTabla de contingencia outlook vs play:")
-print(pd.crosstab(df_weather['outlook'], df_weather['play']))
 
 # Espacio de combinaciones posibles de los atributos
 combinaciones = list(itertools.product(*dominios.values()))
 presentes = df_weather[list(dominios)].astype(object).drop_duplicates()
 print(f"\nCombinaciones posibles: {len(combinaciones)}")
 print(f"Combinaciones presentes en el dataset: {len(presentes)}")
+\end{codigo}
+
+\subsection{Tarea 2: Funciones de análisis}
+
+Se crearon tres funciones que reciben el \texttt{DataFrame} como parámetro, de modo que pueden reutilizarse con cualquier subconjunto de los datos:
+
+\begin{itemize}
+    \item \texttt{contar\_por\_condicion(df, atributo)} cuenta cuántas instancias de cada clase hay para cada valor del atributo, con totales por fila y columna, mediante \texttt{pd.crosstab()}.
+    \item \texttt{probabilidad\_juego(df, atributo)} calcula el número de instancias $n_v$ y las probabilidades $P(\text{yes} \mid A=v)$ y $P(\text{no} \mid A=v)$ para cada valor del atributo. Usa \texttt{pd.crosstab()} con \texttt{normalize='index'}, que divide cada fila entre su total.
+    \item \texttt{filtrar(df, **condiciones)} recibe cualquier número de condiciones con la forma \texttt{atributo=valor} y devuelve solo las instancias que las cumplen todas. Para ello combina una máscara booleana por condición con el operador \texttt{\&}.
+\end{itemize}
+
+\begin{codigo}[label=cod:tarea2]{Tarea 2: funciones de análisis}
+def contar_por_condicion(df, atributo):
+    """Cuenta las instancias de cada clase para cada valor del atributo."""
+    return pd.crosstab(df[atributo], df['play'], margins=True, margins_name='total')
+
+
+def probabilidad_juego(df, atributo):
+    """Calcula P(play = yes) y P(play = no) para cada valor del atributo."""
+    tabla = pd.crosstab(df[atributo], df['play'], normalize='index')
+    tabla.columns = ['P(yes)', 'P(no)']
+    tabla.insert(0, 'n', df[atributo].value_counts(sort=False))
+    return tabla.round(3)
+
+
+def filtrar(df, **condiciones):
+    """Devuelve las instancias que cumplen todas las condiciones dadas."""
+    mascara = pd.Series(True, index=df.index)
+    for atributo, valor in condiciones.items():
+        mascara &= df[atributo] == valor
+    return df[mascara]
+
+
+print("\n=== Tarea 2a: conteo por condición climática ===")
+print(contar_por_condicion(df_weather, 'outlook'))
+
+print("\n=== Tarea 2b: probabilidad de jugar por categoría ===")
+for col in dominios:
+    print(f"\n{probabilidad_juego(df_weather, col)}")
+
+print("\n=== Tarea 2c: filtrado por condiciones ===")
+print("\noutlook = sunny, humidity = high:")
+print(filtrar(df_weather, outlook='sunny', humidity='high'))
+print("\noutlook = rainy, windy = True:")
+print(filtrar(df_weather, outlook='rainy', windy=True))
+\end{codigo}
+
+\subsection{Tarea 3: Generador de reglas}
+
+El generador de reglas se implementó con el algoritmo ID3 descrito en el marco conceptual, sin usar bibliotecas de aprendizaje automático, para que cada paso del proceso quede visible en el código:
+
+\begin{itemize}
+    \item \texttt{entropia()} y \texttt{ganancia()} implementan las ecuaciones de entropía y ganancia de información.
+    \item \texttt{construir\_arbol()} elige el atributo de mayor ganancia, crea una rama por cada valor de su dominio y se llama a sí misma con el subconjunto de cada rama y los atributos restantes. Se detiene cuando todas las instancias tienen la misma clase o ya no quedan atributos. El árbol se guarda como diccionarios anidados, y cada hoja es la clase predicha. Si un valor del dominio no tiene ejemplos en el subconjunto, la rama recibe la clase mayoritaria del nodo padre. Así el árbol puede responder también a combinaciones que no aparecen en los datos.
+    \item \texttt{extraer\_reglas()} recorre el árbol y convierte cada camino de la raíz a una hoja en una regla \textit{SI--ENTONCES}.
+    \item \texttt{predecir()} recibe una instancia nueva como diccionario y baja por el árbol siguiendo los valores de sus atributos hasta llegar a una hoja.
+\end{itemize}
+
+Para comprobar el modelo, primero se predijeron las 14 instancias del dataset y se compararon con su clase real. Después se predijo \texttt{play} para cuatro combinaciones de condiciones que no aparecen en el conjunto de datos.
+
+\begin{codigo}[label=cod:tarea3]{Tarea 3: árbol de decisión ID3, reglas y predicción}
+def entropia(clases):
+    """Entropía de Shannon (en bits) de una serie de clases."""
+    p = clases.value_counts(normalize=True)
+    p = p[p > 0]
+    return float(-(p * np.log2(p)).sum())
+
+
+def ganancia(df, atributo):
+    """Ganancia de información de dividir df según el atributo."""
+    g = entropia(df['play'])
+    for _, grupo in df.groupby(atributo, observed=True):
+        g -= len(grupo) / len(df) * entropia(grupo['play'])
+    return g
+
+
+def clase_mayoritaria(df):
+    return df['play'].value_counts().idxmax()
+
+
+def construir_arbol(df, atributos):
+    """Construye el árbol con ID3: divide por el atributo de mayor ganancia."""
+    if df['play'].nunique() == 1 or not atributos:
+        return clase_mayoritaria(df)
+    mejor = max(atributos, key=lambda a: ganancia(df, a))
+    resto = [a for a in atributos if a != mejor]
+    ramas = {}
+    for valor in dominios[mejor]:
+        subconjunto = df[df[mejor] == valor]
+        # Un valor sin ejemplos recibe la clase mayoritaria del nodo padre
+        if len(subconjunto) == 0:
+            ramas[valor] = clase_mayoritaria(df)
+        else:
+            ramas[valor] = construir_arbol(subconjunto, resto)
+    return {'atributo': mejor, 'ramas': ramas}
+
+
+def imprimir_arbol(arbol, nivel=0):
+    for valor, sub in arbol['ramas'].items():
+        prefijo = '|   ' * nivel + f"{arbol['atributo']} = {valor}"
+        if isinstance(sub, dict):
+            print(prefijo)
+            imprimir_arbol(sub, nivel + 1)
+        else:
+            print(f"{prefijo}: {sub}")
+
+
+def extraer_reglas(arbol, condiciones=()):
+    """Convierte cada camino de la raíz a una hoja en una regla SI-ENTONCES."""
+    if not isinstance(arbol, dict):
+        return [(condiciones, arbol)]
+    reglas = []
+    for valor, sub in arbol['ramas'].items():
+        reglas += extraer_reglas(sub, condiciones + ((arbol['atributo'], valor),))
+    return reglas
+
+
+def predecir(arbol, instancia):
+    """Recorre el árbol según los valores de la instancia hasta llegar a una hoja."""
+    while isinstance(arbol, dict):
+        arbol = arbol['ramas'][instancia[arbol['atributo']]]
+    return arbol
+
+
+atributos = list(dominios)
+
+print("\n=== Tarea 3: generador de reglas ===")
+print(f"\nEntropía de la clase: {entropia(df_weather['play']):.3f} bits")
+print("Ganancia de información en la raíz:")
+for a in sorted(atributos, key=lambda a: -ganancia(df_weather, a)):
+    print(f"  {a:<12} {ganancia(df_weather, a):.3f}")
+
+arbol = construir_arbol(df_weather, atributos)
+print("\nÁrbol de decisión:")
+imprimir_arbol(arbol)
+
+print("\nReglas extraídas:")
+for i, (condiciones, clase) in enumerate(extraer_reglas(arbol), start=1):
+    antecedente = ' Y '.join(f"{a} = {v}" for a, v in condiciones)
+    print(f"R{i}: SI {antecedente} ENTONCES play = {clase}")
+
+instancias = df_weather.to_dict('records')
+aciertos = sum(predecir(arbol, x) == x['play'] for x in instancias)
+print(f"\nExactitud sobre las 14 instancias: {aciertos}/{len(instancias)}")
+
+nuevas = pd.DataFrame([
+    {'outlook': 'sunny', 'temperature': 'cool', 'humidity': 'high', 'windy': True},
+    {'outlook': 'overcast', 'temperature': 'mild', 'humidity': 'normal', 'windy': False},
+    {'outlook': 'rainy', 'temperature': 'hot', 'humidity': 'high', 'windy': False},
+    {'outlook': 'rainy', 'temperature': 'cool', 'humidity': 'high', 'windy': True},
+])
+nuevas['play'] = [predecir(arbol, x) for x in nuevas.to_dict('records')]
+print("\nPredicción para condiciones nuevas:")
+print(nuevas)
 
 df_weather.to_csv('weather.csv', index=False)
 print("\nDataset exportado a weather.csv")
@@ -290,9 +551,11 @@ print("\nDataset exportado a weather.csv")
 
 \section{Resultados}
 
-La Salida~\ref{out:weather} muestra la ejecución completa del script. El \texttt{DataFrame} resultante tiene 14 instancias y 5 columnas sin valores nulos, y coincide con la Tabla~\ref{tab:weather}.
+Las Salidas~\ref{out:tarea1}, \ref{out:tarea2} y \ref{out:tarea3} muestran la ejecución completa del script en terminal, separada por tarea.
 
-\begin{consola}[label=out:weather]{Ejecución en terminal de \texttt{act02.py}}
+\subsection{Tarea 1: Dataset completo y verificado}
+
+\begin{consola}[label=out:tarea1]{Ejecución de \texttt{act02.py}: Tarea 1}
 Dataset construido:
      outlook temperature humidity  windy play
 0      sunny         hot     high  False   no
@@ -324,66 +587,195 @@ Data columns (total 5 columns):
 dtypes: bool(1), category(4)
 memory usage: 714.0 bytes
 
+Comparación con la Tabla 1.1:
+Instancias en la Tabla 1.1: 14
+Instancias en el DataFrame: 14
+Instancias que coinciden en la misma posición: 14/14
+Instancias de la tabla que faltan en el DataFrame: 0
+Instancias del DataFrame que no están en la tabla: 0
+El DataFrame coincide exactamente con la Tabla 1.1
+
+Verificación correcta: 14 instancias distintas, sin nulos, valores dentro del dominio y clase 9 yes / 5 no
+
 Distribución de la clase 'play':
 play
 yes    9
 no     5
 Name: count, dtype: int64
 
-Frecuencia de cada atributo:
-outlook: {'sunny': 5, 'overcast': 4, 'rainy': 5}
-temperature: {'hot': 4, 'mild': 6, 'cool': 4}
-humidity: {'high': 7, 'normal': 7}
-windy: {False: 8, True: 6}
-
-Tabla de contingencia outlook vs play:
-play      yes  no
-outlook
-sunny       2   3
-overcast    4   0
-rainy       3   2
-
 Combinaciones posibles: 36
 Combinaciones presentes en el dataset: 14
+\end{consola}
+
+\begin{itemize}
+    \item \textbf{Coincidencia con la Tabla 1.1.} Las 14 instancias del \texttt{DataFrame} coinciden, en el mismo orden, con las 14 filas de la Tabla~\ref{tab:weather}. No falta ninguna instancia del documento ni sobra ninguna que no esté en él.
+    \item \textbf{Dataset consistente.} El \texttt{DataFrame} tiene 5 columnas sin valores nulos y con todos sus valores dentro del dominio de cada atributo. La función \texttt{verificar\_dataset()} terminó sin errores.
+    \item \textbf{Clase desbalanceada.} De las 14 instancias, 9 corresponden a \textit{jugar} (\textit{yes}) y 5 a \textit{no jugar} (\textit{no}), es decir, aproximadamente 64\,\% y 36\,\%.
+    \item \textbf{Cobertura del espacio de atributos.} Las 14 instancias son combinaciones distintas entre sí y cubren 14 de las 36 combinaciones posibles, lo que coincide con lo descrito en el documento fuente \parencite{tecnm2026_documento_fuente}.
+\end{itemize}
+
+\subsection{Tarea 2: Conteos, probabilidades y filtros}
+
+\begin{consola}[label=out:tarea2]{Ejecución de \texttt{act02.py}: Tarea 2}
+=== Tarea 2a: conteo por condición climática ===
+play      yes  no  total
+outlook
+sunny       2   3      5
+overcast    4   0      4
+rainy       3   2      5
+total       9   5     14
+
+=== Tarea 2b: probabilidad de jugar por categoría ===
+
+          n  P(yes)  P(no)
+outlook
+sunny     5     0.4    0.6
+overcast  4     1.0    0.0
+rainy     5     0.6    0.4
+
+             n  P(yes)  P(no)
+temperature
+hot          4   0.500  0.500
+mild         6   0.667  0.333
+cool         4   0.750  0.250
+
+          n  P(yes)  P(no)
+humidity
+high      7   0.429  0.571
+normal    7   0.857  0.143
+
+       n  P(yes)  P(no)
+windy
+False  8    0.75   0.25
+True   6    0.50   0.50
+
+=== Tarea 2c: filtrado por condiciones ===
+
+outlook = sunny, humidity = high:
+  outlook temperature humidity  windy play
+0   sunny         hot     high  False   no
+1   sunny         hot     high   True   no
+7   sunny        mild     high  False   no
+
+outlook = rainy, windy = True:
+   outlook temperature humidity  windy play
+5    rainy        cool   normal   True   no
+13   rainy        mild     high   True   no
+\end{consola}
+
+La Tabla~\ref{tab:probabilidades} resume la probabilidad de jugar para cada categoría.
+
+\begin{table}[htbp]
+\centering
+\caption{Probabilidad de jugar según el valor de cada atributo.}
+\label{tab:probabilidades}
+\begin{tabular}{llccc}
+\hline
+\textbf{Atributo} & \textbf{Valor} & $\boldsymbol{n_v}$ & $\boldsymbol{P(\text{yes} \mid v)}$ & $\boldsymbol{P(\text{no} \mid v)}$ \\
+\hline
+\texttt{outlook}     & sunny    & 5 & 0.400 & 0.600 \\
+                     & overcast & 4 & 1.000 & 0.000 \\
+                     & rainy    & 5 & 0.600 & 0.400 \\
+\hline
+\texttt{temperature} & hot      & 4 & 0.500 & 0.500 \\
+                     & mild     & 6 & 0.667 & 0.333 \\
+                     & cool     & 4 & 0.750 & 0.250 \\
+\hline
+\texttt{humidity}    & high     & 7 & 0.429 & 0.571 \\
+                     & normal   & 7 & 0.857 & 0.143 \\
+\hline
+\texttt{windy}       & False    & 8 & 0.750 & 0.250 \\
+                     & True     & 6 & 0.500 & 0.500 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item \textbf{Conteo por clima.} Todas las instancias con clima nublado (\textit{overcast}) pertenecen a la clase \textit{yes}. Con clima soleado predomina \textit{no} (3 de 5) y con clima lluvioso predomina \textit{yes} (3 de 5).
+    \item \textbf{Probabilidades.} El valor \textit{overcast} es el único que determina la clase por sí solo, con $P(\text{yes}) = 1$. Le sigue la humedad normal, con $P(\text{yes}) = 0.857$. En cambio, la temperatura \textit{hot} y el viento (\textit{windy} = True) dejan la probabilidad en 0.5, por lo que no ayudan a decidir.
+    \item \textbf{Filtros.} Las tres instancias soleadas con humedad alta son de clase \textit{no}, y lo mismo ocurre con las dos instancias lluviosas con viento. Estas combinaciones de dos atributos sí separan las clases por completo, lo que anticipa las reglas que encuentra el árbol de decisión en la Tarea 3.
+\end{itemize}
+
+\subsection{Tarea 3: Árbol de decisión y reglas}
+
+\begin{consola}[label=out:tarea3]{Ejecución de \texttt{act02.py}: Tarea 3}
+=== Tarea 3: generador de reglas ===
+
+Entropía de la clase: 0.940 bits
+Ganancia de información en la raíz:
+  outlook      0.247
+  humidity     0.152
+  windy        0.048
+  temperature  0.029
+
+Árbol de decisión:
+outlook = sunny
+|   humidity = high: no
+|   humidity = normal: yes
+outlook = overcast: yes
+outlook = rainy
+|   windy = False: yes
+|   windy = True: no
+
+Reglas extraídas:
+R1: SI outlook = sunny Y humidity = high ENTONCES play = no
+R2: SI outlook = sunny Y humidity = normal ENTONCES play = yes
+R3: SI outlook = overcast ENTONCES play = yes
+R4: SI outlook = rainy Y windy = False ENTONCES play = yes
+R5: SI outlook = rainy Y windy = True ENTONCES play = no
+
+Exactitud sobre las 14 instancias: 14/14
+
+Predicción para condiciones nuevas:
+    outlook temperature humidity  windy play
+0     sunny        cool     high   True   no
+1  overcast        mild   normal  False  yes
+2     rainy         hot     high  False  yes
+3     rainy        cool     high   True   no
 
 Dataset exportado a weather.csv
 \end{consola}
 
-De la salida se obtienen las siguientes observaciones:
+\begin{figure}[htbp]
+\centering
+\begin{forest}
+for tree={
+  draw, rounded corners, align=center, font=\small\sffamily,
+  inner sep=4pt, l sep=20mm, s sep=16mm, edge={-latex, thick},
+},
+hoja/.style={fill=gray!15, font=\small\sffamily\bfseries},
+etiqueta/.style={edge label={node[midway, fill=white, inner sep=1pt, font=\scriptsize\sffamily]{#1}}}
+[outlook
+  [humidity, etiqueta=sunny
+    [no, hoja, etiqueta=high]
+    [yes, hoja, etiqueta=normal]
+  ]
+  [yes, hoja, etiqueta=overcast]
+  [windy, etiqueta=rainy
+    [yes, hoja, etiqueta=False]
+    [no, hoja, etiqueta=True]
+  ]
+]
+\end{forest}
+\caption{Árbol de decisión generado con ID3 a partir del Weather Dataset. Los nodos sombreados son hojas con la clase predicha para \texttt{play}.}
+\label{fig:arbol}
+\end{figure}
 
 \begin{itemize}
-    \item \textbf{Clase desbalanceada.} De las 14 instancias, 9 corresponden a \textit{jugar} (\textit{yes}) y 5 a \textit{no jugar} (\textit{no}), es decir, aproximadamente 64\,\% y 36\,\%.
-    \item \textbf{Atributos.} \texttt{humidity} está balanceado (7 y 7). En \texttt{outlook}, \textit{sunny} y \textit{rainy} tienen 5 instancias cada uno y \textit{overcast} 4. En \texttt{temperature}, \textit{mild} es el valor más frecuente con 6 instancias.
-    \item \textbf{Relación entre clima y clase.} La Tabla~\ref{tab:contingencia} muestra que todas las instancias con clima nublado (\textit{overcast}) pertenecen a la clase \textit{yes}. En cambio, con clima soleado predomina \textit{no} (3 de 5) y con clima lluvioso predomina \textit{yes} (3 de 5).
-    \item \textbf{Cobertura del espacio de atributos.} Las 14 instancias son combinaciones distintas entre sí y cubren 14 de las 36 combinaciones posibles, lo que coincide con lo descrito en el documento fuente \parencite{tecnm2026_documento_fuente}.
+    \item \textbf{Elección de la raíz.} La entropía de la clase es de 0.940 bits. El atributo \texttt{outlook} tiene la mayor ganancia de información (0.247), por lo que ocupa la raíz del árbol. Esto coincide con lo observado en la Tarea 2, donde \textit{overcast} determina la clase por sí solo. La temperatura tiene la menor ganancia (0.029) y no aparece en el árbol.
+    \item \textbf{Árbol y reglas.} El árbol de la Figura~\ref{fig:arbol} tiene tres nodos de decisión y cinco hojas, y de él se extraen automáticamente las cinco reglas R1 a R5. Con clima soleado decide la humedad, con clima nublado siempre se juega y con clima lluvioso decide el viento. Este es el mismo árbol que se obtiene para este conjunto de datos en la literatura \parencite{witten2017,quinlan1986}.
+    \item \textbf{Predicción.} El árbol clasifica correctamente las 14 instancias del conjunto de datos. Para las cuatro condiciones nuevas, que no aparecen en los datos, también entrega una predicción. Por ejemplo, un día soleado, fresco, con humedad alta y viento se clasifica como \textit{no} por la regla R1, aunque esa combinación exacta nunca se observó.
 \end{itemize}
-
-\begin{table}[htbp]
-\centering
-\caption{Tabla de contingencia entre el clima (\texttt{outlook}) y la clase (\texttt{play}).}
-\label{tab:contingencia}
-\begin{tabular}{lccc}
-\hline
-\textbf{Outlook} & \textbf{Yes} & \textbf{No} & \textbf{Total} \\
-\hline
-Sunny    & 2 & 3 & 5 \\
-Overcast & 4 & 0 & 4 \\
-Rainy    & 3 & 2 & 5 \\
-\hline
-\textbf{Total} & 9 & 5 & 14 \\
-\hline
-\end{tabular}
-\end{table}
 
 Finalmente, el conjunto de datos se exportó al archivo \texttt{weather.csv}. Este archivo puede cargarse posteriormente con \texttt{pd.read\_csv()} para usarlo en otras actividades.
 
 \section{Conclusiones}
 
-Se construyó en Python una versión completa del \textit{Weather Dataset} a partir del código base, que incluía solo cinco de las 14 instancias. Además de completar los datos, se asignó el tipo \texttt{category} a los atributos nominales con su dominio completo. Así, el \texttt{DataFrame} conserva los valores permitidos de cada variable, no solo los que aparecen en los datos.
+Se construyó en Python una versión completa del \textit{Weather Dataset} a partir del código base, que incluía solo cinco de las 14 instancias. Además de completar los datos, se asignó el tipo \texttt{category} a los atributos nominales con su dominio completo. La comparación automática con la Tabla 1.1 confirmó que las 14 instancias coinciden exactamente con el documento, y la verificación de consistencia confirmó que no hay valores fuera del dominio y que la distribución de clases es la esperada.
 
-La verificación del conjunto mostró que la clase está desbalanceada (9 contra 5) y que el atributo \texttt{outlook} se relaciona claramente con la clase: siempre se juega cuando el clima está nublado. También se confirmó que los datos cubren solo 14 de las 36 combinaciones posibles. Esto significa que un modelo entrenado con ellos tendrá que generalizar a casos que nunca vio.
+Las funciones de análisis mostraron que la clase está desbalanceada (9 contra 5) y que no todos los atributos aportan lo mismo. El clima nublado garantiza que se juegue y la humedad normal lo hace muy probable, mientras que la temperatura casi no cambia la probabilidad de jugar. La función de filtrado permitió además encontrar combinaciones de dos atributos que separan las clases por completo.
 
-Por su tamaño pequeño y su estructura sencilla, este conjunto de datos es útil para estudiar los conceptos básicos del aprendizaje automático: atributos, instancias, clase y espacio de combinaciones. El archivo \texttt{weather.csv} generado puede reutilizarse en las siguientes actividades del curso.
+El generador de reglas, basado en el algoritmo ID3, eligió estos mismos atributos de forma automática mediante la ganancia de información. El árbol resultante usa solo tres de los cuatro atributos, se traduce en cinco reglas fáciles de interpretar y clasifica correctamente todas las instancias. Como los datos cubren solo 14 de las 36 combinaciones posibles, el árbol tiene que generalizar para predecir las condiciones nuevas. Con un conjunto de datos tan pequeño, esas predicciones deben tomarse con cautela, pero el ejercicio muestra de forma completa el camino desde los datos hasta un modelo capaz de predecir.
 
 \referencias
 
