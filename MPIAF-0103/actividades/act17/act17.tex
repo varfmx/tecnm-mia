@@ -1,0 +1,121 @@
+%% =======================================================
+%% Actividad 17: Análisis de los errores tipo I y tipo II
+%%
+%% Compilar desde actividades/: ./compilar.sh act17
+%% Esta actividad no tiene código: el diagrama de doble entrada está dibujado con TikZ.
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,matrix}
+\setlength{\emergencystretch}{3em} % Evita líneas desbordadas por palabras en \texttt
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Modelos Estadísticos para el Aprendizaje \\ Automático y Ciencia de Datos}
+\actividad{Tema 3.1 Conceptos de las Pruebas de Hipótesis \\ Actividad 17 - Análisis de los errores tipo I y tipo II}
+
+\profesor{Dr. José Ismael Ojeda Campaña}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ---- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+Una prueba de hipótesis termina siempre en una decisión, y como se toma con una muestra, esa decisión puede ser incorrecta. Los dos errores posibles no tienen el mismo costo en todos los contextos: en unos es más grave declarar un efecto que no existe y en otros es más grave no detectar uno que sí existe \parencite{tecnm2026_documento_fuente}.
+
+En esta actividad se construye un diagrama de doble entrada que cruza la realidad (si $H_0$ es verdadera o falsa) con la decisión de la prueba (rechazar o no rechazar $H_0$), y se identifican en él los dos errores. Después se explica en un párrafo cómo se manifestarían esos errores en un contexto específico, la evaluación de un medicamento nuevo.
+
+\section{Marco conceptual}
+
+Si se rechaza una hipótesis cuando debería ser aceptada, se comete un error tipo I; si se acepta una hipótesis que debería ser rechazada, se comete un error tipo II \parencite{tecnm2026_documento_fuente}. La probabilidad máxima del error tipo I es el nivel de significancia $\alpha$, y la del error tipo II se denota $\beta$. Para un tamaño de muestra dado, disminuir un tipo de error aumenta el otro; en algunos casos un tipo de error tiene más importancia, y entonces se puede limitar el de mayor importancia. Aumentar el tamaño de la muestra es la única forma de reducir ambos al mismo tiempo, aunque no siempre es posible \parencite{tecnm2026_documento_fuente}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Comprender las implicaciones prácticas de los errores tipo I y II en distintos escenarios \parencite{tecnm2026_documento_fuente}.
+
+La actividad consta de dos partes: elaborar un diagrama de doble entrada que ilustre las decisiones posibles en una prueba de hipótesis y los errores asociados, y redactar un párrafo que explique cómo se manifestarían esos errores en un contexto específico. El producto es este documento en PDF.
+
+\section{Desarrollo}
+
+\subsection{Diagrama de doble entrada}
+
+La Figura~\ref{fig:doble} cruza la realidad con la decisión. En las filas está lo que se decide con la muestra y en las columnas lo que es cierto en la población, que en la práctica nunca se conoce. Cada celda indica el resultado y, en cursiva, cómo se vería en el caso de un medicamento nuevo que se compara contra un placebo, donde $H_0$ es que el medicamento no tiene efecto.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    font=\small,
+    celda/.style={draw=gray!70!black, thick, minimum width=5.6cm, minimum height=3.1cm,
+      align=center, text width=5.1cm, inner sep=4pt},
+    ok/.style={celda, fill=green!10!white},
+    err/.style={celda, fill=red!10!white, draw=red!60!black},
+    cab/.style={align=center, font=\small\bfseries, text=white, fill=tecnmazul,
+      minimum height=1.1cm, text width=5.6cm, draw=tecnmazul, thick},
+    lado/.style={align=center, font=\small\bfseries, text=white, fill=tecnmazul,
+      minimum width=3.1cm, text width=2.7cm, minimum height=3.1cm, draw=tecnmazul, thick}
+  ]
+  \node[cab, minimum width=5.6cm] (c1) at (0,0) {La realidad: $H_0$ es verdadera\\ \normalfont(el medicamento no sirve)};
+  \node[cab, minimum width=5.6cm] (c2) at (5.6,0) {La realidad: $H_0$ es falsa\\ \normalfont(el medicamento sí sirve)};
+
+  \node[err] (a) at (0,-2.1) {\textbf{Error tipo I} (prob. $\alpha$)\\ \textit{Se concluye que el medicamento funciona y no es cierto. Se aprueba un fármaco ineficaz.}};
+  \node[ok]  (b) at (5.6,-2.1) {\textbf{Decisión correcta} (prob. $1-\beta$)\\ \textit{Se detecta el efecto real y se aprueba un fármaco útil.}};
+  \node[ok]  (c) at (0,-5.2) {\textbf{Decisión correcta} (prob. $1-\alpha$)\\ \textit{Se concluye que no hay efecto y es cierto. Se descarta un fármaco ineficaz.}};
+  \node[err] (d) at (5.6,-5.2) {\textbf{Error tipo II} (prob. $\beta$)\\ \textit{No se detecta un efecto que sí existe. Se descarta un fármaco útil.}};
+
+  \node[lado] at (-4.35,-2.1) {Decisión de la prueba:\\ \textbf{se rechaza $H_0$}\\ \normalfont($p \le \alpha$)};
+  \node[lado] at (-4.35,-5.2) {Decisión de la prueba:\\ \textbf{no se rechaza $H_0$}\\ \normalfont($p > \alpha$)};
+\end{tikzpicture}
+\caption{Diagrama de doble entrada de las decisiones de una prueba de hipótesis y sus errores, con el ejemplo de un medicamento nuevo.}
+\label{fig:doble}
+\end{figure}
+
+La diagonal de las decisiones correctas suma, en cada columna, probabilidad 1: si $H_0$ es verdadera, las probabilidades son $\alpha$ (error) y $1-\alpha$ (acierto); si es falsa, son $\beta$ (error) y $1-\beta$ (acierto). Los dos errores están en la otra diagonal y nunca ocurren a la vez, porque cada uno requiere una realidad distinta.
+
+\subsection{Los errores en un contexto específico: medicina}
+
+\begin{quote}
+Supongamos que un laboratorio prueba un medicamento nuevo para bajar la presión arterial y lo compara contra un placebo, con $H_0$: ``el medicamento no tiene efecto'' y $H_1$: ``reduce la presión''. Un error tipo I ocurriría si, por casualidad en los pacientes elegidos, la presión de quienes tomaron el medicamento bajó más y se rechaza $H_0$ aunque el fármaco no funcione: se aprobaría un tratamiento ineficaz y posiblemente con efectos secundarios, y los pacientes lo tomarían sin beneficio. Un error tipo II ocurriría si el medicamento sí funciona pero el estudio incluyó pocos pacientes y no se logra rechazar $H_0$: se descartaría una terapia útil y los pacientes se quedarían sin ella. En este contexto el error tipo I suele considerarse más grave, porque aprobar un fármaco ineficaz o riesgoso daña directamente a las personas, y por eso se fija un $\alpha$ pequeño, como 0.01 o 0.05, que limita ese error \parencite{tecnm2026_documento_fuente}. Pero reducir $\alpha$ aumenta $\beta$, así que la forma de proteger ambos es reclutar más pacientes, lo cual es costoso y no siempre posible.
+\end{quote}
+
+\subsection{Otros escenarios}
+
+Cuál error es más grave depende del contexto. La Tabla~\ref{tab:escenarios} compara tres casos con el mismo criterio.
+
+\begin{table}[htbp]
+\centering
+\caption{Implicaciones de los errores tipo I y tipo II en tres escenarios, con $H_0$ como la situación normal o sin efecto.}
+\label{tab:escenarios}
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{2.7cm}p{4.3cm}p{4.3cm}p{3.2cm}}
+\hline
+\textbf{Escenario} & \textbf{Error tipo I} & \textbf{Error tipo II} & \textbf{Error a limitar} \\
+\hline
+Medicina (fármaco nuevo) & Aprobar un fármaco ineficaz. & Descartar un fármaco útil. & Tipo I: $\alpha$ pequeño. \\
+Control de calidad ($H_0$: el proceso está bajo control) & Detener la línea por una falsa alarma. & Dejar pasar un lote defectuoso. & Depende del costo de cada uno. \\
+Aprendizaje automático ($H_0$: el modelo nuevo no mejora) & Reemplazar el modelo por uno que no es mejor. & Descartar una mejora real. & Tipo I si el reemplazo es costoso; tipo II si hay pocos datos de prueba. \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Conclusiones}
+
+El diagrama de doble entrada muestra que una prueba de hipótesis tiene cuatro resultados posibles: dos decisiones correctas y dos errores, el tipo I (rechazar $H_0$ siendo verdadera, con probabilidad $\alpha$) y el tipo II (no rechazar $H_0$ siendo falsa, con probabilidad $\beta$). Como depende de una realidad que no se conoce, nunca se sabe en un caso concreto si se cometió un error; solo se controla la probabilidad de cometerlo.
+
+En el ejemplo médico se vio que el costo de cada error es distinto: aprobar un fármaco ineficaz (tipo I) suele ser más grave que descartar uno útil (tipo II), por eso se limita $\alpha$. Sin embargo, esa elección tiene un precio, porque con una muestra fija bajar $\alpha$ sube $\beta$. Por eso el nivel de significancia no debe fijarse por costumbre, sino según las consecuencias de cada error en el problema, y la forma de reducir ambos errores es aumentar el tamaño de la muestra.
+
+\referencias
+
+\end{document}

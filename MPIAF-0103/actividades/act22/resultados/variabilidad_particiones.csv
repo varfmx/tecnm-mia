@@ -1,0 +1,5 @@
+modelo,método,RMSE media,RMSE desv.,R2 media,R2 desv.
+Regresión lineal,hold-out 80/20,4.8562,0.1949,0.5085,0.0395
+Regresión lineal,10-fold,4.823,0.0041,0.5109,0.0008
+Bosque aleatorio,hold-out 80/20,1.7579,0.1134,0.9352,0.0089
+Bosque aleatorio,10-fold,1.6671,0.0209,0.9416,0.0015

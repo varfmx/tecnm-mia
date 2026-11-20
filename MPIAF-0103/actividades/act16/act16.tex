@@ -1,0 +1,123 @@
+%% =======================================================
+%% Actividad 16: Comprensión de los componentes fundamentales
+%%
+%% Compilar desde actividades/: ./compilar.sh act16
+%% Esta actividad no tiene código: los valores numéricos se calcularon de forma
+%% analítica (prueba t de una muestra, 24 grados de libertad).
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{longtable,array}
+\setlength{\emergencystretch}{3em} % Evita líneas desbordadas por palabras en \texttt
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Modelos Estadísticos para el Aprendizaje \\ Automático y Ciencia de Datos}
+\actividad{Tema 3.1 Conceptos de las Pruebas de Hipótesis \\ Actividad 16 - Comprensión de los componentes fundamentales}
+
+\profesor{Dr. José Ismael Ojeda Campaña}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ---- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+Toda prueba de hipótesis se arma con las mismas piezas: dos hipótesis opuestas, un criterio de decisión fijado de antemano, una medida de la evidencia que dan los datos y la posibilidad de equivocarse de dos maneras distintas \parencite{tecnm2026_documento_fuente}. Conocer qué hace cada pieza, con qué símbolo se representa y cómo se relaciona con las demás es lo que permite aplicar e interpretar correctamente cualquier prueba, sea una $t$ de Student, una ANOVA o una de Mann-Whitney.
+
+En esta actividad se elabora una tabla de componentes con cuatro columnas: el concepto, su símbolo, su función en la prueba y un ejemplo aplicado. Todos los ejemplos pertenecen a un mismo caso numérico, la comparación de un modelo de clasificación nuevo contra el modelo actual, para que se vea cómo las piezas se conectan en una sola prueba. Al final se agregan comentarios personales.
+
+\section{Marco conceptual}
+
+Una prueba de hipótesis evalúa si una afirmación sobre un parámetro de la población es razonable a partir de una muestra \parencite{tecnm2026_documento_fuente}. Los componentes que fija el documento fuente son la hipótesis nula, la hipótesis alternativa, el valor $p$, el nivel de significancia y los errores tipo I y tipo II. Además, para llegar a un valor $p$ siempre se necesita un estadístico de prueba, que es el número calculado con la muestra, y una región de rechazo, que es la forma equivalente de aplicar el umbral $\alpha$ sobre ese estadístico. Estos dos últimos se incluyen en la tabla porque son los que conectan los datos con la decisión.
+
+El orden en que intervienen es el siguiente: se plantean $H_0$ y $H_1$, se fija $\alpha$ y se elige el tamaño de la muestra, se calcula el estadístico y su valor $p$, se compara $p$ con $\alpha$ y se decide. Los errores no son un paso, sino la forma en que puede fallar esa decisión.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Reconocer los elementos esenciales que intervienen en una prueba de hipótesis \parencite{tecnm2026_documento_fuente}.
+
+A partir de una lectura guiada del documento fuente, se elaboró una tabla de componentes con cuatro columnas: concepto del elemento, símbolo o representación estadística, función en la prueba y ejemplo aplicado. El producto es este documento en PDF, que incluye ejemplos numéricos y comentarios personales.
+
+\section{Desarrollo}
+
+\subsection{Caso de ejemplo}
+
+Un modelo de clasificación actual tiene una exactitud promedio de 0.80. Se desarrolla un modelo nuevo y se evalúa en $n = 25$ particiones de validación; su exactitud promedio es $\bar{x} = 0.84$ con desviación estándar muestral $s = 0.08$. Se quiere saber si esa mejora de 4 puntos es real o pudo deberse al azar. Los datos son hipotéticos y se usan solo para ilustrar la prueba.
+
+Como se desconoce la desviación estándar de la población y la muestra es pequeña, se usa una prueba $t$ de Student de una muestra, que es una prueba paramétrica para comparar medias \parencite{tecnm2026_documento_fuente}. El error estándar es $s/\sqrt{n} = 0.08/5 = 0.016$, de modo que
+\[
+t = \frac{\bar{x} - \mu_0}{s/\sqrt{n}} = \frac{0.84 - 0.80}{0.016} = 2.50
+\]
+con $n - 1 = 24$ grados de libertad.
+
+\subsection{Tabla de componentes}
+
+La Tabla~\ref{tab:componentes} presenta los diez componentes. Los números del ejemplo corresponden al caso anterior.
+
+{\small
+\renewcommand{\arraystretch}{1.35}
+\begin{longtable}{@{}p{2.4cm}p{2.0cm}p{4.8cm}p{5.8cm}@{}}
+\caption{Componentes fundamentales de una prueba de hipótesis.}\label{tab:componentes}\\
+\hline
+\textbf{Concepto} & \textbf{Símbolo} & \textbf{Función en la prueba} & \textbf{Ejemplo aplicado} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Concepto} & \textbf{Símbolo} & \textbf{Función en la prueba} & \textbf{Ejemplo aplicado} \\
+\hline
+\endhead
+\hline
+\endfoot
+Hipótesis nula & $H_0$ & Afirma que no hay diferencia ni efecto. Se asume cierta y es la que se somete a prueba. & $H_0\colon \mu = 0.80$. La exactitud del modelo nuevo es igual a la del actual. \\
+Hipótesis alternativa & $H_1$ & Es lo que se quiere demostrar; difiere de $H_0$. Define si la prueba es unilateral o bilateral. & $H_1\colon \mu > 0.80$ (unilateral). El modelo nuevo es más exacto. \\
+Parámetro y estadístico & $\mu$, $\bar{x}$, $s$, $n$ & El parámetro poblacional es lo que se contrasta; el estadístico muestral y el tamaño de muestra son la información disponible. & $\mu_0 = 0.80$; $\bar{x} = 0.84$, $s = 0.08$, $n = 25$. \\
+Estadístico de prueba & $t$ & Resume la muestra en un número cuya distribución se conoce si $H_0$ es cierta; mide qué tan lejos está $\bar{x}$ de $\mu_0$ en errores estándar. & $t = (0.84 - 0.80)/0.016 = 2.50$, con 24 grados de libertad. \\
+Nivel de significancia & $\alpha$ & Umbral fijado antes de ver los datos; es la probabilidad máxima de error tipo I. & $\alpha = 0.05$. \\
+Región de rechazo y valor crítico & $t_{crit}$ & Conjunto de valores del estadístico que llevan a rechazar $H_0$. Es la forma equivalente de aplicar $\alpha$. & Se rechaza si $t > t_{0.05,\,24} = 1.711$. En exactitud equivale a $\bar{x} > 0.827$. \\
+Valor $p$ & $p$ & Probabilidad de un resultado tan extremo o más si $H_0$ es cierta; mide la evidencia en contra de $H_0$. & $p = P(T_{24} \ge 2.50) = 0.0098$. \\
+Decisión & $p \le \alpha$ & Compara la evidencia con el umbral: si $p \le \alpha$ se rechaza $H_0$ y, si no, no se rechaza. & Como $0.0098 \le 0.05$ (y $2.50 > 1.711$), se rechaza $H_0$: la mejora es estadísticamente significativa. \\
+Error tipo I & $\alpha$ & Rechazar $H_0$ siendo verdadera: declarar una mejora que no existe. Su probabilidad máxima la fija $\alpha$. & Con $\alpha = 0.05$, si ambos modelos fueran iguales habría 5\,\% de probabilidad de concluir erróneamente que el nuevo es mejor. \\
+Error tipo II & $\beta$ & No rechazar $H_0$ siendo falsa: no detectar una mejora que sí existe. & Si la exactitud real fuera 0.84, la probabilidad de no detectarlo con $n = 25$ sería $\beta \approx 0.217$. \\
+\end{longtable}
+}
+
+\subsection{Comprobaciones numéricas}
+
+\textbf{Valor $p$ y valor crítico dan la misma decisión.} El valor crítico es $t_{0.05,\,24} = 1.711$, y como el estadístico observado es 2.50, cae dentro de la región de rechazo. El valor $p$ es 0.0098, menor que 0.05. Los dos criterios son equivalentes porque $p \le \alpha$ exactamente cuando el estadístico cae en la región de rechazo.
+
+\textbf{Un caso en que no se rechaza.} Si la exactitud promedio del modelo nuevo hubiera sido 0.82 con la misma $s$ y $n$, el estadístico sería $t = 0.02/0.016 = 1.25$ y $p = 0.112$. Como $0.112 > 0.05$, no se rechazaría $H_0$: una diferencia de 2 puntos es compatible con el azar con esta muestra. Aquí se dice que no hay evidencia suficiente, no que los modelos sean iguales.
+
+\textbf{El valor de $\alpha$ cambia la decisión.} Con el mismo resultado ($p = 0.0098$), se rechaza $H_0$ con $\alpha = 0.05$ y también con $\alpha = 0.01$, porque $0.0098 < 0.01$ por muy poco. Un $p$ de 0.02 se habría rechazado con 0.05 y no con 0.01. Por eso $\alpha$ debe fijarse antes de ver los datos.
+
+\textbf{Error tipo II y tamaño de muestra.} El documento fuente indica que aumentar el tamaño de la muestra es la única forma de reducir ambos errores al mismo tiempo \parencite{tecnm2026_documento_fuente}. En el caso de ejemplo se comprueba: si la exactitud real fuera 0.84, con $n = 25$ se tiene $\beta \approx 0.217$ y con $n = 100$ baja a $\beta \approx 0.0004$, con el mismo $\alpha = 0.05$. Por otro lado, si se redujera $\alpha$ a 0.01 con $n = 25$, el valor crítico subiría a 2.492 y $\beta$ aumentaría, porque exigir más evidencia hace más difícil detectar una mejora real \parencite{tecnm2026_documento_fuente}.
+
+\subsection{Comentarios personales}
+
+\begin{itemize}
+    \item Lo que más me costó entender fue que $\alpha$ y $p$ se parecen pero no son lo mismo: $\alpha$ lo decide quien diseña la prueba y $p$ lo producen los datos. Me ayudó pensar en $\alpha$ como la regla del juego y en $p$ como el resultado de ese juego.
+    \item Me parece fácil interpretar mal el valor $p$ como la probabilidad de que $H_0$ sea cierta. En el ejemplo, $p = 0.0098$ no significa que haya 1\,\% de probabilidad de que los modelos sean iguales; significa que una diferencia así sería muy rara si lo fueran.
+    \item Al armar el ejemplo noté que ``estadísticamente significativo'' no dice si la mejora importa en la práctica. Cuatro puntos de exactitud pueden ser mucho o poco según el problema, y la prueba no responde eso.
+    \item Un supuesto del ejemplo es débil: las 25 particiones de validación no son independientes del todo, porque comparten datos de entrenamiento, y la prueba $t$ supone independencia. En un trabajo real habría que usar una prueba pensada para comparar modelos o interpretar el $p$ con cautela.
+    \item Entre los dos errores, en aprendizaje automático me parece más peligroso el tipo I cuando se decide reemplazar un modelo en producción por uno que en realidad no es mejor, y el tipo II cuando se descarta una mejora real por tener pocos datos de prueba. Por eso conviene pensar en el costo de cada uno antes de elegir $\alpha$.
+\end{itemize}
+
+\section{Conclusiones}
+
+Los componentes de una prueba de hipótesis forman una cadena: $H_0$ y $H_1$ definen qué se contrasta, el estadístico resume los datos, el valor $p$ lo convierte en evidencia, y el nivel de significancia $\alpha$ da el umbral con el que se decide. Los errores tipo I y tipo II describen las dos maneras en que esa decisión puede fallar, con probabilidades $\alpha$ y $\beta$.
+
+En el caso numérico, con $\bar{x} = 0.84$ frente a $\mu_0 = 0.80$, el estadístico $t = 2.50$ y el valor $p = 0.0098$ llevaron a rechazar $H_0$ con $\alpha = 0.05$. Las comprobaciones mostraron que el valor crítico y el valor $p$ dan la misma decisión, que una diferencia menor (0.82) no se habría rechazado, y que $\beta$ baja de 0.217 a 0.0004 al pasar de $n = 25$ a $n = 100$. Entender cada componente y su símbolo evita interpretar mal los resultados de una prueba.
+
+\referencias
+
+\end{document}

@@ -1,0 +1,189 @@
+%% =======================================================
+%% Actividad 15: ¿Qué significa contrastar una hipótesis?
+%%
+%% Compilar desde actividades/: ./compilar.sh act15
+%% Esta actividad no tiene código: el mapa conceptual está dibujado con TikZ.
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\setlength{\emergencystretch}{3em} % Evita líneas desbordadas por palabras en \texttt
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Modelos Estadísticos para el Aprendizaje \\ Automático y Ciencia de Datos}
+\actividad{Tema 3.1 Conceptos de las Pruebas de Hipótesis \\ Actividad 15 - ¿Qué significa contrastar una hipótesis?}
+
+\profesor{Dr. José Ismael Ojeda Campaña}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ---- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+Una muestra siempre contiene variabilidad, así que una diferencia observada puede deberse a un efecto real o solo al azar. Las pruebas de hipótesis son el procedimiento estadístico que permite decidir entre ambas explicaciones: evalúan si una afirmación sobre un parámetro de la población es razonable a la luz de los datos de una muestra \parencite{tecnm2026_documento_fuente}. Por eso son la base para tomar decisiones con datos, por ejemplo al comparar dos modelos de aprendizaje automático.
+
+En esta actividad se elabora un mapa conceptual que relaciona los cinco conceptos centrales del contraste de hipótesis: la hipótesis nula, la hipótesis alternativa, el nivel de significancia, el valor $p$ y los errores tipo I y tipo II. Primero se definen los conceptos, después se presenta el mapa con sus conexiones y por último se explican esas conexiones con ejemplos básicos.
+
+\section{Marco conceptual}
+
+\subsection{Hipótesis nula y alternativa}
+
+La hipótesis nula, $H_0$, se formula como la hipótesis en la que no hay diferencia o no hay efecto. La hipótesis alternativa, $H_1$, es cualquier hipótesis que difiera de $H_0$ y, por lo regular, representa lo que se quiere demostrar \parencite{tecnm2026_documento_fuente}. Ambas son proposiciones opuestas sobre el mismo parámetro: si una es cierta, la otra es falsa. Por ejemplo, al decidir si un procedimiento es mejor que otro, $H_0$ afirma que no existe diferencia entre ellos y $H_1$ afirma que no son iguales.
+
+\subsection{Nivel de significancia}
+
+El nivel de significancia, $\alpha$, es la probabilidad máxima de cometer un error tipo I en la prueba. Sus valores más comunes son 0.05 y 0.01. Con $\alpha = 0.05$, aproximadamente en 5 de cada 100 ocasiones se rechazaría la hipótesis nula cuando debería ser aceptada \parencite{tecnm2026_documento_fuente,spiegel2014}. El valor de $\alpha$ lo fija quien diseña la prueba antes de ver los datos, y funciona como el umbral de decisión.
+
+\subsection{Valor $p$}
+
+El valor $p$ es un número que indica qué tan compatibles son los datos con la hipótesis nula \parencite{tecnm2026_documento_fuente}. Formalmente, es la probabilidad de obtener un resultado tan extremo como el observado, o más, suponiendo que $H_0$ es verdadera. Un valor $p$ pequeño significa que los datos serían poco esperables si $H_0$ fuera cierta. No es la probabilidad de que $H_0$ sea verdadera ni mide el tamaño del efecto.
+
+\subsection{Errores tipo I y tipo II}
+
+Si se rechaza una hipótesis cuando debería ser aceptada, se comete un error tipo I; si se acepta una hipótesis que debería ser rechazada, se comete un error tipo II \parencite{tecnm2026_documento_fuente}. La probabilidad del error tipo I es $\alpha$ y la del tipo II se denota $\beta$. Para un tamaño de muestra dado, disminuir un tipo de error aumenta el otro, y aumentar el tamaño de la muestra es la única forma de reducir ambos al mismo tiempo, aunque no siempre sea posible \parencite{tecnm2026_documento_fuente}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Identificar los fundamentos conceptuales de las pruebas de hipótesis y su importancia en la toma de decisiones basadas en datos \parencite{tecnm2026_documento_fuente}.
+
+Se leyó el texto introductorio sobre el proceso de inferencia estadística y se elaboró un mapa conceptual que muestra la relación entre la hipótesis nula ($H_0$), la hipótesis alternativa ($H_1$), el nivel de significancia ($\alpha$), el valor $p$ y los errores tipo I y tipo II, con conexiones lógicas y ejemplos básicos. El producto es este documento en PDF.
+
+\section{Desarrollo}
+
+\subsection{Mapa conceptual}
+
+La Figura~\ref{fig:mapa} muestra el mapa. Se lee de arriba hacia abajo: primero se plantean las hipótesis, luego se compara la evidencia (valor $p$) con el umbral ($\alpha$), y la decisión resultante puede ser correcta o puede ser uno de los dos errores. Las flechas llevan la palabra de enlace que explica cada relación.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    font=\footnotesize,
+    >={Stealth[length=2.2mm]},
+    concepto/.style={draw=tecnmazul, rounded corners=3pt, thick, align=center,
+      inner sep=4pt, text width=3.6cm, fill=tecnmazul!8},
+    central/.style={concepto, fill=tecnmazul, text=white, text width=4.4cm},
+    decision/.style={concepto, fill=gray!15, draw=gray!70!black},
+    error/.style={concepto, fill=red!8, draw=red!60!black, text width=4.4cm},
+    flecha/.style={->, thick, draw=gray!70!black},
+    enlace/.style={font=\scriptsize\itshape, fill=white, inner sep=1.5pt, align=center}
+  ]
+  % Nivel 0
+  \node[central] (prueba) at (0,0) {\textbf{Prueba de hipótesis}\\ decide con datos de una muestra};
+
+  % Nivel 1: hipótesis
+  \node[concepto] (h0) at (-4.3,-2.6) {\textbf{Hipótesis nula $H_0$}\\ no hay diferencia ni efecto};
+  \node[concepto] (h1) at (4.3,-2.6) {\textbf{Hipótesis alternativa $H_1$}\\ hay diferencia o efecto};
+
+  % Nivel 2: evidencia y umbral
+  \node[concepto] (p) at (-4.3,-5.5) {\textbf{Valor $p$}\\ compatibilidad de los datos con $H_0$};
+  \node[concepto] (alfa) at (4.3,-5.5) {\textbf{Nivel de significancia $\alpha$}\\ umbral; probabilidad máxima de error tipo I};
+
+  % Nivel 3: regla de decisión
+  \node[decision, text width=4.6cm] (regla) at (0,-8.3) {\textbf{Regla de decisión}\\ comparar $p$ con $\alpha$};
+
+  % Nivel 4: decisión
+  \node[decision] (nr) at (-4.3,-11.1) {\textbf{No rechazar $H_0$}\\ los datos no bastan para contradecirla};
+  \node[decision] (r) at (4.3,-11.1) {\textbf{Rechazar $H_0$}\\ los datos apoyan $H_1$};
+
+  % Nivel 5: errores
+  \node[error] (e2) at (-4.3,-14.2) {\textbf{Error tipo II}\\ no rechazar $H_0$ siendo falsa\\ probabilidad $\beta$};
+  \node[error] (e1) at (4.3,-14.2) {\textbf{Error tipo I}\\ rechazar $H_0$ siendo verdadera\\ probabilidad $\alpha$};
+
+  % Enlaces
+  \draw[flecha] (prueba.south) -- ++(0,-0.7) -| (h0.north) node[enlace, pos=0.72] {parte de};
+  \draw[flecha] (prueba.south) -- ++(0,-0.7) -| (h1.north) node[enlace, pos=0.72] {parte de};
+  \draw[<->, thick, draw=gray!70!black] (h0) -- (h1) node[enlace, midway] {son\\opuestas};
+  \draw[flecha] (h0) -- (p) node[enlace, midway] {se calcula\\suponiéndola cierta};
+  \draw[flecha] (p.south) -- ++(0,-0.5) -| (regla.north west) node[enlace, pos=0.3] {evidencia};
+  \draw[flecha] (alfa.south) -- ++(0,-0.5) -| (regla.north east) node[enlace, pos=0.3] {umbral};
+  \draw[flecha] (regla.south) -- ++(0,-0.4) -| (nr.north) node[enlace, pos=0.25] {si $p > \alpha$};
+  \draw[flecha] (regla.south) -- ++(0,-0.4) -| (r.north) node[enlace, pos=0.25] {si $p \le \alpha$};
+  \draw[flecha] (r) -- (e1) node[enlace, midway] {si $H_0$ era\\verdadera};
+  \draw[flecha] (nr) -- (e2) node[enlace, midway] {si $H_0$ era\\falsa};
+  \draw[<->, thick, dashed, draw=red!60!black] (e2) -- (e1)
+    node[enlace, midway] {con $n$ fijo, bajar uno\\sube el otro};
+  \draw[flecha] (alfa.east) -- ++(0.75,0) |- (e1.east) node[enlace, pos=0.2, text width=1.5cm] {fija el\\error tipo I};
+\end{tikzpicture}
+\caption{Mapa conceptual de las pruebas de hipótesis.}
+\label{fig:mapa}
+\end{figure}
+
+\subsection{Descripción de los conceptos con ejemplos básicos}
+
+La Tabla~\ref{tab:conceptos} resume cada concepto con un ejemplo. Los ejemplos son ilustrativos y usan la comparación de un modelo nuevo contra el modelo actual, que es el caso típico en aprendizaje automático. Los valores numéricos son hipotéticos.
+
+\begin{table}[htbp]
+\centering
+\caption{Conceptos de la prueba de hipótesis y un ejemplo básico de cada uno.}
+\label{tab:conceptos}
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{2.8cm}p{5.2cm}p{7.2cm}}
+\hline
+\textbf{Concepto} & \textbf{Qué es} & \textbf{Ejemplo} \\
+\hline
+Hipótesis nula $H_0$ & Afirmación de que no hay diferencia o efecto; se asume cierta hasta que los datos indiquen lo contrario. & $H_0$: la exactitud del modelo nuevo es igual a la del modelo actual. \\
+Hipótesis alternativa $H_1$ & Lo que se quiere demostrar; difiere de $H_0$. & $H_1$: la exactitud del modelo nuevo es mayor. \\
+Nivel de significancia $\alpha$ & Umbral fijado antes de la prueba; es la probabilidad máxima de error tipo I. & Se fija $\alpha = 0.05$: se tolera rechazar una $H_0$ verdadera en 5 de cada 100 pruebas. \\
+Valor $p$ & Compatibilidad de los datos con $H_0$; probabilidad de un resultado tan extremo o más si $H_0$ es cierta. & Tras comparar los modelos se obtiene $p = 0.02$: una diferencia así sería poco común si ambos modelos fueran iguales. \\
+Decisión & Se rechaza $H_0$ si $p \le \alpha$; si $p > \alpha$ no se rechaza. & Como $0.02 \le 0.05$, se rechaza $H_0$ y se concluye que el modelo nuevo es mejor. Con $p = 0.20$ no se rechazaría. \\
+Error tipo I & Rechazar $H_0$ siendo verdadera. & Concluir que el modelo nuevo es mejor cuando la diferencia fue solo azar. \\
+Error tipo II & No rechazar $H_0$ siendo falsa. & No detectar que el modelo nuevo sí es mejor, por ejemplo porque la muestra de prueba es pequeña. \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Decisiones posibles}
+
+Al combinar la realidad (si $H_0$ es verdadera o falsa) con la decisión que toma la prueba resultan cuatro casos, que se muestran en la Tabla~\ref{tab:decisiones}. Solo en dos de ellos la decisión es correcta; en los otros dos se comete uno de los errores del mapa.
+
+\begin{table}[htbp]
+\centering
+\caption{Resultado de la decisión según la realidad.}
+\label{tab:decisiones}
+\small
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{p{3.2cm}p{5.8cm}p{5.8cm}}
+\hline
+ & \textbf{$H_0$ es verdadera} & \textbf{$H_0$ es falsa} \\
+\hline
+\textbf{Se rechaza $H_0$} & Error tipo I (probabilidad $\alpha$) & Decisión correcta \\
+\textbf{No se rechaza $H_0$} & Decisión correcta & Error tipo II (probabilidad $\beta$) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Explicación de las conexiones}
+
+\textbf{$H_0$ y $H_1$.} Son proposiciones opuestas sobre el mismo parámetro. La prueba parte de suponer que $H_0$ es cierta y busca ver si los datos la contradicen lo bastante como para apoyar $H_1$ \parencite{tecnm2026_documento_fuente}.
+
+\textbf{Valor $p$ y $H_0$.} El valor $p$ se calcula suponiendo que $H_0$ es verdadera, por eso mide la compatibilidad de los datos con ella. Un $p$ cercano a 1 indica datos muy compatibles con $H_0$ y un $p$ cercano a 0 indica datos difíciles de explicar si $H_0$ fuera cierta.
+
+\textbf{Valor $p$ y $\alpha$.} Son los dos lados de la regla de decisión: $p$ es la evidencia que producen los datos y $\alpha$ es el umbral que se fijó antes de verlos. Si $p \le \alpha$ se rechaza $H_0$; si $p > \alpha$ no se rechaza. Conviene decir ``no rechazar'' y no ``aceptar'' $H_0$, porque un $p$ grande solo indica que los datos no bastan para contradecirla.
+
+\textbf{$\alpha$ y el error tipo I.} El nivel de significancia es la probabilidad máxima de cometer el error tipo I, de modo que al elegir $\alpha$ se decide cuánto riesgo de falsa alarma se tolera \parencite{tecnm2026_documento_fuente}. Esa es la razón de que se fije antes de la prueba.
+
+\textbf{Error tipo I y error tipo II.} No se pueden eliminar los dos a la vez. Con una muestra de tamaño fijo, un $\alpha$ más pequeño reduce el error tipo I pero aumenta $\beta$, y viceversa. La única forma de reducir ambos al mismo tiempo es aumentar el tamaño de la muestra \parencite{tecnm2026_documento_fuente}. Cuál error pesa más depende del contexto: si una falsa alarma es muy costosa conviene un $\alpha$ pequeño, y si pasar por alto un efecto real es lo grave conviene proteger contra el error tipo II.
+
+\section{Conclusiones}
+
+Contrastar una hipótesis significa decidir, con datos de una muestra y bajo incertidumbre, entre dos afirmaciones opuestas: $H_0$ (sin diferencia ni efecto) y $H_1$ (lo que se quiere demostrar). La decisión se toma comparando el valor $p$, que indica qué tan compatibles son los datos con $H_0$, con el nivel de significancia $\alpha$, que es el riesgo de error tipo I que se fijó antes de la prueba.
+
+El mapa conceptual muestra que los cinco conceptos forman un solo proceso: las hipótesis definen qué se contrasta, $p$ y $\alpha$ producen la decisión, y los errores tipo I y tipo II describen las dos formas en que esa decisión puede ser incorrecta. Como reducir uno aumenta el otro con una muestra fija, el valor de $\alpha$ debe elegirse según el costo de cada error en el problema, y por eso un resultado ``significativo'' no equivale a una conclusión segura.
+
+\referencias
+
+\end{document}

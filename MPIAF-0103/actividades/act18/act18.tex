@@ -1,0 +1,97 @@
+%% =======================================================
+%% Actividad 18: Aplicaciones en contextos reales
+%%
+%% Compilar desde actividades/: ./compilar.sh act18
+%% Esta actividad no tiene código: es una redacción analítica.
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % Evita líneas desbordadas por palabras en \texttt
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Modelos Estadísticos para el Aprendizaje \\ Automático y Ciencia de Datos}
+\actividad{Tema 3.1 Conceptos de las Pruebas de Hipótesis \\ Actividad 18 - Aplicaciones en contextos reales}
+
+\profesor{Dr. José Ismael Ojeda Campaña}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ---- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+Las pruebas de hipótesis se usan en cualquier campo donde haya que decidir con datos de una muestra si una afirmación sobre una población es razonable \parencite{tecnm2026_documento_fuente}. Lo que cambia de un campo a otro es qué decisión equivocada cuesta más. Por eso, además de saber plantear $H_0$ y $H_1$, hay que decidir qué error conviene controlar: el tipo I, que es rechazar $H_0$ siendo verdadera y está limitado por el nivel de significancia $\alpha$, o el tipo II, que es no rechazar $H_0$ siendo falsa y tiene probabilidad $\beta$ \parencite{tecnm2026_documento_fuente}.
+
+En esta actividad se eligen tres contextos: medicina, industria y aprendizaje automático. Para cada uno se describe cómo se aplica una prueba de hipótesis y qué tipo de error es más relevante controlar. Los ejemplos y los números son hipotéticos y sirven solo para ilustrar.
+
+\section{Marco conceptual}
+
+El documento fuente señala que, para una muestra de tamaño dado, reducir un tipo de error aumenta el otro, y que cuando un error es más importante que el otro se puede limitar el de mayor importancia \parencite{tecnm2026_documento_fuente}. De ahí sale el criterio que se usa en los tres contextos: se identifica la consecuencia más costosa y se diseña la prueba para proteger contra ella, ya sea con un $\alpha$ pequeño (para limitar el error tipo I) o con una muestra más grande (para reducir $\beta$). Aumentar el tamaño de la muestra es la única forma de reducir ambos errores a la vez \parencite{tecnm2026_documento_fuente}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Relacionar las pruebas de hipótesis con situaciones del mundo real en diferentes campos del conocimiento \parencite{tecnm2026_documento_fuente}.
+
+Se seleccionaron tres contextos (medicina, industria y aprendizaje automático) y, para cada uno, se describe cómo se aplican las pruebas de hipótesis y qué error (I o II) sería más relevante controlar. El producto es este documento en PDF.
+
+\section{Desarrollo}
+
+\subsection{Medicina: ensayo clínico de un tratamiento}
+
+En un ensayo clínico se compara un tratamiento nuevo contra un placebo. La hipótesis nula es que el tratamiento no tiene efecto ($H_0\colon \mu_{trat} = \mu_{plac}$) y la alternativa es que sí lo tiene. Como se comparan las medias de dos grupos, la prueba apropiada es una $t$ de Student \parencite{tecnm2026_documento_fuente}. Si, por ejemplo, la presión arterial media baja 8 mm Hg más en el grupo tratado y la prueba arroja $p = 0.003$, con $\alpha = 0.01$ se rechaza $H_0$ y se concluye que hay un efecto.
+
+\textbf{Error más relevante: tipo I.} Cometerlo significa aprobar un tratamiento que en realidad no funciona, con el riesgo para la salud de los pacientes y el gasto de recursos que eso implica. Por eso en estudios clínicos se fija un $\alpha$ bajo. El costo es que $\beta$ sube, de modo que se necesita una muestra suficientemente grande para no descartar un tratamiento que sí sirve (error tipo II).
+
+\subsection{Industria: control de calidad en una línea de llenado}
+
+Una planta embotelladora declara que sus botellas contienen 500 ml. Cada hora se toma una muestra de botellas y se prueba $H_0\colon \mu = 500$ contra $H_1\colon \mu < 500$ con una prueba $t$ de una muestra. Si la muestra da una media de 497 ml y $p = 0.02$, con $\alpha = 0.05$ se rechaza $H_0$ y se concluye que la línea está llenando de menos.
+
+\textbf{Error más relevante: tipo II, con matices.} Un error tipo I es una falsa alarma: se detiene o se ajusta la línea sin que haya problema, lo que cuesta tiempo e inspección. Un error tipo II es no detectar que la línea llena de menos, y el cliente recibe producto fuera de especificación, lo que daña la reputación de la empresa y puede acarrear sanciones. Si el costo de detener la línea es bajo comparado con el de producto defectuoso, conviene proteger contra el tipo II usando muestras mayores o aceptando un $\alpha$ más alto. Si detener la línea es muy costoso, se busca un equilibrio entre ambos errores.
+
+\subsection{Aprendizaje automático: detección de fraude}
+
+Un sistema de detección de fraude revisa cada transacción y puede plantearse como una prueba de hipótesis: $H_0$ es que la transacción es legítima y $H_1$ es que es fraudulenta. Cuando el sistema genera una alerta, rechaza $H_0$. Un error tipo I es una falsa alarma: se bloquea una transacción legítima y se incomoda al cliente. Un error tipo II es dejar pasar un fraude real, con pérdida económica directa.
+
+\textbf{Error más relevante: tipo II.} Dejar pasar un fraude suele costar más que una verificación innecesaria, así que se ajusta el umbral de alerta para reducir $\beta$ aun si aumentan las falsas alarmas. Hay un límite: si el $\alpha$ crece demasiado, el sistema bloquea a tantos clientes legítimos que deja de ser útil. Esto vuelve a mostrar que los dos errores se compensan entre sí. Además, en este mismo campo las pruebas de hipótesis se usan para comparar modelos: al decidir si un modelo nuevo es mejor que el actual conviene controlar el tipo I, para no reemplazar un modelo por otro que solo parecía mejor por azar.
+
+\subsection{Resumen comparativo}
+
+La Tabla~\ref{tab:contextos} resume los tres contextos.
+
+\begin{table}[htbp]
+\centering
+\caption{Aplicación de la prueba de hipótesis y error a controlar en cada contexto.}
+\label{tab:contextos}
+\small
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{p{2.2cm}p{4.3cm}p{4.3cm}p{3.5cm}}
+\hline
+\textbf{Contexto} & \textbf{$H_0$ y prueba} & \textbf{Qué sería cada error} & \textbf{Error a controlar} \\
+\hline
+Medicina & $H_0$: el tratamiento no tiene efecto. Prueba $t$ de dos grupos. & I: aprobar un tratamiento ineficaz. II: descartar uno útil. & Tipo I ($\alpha$ pequeño). \\
+Industria & $H_0$: la línea llena 500 ml. Prueba $t$ de una muestra. & I: falsa alarma. II: producto defectuoso sin detectar. & Tipo II si el defecto es más costoso que parar la línea. \\
+Aprendizaje automático & $H_0$: la transacción es legítima. & I: bloquear una transacción legítima. II: dejar pasar un fraude. & Tipo II, sin dejar que $\alpha$ crezca demasiado. \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Conclusiones}
+
+En los tres contextos la prueba de hipótesis tiene la misma estructura (una $H_0$ de no efecto, una $H_1$, un $\alpha$ y un valor $p$), pero el error que más conviene controlar cambia con las consecuencias de equivocarse. En medicina se protege contra el error tipo I, porque aprobar un tratamiento ineficaz daña a los pacientes. En la industria y en la detección de fraude pesa más el tipo II, porque dejar pasar un lote defectuoso o un fraude real suele costar más que una falsa alarma.
+
+Como reducir un error aumenta el otro con una muestra fija, elegir el nivel de significancia y el tamaño de la muestra es una decisión que debe tomarse antes de la prueba y según el costo de cada error en el problema, no por costumbre \parencite{tecnm2026_documento_fuente}.
+
+\referencias
+
+\end{document}
