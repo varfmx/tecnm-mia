@@ -1,0 +1,160 @@
+%% =====================================================================
+%%  tecnm.sty — Formato de reportes, Maestría en IA (ITES Los Cabos / TecNM)
+%%  Uso en cada actividad:
+%%     \documentclass[11pt,letterpaper]{article}
+%%     \usepackage[indice]{tecnm}      % o [sinindice]
+%% =====================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tecnm}[2026/10/15 Formato reportes TecNM]
+\usepackage{pdflscape}
+\usepackage{tabularx}
+\usepackage{ltablex} 
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+
+\keepXColumns % Mantiene la propiedad de ajuste automático de las columnas X
+\usepackage{caption}
+% Configura el caption alineado a la izquierda y ocupando todo el ancho del texto
+% \captionsetup{
+%   justification=justified, % O 'singlelinecheck=false' para alineación uniforme
+%   singlelinecheck=false,   % Evita que las líneas cortas se centren automáticamente
+%   width=\textwidth         % Fuerza a que el título use todo el ancho de la página
+% }
+
+%% ------------------- DATOS FIJOS (edítalos una sola vez) -------------
+\newcommand{\Maestria}{Maestría en Inteligencia Artificial}
+\newcommand{\Alumno}{Fernando Valderrábano Reyes}
+\newcommand{\NumControl}{26381113}   % deja {} para omitirlo
+\newcommand{\Lugar}{Cabo San Lucas, B.C.S.}
+\newcommand{\Fecha}{\today}                % o una fecha fija
+\newcommand{\Institucion}{Instituto Tecnológico de Estudios Superiores de Los Cabos}
+\newcommand{\ArchivoBib}{referencias.bib}  % ruta desde la raíz del proyecto
+
+%% ------------------- DATOS POR ACTIVIDAD (se definen en actN.tex) ----
+\newcommand{\Materia}{Nombre de la materia}
+\newcommand{\Actividad}{Título de la actividad}
+\newcommand{\Profesor}{Nombre del profesor}
+\newcommand{\materia}[1]{\renewcommand{\Materia}{#1}}
+\newcommand{\actividad}[1]{\renewcommand{\Actividad}{#1}}
+\newcommand{\profesor}[1]{\renewcommand{\Profesor}{#1}}
+\newcommand{\fecha}[1]{\renewcommand{\Fecha}{#1}}
+
+%% ------------------- OPCIONES: indice / sinindice --------------------
+\newif\if@tecnm@indice
+\@tecnm@indicetrue
+\DeclareOption{indice}{\@tecnm@indicetrue}
+\DeclareOption{sinindice}{\@tecnm@indicefalse}
+\ProcessOptions\relax
+
+%% ------------------- PAQUETES ----------------------------------------
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[spanish,es-noshorthands,es-tabla]{babel}
+\RequirePackage[scaled=.92]{helvet}      % Arial-compatible (Nimbus Sans)
+\renewcommand{\familydefault}{\sfdefault}
+\RequirePackage[margin=2.5cm]{geometry}
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{setspace}
+\RequirePackage{titlesec}
+\RequirePackage{csquotes}
+\RequirePackage{hyperref}
+\RequirePackage[backend=biber,style=apa]{biblatex}
+\DeclareLanguageMapping{spanish}{spanish-apa}
+\AtEndPreamble{\addbibresource{\ArchivoBib}}
+
+\definecolor{tecnmazul}{HTML}{1B3A6B}
+\AtBeginDocument{%
+  \hypersetup{colorlinks=false,linkcolor=tecnmazul,citecolor=tecnmazul,
+    urlcolor=tecnmazul,hypertexnames=false,
+    pdfborder={0 0 0},
+    pdftitle={\Actividad},pdfauthor={\Alumno}}}
+
+\setstretch{1.15}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+%% Títulos de sección: más grandes que el texto (11 pt)
+\titleformat{\section}{\fontsize{14}{17}\selectfont\bfseries\color{tecnmazul}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\fontsize{12.5}{15}\selectfont\bfseries\color{tecnmazul}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\fontsize{11.5}{14}\selectfont\bfseries\color{tecnmazul}}{\thesubsubsection}{0.6em}{}
+
+%% ------------------- PORTADA -----------------------------------------
+\newcommand{\portada}{%
+\begin{titlepage}
+  \centering
+  \vspace*{-1cm}
+  % Logos centrados verticalmente entre sí (ajusta las alturas a gusto)
+  \begin{minipage}[c]{0.48\textwidth}\raggedright
+    \includegraphics[height=3.5cm]{imagenes/logo_tecnm.png}
+  \end{minipage}\hfill
+  \begin{minipage}[c]{0.48\textwidth}\raggedleft
+    \includegraphics[height=1.9cm]{imagenes/logo_ites.png}
+  \end{minipage}
+
+  \vspace{0.5cm}
+  {\color{tecnmazul}\rule{\textwidth}{1.2pt}}
+  \vspace{0.1cm}
+  {\Large\bfseries\color{tecnmazul} TECNOLÓGICO NACIONAL DE MÉXICO\par}
+  \vspace{0.2cm}
+  {\Large\bfseries\color{tecnmazul} \MakeUppercase{\Institucion}\par}
+  \vspace{0.2cm}
+  {\Large\bfseries\color{tecnmazul} SUBDIRECCIÓN DE POSGRADO E INVESTIGACIÓN\par}
+  {\color{tecnmazul}\rule{\textwidth}{1.2pt}}
+
+  \vspace{0.7cm}
+  {\Large\bfseries \Maestria\par}
+
+  \vspace{0.6cm}
+  {\large Asignatura\par}
+  {\Large\bfseries \Materia\par}
+
+  \vspace{0.7cm}
+  {\color{tecnmazul}\rule{0.6\textwidth}{0.6pt}}\par
+  \vspace{0.4cm}
+  % {\LARGE\bfseries \Actividad\par}
+  {\fontsize{15.5}{19}\selectfont\bfseries \Actividad\par}
+  \vspace{0.4cm}
+  {\color{tecnmazul}\rule{0.6\textwidth}{0.6pt}}\par
+
+  \vfill
+
+  % \begin{flushleft}
+  %   \large
+  %   \begin{tabular}{@{}ll@{}}
+  %     \textbf{Alumno:}   & \Alumno \\[6pt]
+  %     \ifx\NumControl\empty\else
+  %     \textbf{No. de control:} & \NumControl \\[6pt]
+  %     \fi
+  %     \textbf{Profesor:} & \Profesor \\
+  %   \end{tabular}
+  % \end{flushleft}
+
+    \large
+  \begin{tabular}{@{}ll@{}}
+    \textbf{Alumno:}   & \Alumno \\[6pt]
+    \ifx\NumControl\empty\else
+    \textbf{No. de control:} & \NumControl \\[6pt]
+    \fi
+    \textbf{Profesor:} & \Profesor \\
+  \end{tabular}
+
+  \vspace{0.6cm}
+  {\large \Lugar, \Fecha}
+\end{titlepage}}
+
+%% ------------------- ÍNDICE (según la opción) ------------------------
+\newcommand{\indicegeneral}{%
+  \if@tecnm@indice
+    \pagenumbering{roman}
+    \tableofcontents
+    \clearpage
+    \pagenumbering{arabic}
+  \fi}
+
+%% ------------------- REFERENCIAS -------------------------------------
+\newcommand{\referencias}{\clearpage\printbibliography[title={Referencias}]}
+
+\endinput

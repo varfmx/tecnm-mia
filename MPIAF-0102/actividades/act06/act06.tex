@@ -1,0 +1,170 @@
+%% =====================================================================
+%% Actividad 6:
+%% 
+%% Se recomienda incluir una lista con al menos 20 ejemplos contemporáneos de herramientas (ChatGPT, AlphaGO, Alexa, Robot Sophia, etc.) y perspectivas teóricas y solicitar que el estudiante (a partir de las capacidades del agente) las clasifique, argumentando su ubicación.
+%% 
+%% Entregables:
+%% Entregar una tabla que contenga tres columnas: en la primera listar mínimo ejemplos de herramientas de IA contemporáneas, la segunda columna será para especificar el tipo de IA a la que pertenece el agente dependiendo de su capacidad y/o funcionalidad y, la tercera columna será para argumentar dicha la ubicación, en base a su capacidad de autonomía, aprendizaje, razonamiento, y alcance de tareas.
+%% En sesión virtual grupal revisar la clasificación de los agentes, discutiendo en grupo o en equipo los argumentos.
+%% =====================================================================
+\documentclass[11pt,letterpaper]{article}
+% cambia a [sinindice] si es corta o [indice] para mostrar
+\usepackage[sinindice]{tecnm}        
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 1.3 - Actividad 6 \\ Tipos de Inteligencia Artificial}
+\profesor{M. Lilia Ureña Lugo}
+%\fecha{15 de octubre de 2026}    % opcional; por defecto es la fecha de hoy
+
+\begin{document}
+\portada
+\indicegeneral
+
+%% ------------------------- CONTENIDO ---------------------------------
+
+\section{Introducción}
+
+La Inteligencia Artificial se clasifica principalmente según su capacidad y su nivel de autonomía \parencite{iae_u1_diseno}. En la actualidad, los sistemas desarrollados pertenecen a la denominada IA Débil (o estrecha), diseñada para ejecutar tareas específicas en las que a menudo supera el desempeño humano en velocidad y precisión. En un ámbito teórico y futurista se encuentra la IA Fuerte (o AGI, por sus siglas en inglés), que busca replicar la capacidad intelectual humana para razonar, planificar y adaptarse a entornos complejos; así como la Súper-Inteligencia Artificial, un concepto hipotético donde las máquinas superarían ampliamente el intelecto humano en todos los campos.
+
+Adicionalmente, la IA se categoriza según su funcionalidad \parencite{iae_u1_diseno} en sistemas reactivos, de memoria limitada, teoría de la mente y autoconscientes. En la Tabla \ref{tab:tipos_ia} se presenta el análisis comparativo de 20 herramientas contemporáneas y perspectivas teóricas, argumentando su ubicación a partir de sus niveles de autonomía, aprendizaje, razonamiento y alcance de tareas \parencite{iae_u1_cuaderno}.
+
+% Este trabajo sostiene la postura de que, si bien tanto el aprendizaje humano como el automático comparten la idea general de mejorar el desempeño ante una tarea específica a partir de la experiencia previa \parencite{mitchell1997}, la naturaleza subyacente de ambos procesos es radicalmente diferente. Mientras que en la máquina el aprendizaje se reduce a una búsqueda iterativa dentro de un espacio de hipótesis para minimizar una métrica de error prefijada desde el exterior \parencite{abumostafa2012}, en el ser humano el aprendizaje involucra la construcción intrínseca de significado, la intencionalidad, el contexto, la abstracción de modelos del mundo y la capacidad de generalizar con una cantidad mínima de datos. Reconocer esta distinción no hace menos la capacidad técnica de los modelos actuales, pero evita caer en definiciones conceptuales semejantes al analizar los alcances y límites de la automatización.
+
+\section{Ejemplos de herramientas}
+
+En la Tabla \ref{tab:tipos_ia} se presenta una lista estructurada con algunos ejemplos de herramientas donde se muestra su clasificación (capacidad y/o funcionalidad) así como los criterios de su ubicación, en base a su capacidad de autonomía, aprendizaje, razonamiento, y alcance de tareas.
+
+La IA Fuerte o Inteligencia Artificial General (AGI, por sus siglas en inglés) que busca replicar la inteligencia humana en su totalidad aún no existe, pero se incluyen dos casos hipotéticos en la Tabla \ref{tab:tipos_ia}.
+
+\vspace{5mm}
+% inicia tabla
+
+% \begin{tabularx}{\textwidth}{|X|X|X|}
+\newcommand{\tipo}[2]{\textbf{Capacidad:} #1\newline\textbf{Funcionalidad:} #2}
+
+{\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\begin{longtable}{
+  >{\raggedright\arraybackslash}p{0.20\textwidth}
+  >{\raggedright\arraybackslash}p{0.26\textwidth}
+  >{\raggedright\arraybackslash}p{0.44\textwidth}}
+\caption{Clasificación de herramientas de IA por su tipo y capacidad.}
+\label{tab:tipos_ia} \\
+\toprule
+\rowcolor{gray!20}
+\textbf{Ejemplo de IA} &
+\textbf{Tipo de IA}\newline{\footnotesize\textit{(capacidad / funcionalidad)}} &
+\arraybackslash\textbf{Argumentación}\newline{\footnotesize\textit{(autonomía, aprendizaje, razonamiento y alcance)}} \\
+\midrule
+\endfirsthead
+
+\toprule
+\rowcolor{gray!20}
+\textbf{Ejemplo de IA} &
+\textbf{Tipo de IA}\newline{\footnotesize\textit{(capacidad / funcionalidad)}} &
+\arraybackslash\textbf{Argumentación}\newline{\footnotesize\textit{(autonomía, aprendizaje, razonamiento y alcance)}} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{3}{r}{\footnotesize\textit{Continúa en la siguiente página}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+ChatGPT (OpenAI) &
+\tipo{IA Débil}{Memoria limitada} &
+Opera solo en lenguaje natural. Aprende en el preentrenamiento y retiene datos únicamente dentro de su ventana de contexto. \\ \midrule
+
+Deep Blue (IBM) &
+\tipo{IA Débil}{IA Reactiva} &
+Diseñado solo para ajedrez. Sin memoria entre partidas; evalúa el tablero actual con algoritmos deterministas. \\ \midrule
+
+Vehículo Autónomo (Tesla / BYD) &
+\tipo{IA Débil}{Memoria limitada} &
+Limitado a la conducción vial. Usa sensores e historial reciente de navegación, sin autonomía fuera de ese dominio. \\ \midrule
+
+Siri / Alexa &
+\tipo{IA Débil}{Memoria limitada} &
+Procesan comandos de voz y servicios predefinidos. Mantienen el hilo inmediato, sin autoconciencia ni razonamiento fuera de lo programado. \\ \midrule
+
+GitHub Copilot &
+\tipo{IA Débil}{Memoria limitada} &
+Autocompleta y genera código a partir del contexto del archivo y repositorio, sin planificar arquitecturas de forma autónoma. \\ \midrule
+
+Midjourney &
+\tipo{IA Débil}{IA Reactiva / Memoria limitada} &
+Modelo de difusión que genera imágenes desde texto, sin intención artística ni aprendizaje fuera de su entrenamiento. \\ \midrule
+
+AlphaGo (DeepMind) &
+\tipo{IA Débil}{Memoria limitada} &
+Optimizado solo para el juego de Go. Usa aprendizaje por refuerzo y profundo, pero su autonomía se limita al tablero. \\ \midrule
+
+Traductor de Google &
+\tipo{IA Débil}{IA Reactiva / Memoria limitada} &
+Traduce con redes neuronales sin comprender el significado profundo ni generalizar a otras disciplinas. \\ \midrule
+
+Recomendador de Netflix &
+\tipo{IA Débil}{Memoria limitada} &
+Filtrado colaborativo que predice preferencias con el historial del usuario; sin razonamiento fuera del entretenimiento. \\ \midrule
+
+Robot Sophia (Hanson Robotics) &
+\tipo{IA Débil}{Memoria limitada (simulada)} &
+Combina lenguaje, reconocimiento facial y respuestas guionadas; simula empatía sin comprensión ni estados mentales reales. \\ \midrule
+
+Claude (Anthropic) &
+\tipo{IA Débil}{Memoria limitada} &
+Razona de forma acotada a su ventana de contexto; no aprende de forma permanente en tiempo real ni tiene conciencia de sí mismo. \\ \midrule
+
+DeepSeek R1 &
+\tipo{IA Débil}{Memoria limitada} &
+Razonamiento estructurado para matemáticas y programación, sin intencionalidad ni adaptación fuera de su dominio. \\ \midrule
+
+Asistente hipotético HAL 9000 / AGI futura &
+\tipo{IA Fuerte (AGI)}{Teoría de la Mente} &
+Concepto hipotético: comprendería intenciones y emociones, sería multitarea como un humano y se adaptaría a situaciones imprevistas. \\ \midrule
+
+Entidad superinteligente futura &
+\tipo{Superinteligencia}{IA Autoconsciente} &
+Concepto futurista: superaría a la mente humana, tendría conciencia de sí misma y podría rediseñar su arquitectura y metas. \\ \midrule
+
+IA en fotografía móvil &
+\tipo{IA Débil}{IA Reactiva} &
+Ajusta parámetros de captura en tiempo real con datos del sensor, sin memoria histórica ni comprensión de la imagen. \\ \midrule
+
+Spotify Discover Weekly &
+\tipo{IA Débil}{Memoria limitada} &
+Modela patrones de reproducción del usuario para crear listas semanales; limitado al dominio musical. \\ \midrule
+
+IBM Watson Health &
+\tipo{IA Débil}{Memoria limitada} &
+Analiza expedientes y literatura médica para sugerir diagnósticos; solo correlaciona patrones biomédicos definidos por expertos. \\ \midrule
+
+Grok (xAI) &
+\tipo{IA Débil}{Memoria limitada} &
+Modelo de lenguaje que procesa información digital en tiempo real mediante patrones probabilísticos dentro de su contexto. \\ \midrule
+
+Gemini (Google) &
+\tipo{IA Débil}{Memoria limitada} &
+Modelo multimodal (texto, imagen y código) que analiza datos heterogéneos dentro del contexto dado, sin razonamiento general ilimitado. \\ \midrule
+
+Asistente doméstico adaptativo (estado actual) &
+\tipo{IA Débil}{En transición hacia Teoría de la Mente} &
+Robots que interpretan expresiones faciales y comandos simples; limitados a espacios controlados y tareas domésticas. \\
+
+\end{longtable}
+}
+
+
+% fin tabla
+
+\section{Conclusión}
+
+El análisis de las herramientas contemporáneas demuestra que la totalidad de las aplicaciones comerciales y operativas actuales se enmarcan dentro de la IA Débil con arquitecturas de IA Reactiva o de Memoria Limitada. Aunque sistemas avanzados han optimizado la velocidad y exactitud en sus dominios, continúan careciendo de autoconciencia, intencionalidad y comprensión contextual genuina.
+
+Por su parte, categorías como la IA Fuerte (AGI) y la Súper-Inteligencia permanecen como construcciones teóricas y horizontes de exploración tecnológica  que por el momento solo funcionan de manera hipotética.
+
+\referencias
+\end{document}

@@ -1,0 +1,261 @@
+\documentclass[11pt,letterpaper]{article}
+\usepackage[sinindice]{tecnm}
+\usepackage{booktabs,array,amsmath,amssymb,multirow}
+\usepackage{float}     % Control estricto de posición de elementos [H]
+\usepackage{tabularx}  % Ajuste automático de ancho de tablas (\linewidth)
+\usepackage{listings}  % Formateo y resaltado de código fuente
+\usepackage{xcolor}    % Colores para los bloques de código
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 3.2 - Actividad 15 \\ Implementación de Estructuras de \\ Representación del Conocimiento}
+\profesor{M. Lilia Ureña Lugo}
+
+% Configuración del bloque de código Python
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue!80!black}\bfseries,
+  stringstyle=\color{teal},
+  commentstyle=\color{gray}\itshape,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=6pt,
+  backgroundcolor=\color{gray!5},
+  showstringspaces=false,
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=false,
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{gray!40},
+  inputencoding=utf8,
+  extendedchars=true,
+  literate=%
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+La representación del conocimiento es un área fundamental de la Inteligencia Artificial encargada de formalizar la información del mundo real en estructuras computacionales procesables por un agente sintáctico. Existen diversos paradigmas formales de representación, los cuales varían en su expresividad semántica, nivel de abstracción y mecanismos de inferencia.
+
+En el presente reporte se documenta la ejecución de seis estructuras representativas (Tecnológico Nacional de México, 2026): Redes Semánticas, Ontologías (OWL), Lógica Proposicional, Lógica de Primer Orden (LPO), Marcos (\textit{Frames}) y Sistemas de Reglas de Producción. Asimismo, se incluye la modificación sustentada a una de las estructuras y la tabla comparativa analítica correspondiente.
+
+%% ===================== SECCIÓN 1 =====================
+\section{Evidencias de Ejecución de los Ejemplos Base}
+
+A continuación se presentan las descripciones y las evidencias de salida en consola obtenidas tras ejecutar la implementación de los seis paradigmas analizados en clase.
+
+\subsection{1. Redes Semánticas}
+Estructura en forma de grafo dirigido donde los nodos representan conceptos o entidades y los arcos etiquetados expresan las relaciones semánticas entre ellos.
+\begin{lstlisting}[caption={Salida en consola: Redes Semánticas}]
+Superclases de Perro: ['Mamifero']
+Relaciones de Gato: [('Mamifero', 'es_un')]
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/redes_semanticas.png}
+    \caption{Redes semánticas}
+    \label{fig:red_semantica}
+\end{figure}
+
+\subsection{2. Ontologías OWL}
+Modelado formal de dominios mediante jerarquías de clases, propiedades de objetos/datos y razonadores formales que verifican la consistencia lógica e infieren nuevo conocimiento.
+\begin{lstlisting}[caption={Salida en consola: Ontología OWL}]
+* Reasoning starting now...
+* HermiT 1.4.3.456 reasoning finished in 0.045s
+Juan tiene mascota: Firulais
+?Firulais ladra?: True
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \vspace{-0.5em} % Reduce el espacio superior
+    \includegraphics[width=0.8\linewidth]{act15/img/ontologicas.png}
+    \caption{Ontológicas OWL}
+    \label{fig:ontologicas_owl}
+    \vspace{-0.5em} % Reduce el espacio inferior
+\end{figure}
+
+\subsection{3. Lógica Proposicional}
+Formalismo basado en variables booleanas atómicas y conectores lógicos, resuelto mediante un motor de inferencia encadenado hacia adelante (\textit{forward chaining}).
+\begin{lstlisting}[caption={Salida en consola: Lógica Proposicional}]
+Hechos inferidos: {'llueve': True, 'paraguas': False, 'mojarse': True, 'suelo_mojado': True}
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/proposicional.png}
+    \caption{Lógica proposicional}
+    \label{fig:logica_proposicional}
+\end{figure}
+
+\subsection{4. Lógica de Primer Orden (LPO)}
+Extensión de la lógica proposicional que incorpora cuantificadores, objetos, funciones y predicados de relaciones mediante programación lógica.
+\begin{lstlisting}[caption={Salida en consola: Lógica de Primer Orden}]
+Hijos de Juan: ('Pedro', 'Ana')
+Abuelos de Luis: ('Juan',)
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/logica_primer_orden.png}
+    \caption{Lógica de Primer Orden}
+    \label{fig:logica_primer_orden}
+\end{figure}
+
+\subsection{5. Marcos (Frames)}
+Estructura basada en objetos/atributos (\textit{slots}) agrupados en prototipos jerárquicos que soportan herencia implícita entre nodos padres e hijos.
+\begin{lstlisting}[caption={Salida en consola: Marcos (Frames)}]
+Firulais tiene sangre: True
+Sonido de Firulais: ladrar
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/marcos_frames.png}
+    \caption{Marcos (frames)}
+    \label{fig:marcos_frames}
+\end{figure}
+
+\subsection{6. Sistemas de Reglas de Producción}
+Sistema experto basado en el paradigma \textit{Condición $\rightarrow$ Acción} (IF-THEN) que actualiza de manera reactiva la memoria de trabajo o base de hechos.
+\begin{lstlisting}[caption={Salida en consola: Reglas de Producción}]
+{'temperatura': 39, 'tos': True, 'dolor': False, 'diagnostico': 'Fiebre con tos'}
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/reglas_produccion.png}
+    \caption{Reglas de Producción}
+    \label{fig:reglas_produccion}
+\end{figure}
+
+%% ===================== SECCIÓN 2 =====================
+\section{Código Modificado y Sustentación del Cambio}
+
+Para realizar la modificación práctica requerida en la actividad, se seleccionó el paradigma de \textbf{Redes Semánticas} (implementado en Python con la librería \texttt{networkx}). 
+
+\subsection{Justificación Teórica del Cambio}
+En la representación del conocimiento mediante redes semánticas, una de las características clave es su capacidad de \textbf{extensibilidad y escalabilidad modélica}. A medida que el dominio del mundo real se expande, la estructura en forma de grafo debe permitir la incorporación de nuevas entidades (nodos) y nuevas relaciones (aristas) sin necesidad de reestructurar la lógica de inferencia existente ni alterar las conexiones previamente establecidas.
+
+Para demostrar esta propiedad, se decidió extender el grafo del conocimiento original incorporando una nueva entidad conceptual (\texttt{"Tigre"}), asignándole su nivel jerárquico correspondiente dentro de la taxonomía (\texttt{es\_un} \texttt{"Mamifero"}) y agregando una relación de interdependencia conductual (\texttt{enemigo\_de} \texttt{"Perro"}).
+
+\subsection{Código Fuente Modificado}
+
+A continuación se presenta la implementación completa con las modificaciones integradas y documentadas:
+
+\begin{lstlisting}[caption={Red Semántica Modificada (Inclusión del concepto Tigre)}]
+import networkx as nx
+
+G = nx.DiGraph()
+
+# CAMBIO 1: Se agrega "Tigre" a la lista de conceptos de la red
+conceptos = ["Animal", "Mamifero", "Ave", "Perro", "Gato", "Canario", "Tigre"]
+G.add_nodes_from(conceptos)
+
+# Relaciones jerárquicas originales
+G.add_edge("Mamifero", "Animal", relation="es_un")
+G.add_edge("Ave", "Animal", relation="es_un")
+G.add_edge("Perro", "Mamifero", relation="es_un")
+G.add_edge("Gato", "Mamifero", relation="es_un")
+G.add_edge("Canario", "Ave", relation="es_un")
+
+# CAMBIO 2: Se añaden las relaciones semánticas del nuevo nodo
+G.add_edge("Tigre", "Mamifero", relation="es_un")
+G.add_edge("Tigre", "Perro", relation="enemigo_de")
+
+# Relaciones adicionales originales
+G.add_edge("Perro", "Gato", relation="enemigo_de")
+G.add_edge("Canario", "Gato", relation="presa_de")
+
+# Funciones de consulta e inferencia en el grafo
+def obtener_superclases(concepto):
+    return [v for _, v, d in G.out_edges(concepto, data=True) if d["relation"] == "es_un"]
+
+def obtener_relaciones(concepto):
+    return [(v, d["relation"]) for _, v, d in G.out_edges(concepto, data=True)]
+
+# CAMBIO 3: Ejecución de consultas para verificar el nuevo conocimiento
+print("Superclases de Tigre:", obtener_superclases("Tigre"))
+print("Relaciones de Tigre:", obtener_relaciones("Tigre"))
+\end{lstlisting}
+
+\subsection{Análisis del Resultado Obtenido}
+Tras la ejecución del script modificado, la salida obtenida en la consola de comandos fue la siguiente:
+
+\begin{lstlisting}[caption={Salida en consola de la Red Semántica modificada}]
+Superclases de Tigre: ['Mamifero']
+Relaciones de Tigre: [('Mamifero', 'es_un'), ('Perro', 'enemigo_de')]
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{act15/img/red_semantica_modificada.png}
+    \caption{Red semantica modificada}
+    \label{fig:red_semantica_modificada}
+\end{figure}
+
+\textbf{Explicación del resultado:}
+\begin{enumerate}
+  \item La consulta \texttt{obtener\_superclases("Tigre")} procesó correctamente la arista saliente etiquetada como \texttt{es\_un}, devolviendo la categoría inmediata superior \texttt{['Mamifero']}. Esto confirma que el nuevo nodo heredó satisfactoriamente su posición en la jerarquía taxonómica.
+  \item La consulta \texttt{obtener\_relaciones("Tigre")} evaluó todas las aristas dirigidas que parten desde el nodo \texttt{"Tigre"}, identificando tanto su relación jerárquica con \texttt{"Mamifero"} como su relación asociativa con \texttt{"Perro"}.
+  \item Este experimento demuestra que la adición de nuevo conocimiento en un modelo de red semántica se realiza de manera incremental, manteniendo la integridad de las consultas sobre los nodos previamente definidos.
+\end{enumerate}
+
+%% ===================== SECCIÓN 3 =====================
+\section{Tabla Comparativa Analítica}
+
+A continuación se presenta la síntesis comparativa de las seis estructuras de representación del conocimiento analizadas.
+
+\begin{table}[H]
+\centering\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\linewidth}{@{} l X X X @{}}
+\toprule
+\textbf{Estructura} & \textbf{¿Cómo representa el conocimiento?} & \textbf{Elementos principales} & \textbf{¿Para qué tipo de problema puede ser útil?} \\
+\midrule
+\textbf{Red semántica} & Mediante un grafo dirigido compuesto de nodos y arcos etiquetados con relaciones semánticas. & Nodos (conceptos), Arcos (relaciones), Etiquetas (\texttt{es\_un}, \texttt{parte\_de}). & Mapas conceptuales, ontologías ligeras y modelos de taxonomía jerárquica. \\
+\addlinespace
+\textbf{Ontología} & Mediante formalizaciones lógicas en OWL con jerarquías, taxonomías y reglas axiomatizadas. & Clases, Propiedades de objetos/datos, Instancias y Razonadores formales. & Web Semántica, intercambio de conocimiento e integración de sistemas heterogéneos. \\
+\addlinespace
+\textbf{Lógica proposicional} & Mediante premisas y conclusiones compuestas por variables booleanas verdaderas/falsas. & Hechos (variables), Proposiciones lógicas ($AND, OR, NOT$), Reglas de inferencia. & Verificación de circuitos digitales, problemas de decisión booleana ($SAT$) y control simple. \\
+\addlinespace
+\textbf{Lógica de Primer Orden} & Mediante predicados, constantes, variables, funciones y cuantificadores ($\forall, \exists$). & Predicados, Términos, Cuantificadores, Funciones, Unificación. & Bases de datos relacionales complejas, teoremas matemáticos y razonadores lógicos. \\
+\addlinespace
+\textbf{Frames (Marcos)} & Mediante estructuras jerárquicas tipo registro/objeto organizadas en nodos clave. & \textit{Slots} (atributos), Valores, Herencia de ancestros, Prototipos. & Representación de objetos del mundo real con valores predeterminados y prototipos. \\
+\addlinespace
+\textbf{Reglas de producción} & Mediante el emparejamiento condicional del tipo \textit{Si [Premisa] Entonces [Acción]}. & Base de hechos, Base de reglas (IF-THEN), Motor de inferencia. & Sistemas expertos de diagnóstico médico, soporte técnico y motores de decisiones dinámicas. \\
+\bottomrule
+\end{tabularx}
+\caption{Tabla comparativa de estructuras de representación del conocimiento.}
+\label{tab:estructuras_conocimiento}
+\end{table}
+
+%% ===================== SECCIÓN 4 =====================
+\section{Conclusión}
+
+El desarrollo práctico de esta actividad permitió contrastar la expresividad y complejidad de las principales estructuras de representación del conocimiento en Inteligencia Artificial. Se evidencia que no existe un paradigma universalmente superior; la selección del modelo óptimo depende del dominio del problema: los Sistemas de Reglas y la Lógica Proposicional destacan en problemas de diagnóstico y control reactivo; los Frames y las Redes Semánticas ofrecen un modelado intuitivo de jerarquías taxonómicas; mientras que las Ontologías OWL y la Lógica de Primer Orden (LPO) proveen el rigor formal indispensable para la inferencia automatizada compleja.
+
+\vspace{1.5em} % Espaciado sutil antes de las referencias
+
+%% ===================== REFERENCIAS =====================
+\section*{Referencias}
+\addcontentsline{toc}{section}{Referencias}
+
+\small
+\begin{enumerate}
+  \item Negnevitsky, M. (2005). \textit{Artificial Intelligence: A Guide to Intelligent Systems} (2nd ed.). Addison-Wesley.
+  \item Russell, S., \& Norvig, P. (2020). \textit{Artificial Intelligence: A Modern Approach} (4th ed.). Pearson.
+  \item Tecnológico Nacional de México [TecNM]. (s.f.). \textit{Tema 3.2. Estructuras de representación del conocimiento - Diseño instruccional: Inteligencia artificial y su ética}. TecNM Virtual.
+\end{enumerate}
+
+\referencias
+\end{document}
