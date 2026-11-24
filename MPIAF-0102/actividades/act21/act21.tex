@@ -1,0 +1,589 @@
+%% =======================================================
+%% Actividad 21: "Sistema de Recomendación de Películas"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.3. Aprendizaje automático \\ Actividad 21 - Sistema de \\ Recomendación de Películas}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Los servicios de transmisión de películas tienen catálogos de miles de títulos, y ningún usuario puede explorarlos todos; por eso personalizan lo que muestran a cada persona. El tema presenta el aprendizaje no supervisado como la herramienta para descubrir patrones sin respuestas conocidas, por ejemplo para segmentar clientes en grupos similares \parencite{iae_u4_t43}. En este reporte se aplica esa idea a un sistema de recomendación de películas: se agrupan usuarios con gustos parecidos, se recomienda a cada usuario lo que más disfrutó su grupo y se mide qué tan relevantes resultan esas recomendaciones.
+
+El trabajo sigue las tres tareas de la actividad: agrupar usuarios con K-Means, construir el sistema de recomendación a partir de los grupos y evaluarlo. Como el tema da más peso a la evaluación rigurosa que a la complejidad del modelo \parencite{iae_u4_t43}, las recomendaciones basadas en grupos se comparan contra alternativas sencillas (azar, las películas más vistas y las mejor valoradas), con cinco particiones distintas de los datos.
+
+\section{Marco conceptual}
+
+\subsection{Aprendizaje no supervisado y K-Means}
+
+En el aprendizaje no supervisado no se proporcionan respuestas correctas; el algoritmo descubre estructura en los datos, como grupos de clientes con comportamientos parecidos \parencite{iae_u4_t43}. \textbf{K-Means} es el algoritmo que presenta el tema: dado un número $k$ de grupos, coloca $k$ centroides y asigna cada punto al más cercano, repitiendo hasta estabilizarse. Para elegir $k$ el tema propone el \textbf{método del codo}, que grafica la \textbf{inercia} (medida de compactación de los grupos) contra $k$ \parencite{iae_u4_t43}. Aquí se complementa con el coeficiente de silueta, que mide qué tan separados están los grupos (cerca de 1: bien separados; cerca de 0: traslapados).
+
+\subsection{Recomendación basada en grupos}
+
+La idea es que usuarios con gustos similares disfrutan películas similares. Cada usuario se representa por sus calificaciones; se agrupa a los usuarios y, para recomendarle a uno, se buscan las películas mejor evaluadas por los miembros de su grupo que él todavía no ha visto. Este enfoque tiene una ventaja práctica: el cálculo de las listas se hace una vez por grupo y no por usuario.
+
+\subsection{Evaluación de recomendaciones}
+
+Se aparta una parte de las calificaciones de cada usuario (conjunto de prueba) y se considera \textbf{relevante} una película que el usuario calificó con 4 o más estrellas. Sobre una lista de $N=10$ recomendaciones se calculan métricas análogas a las del tema \parencite{iae_u4_t43}: la \textbf{precisión@10} (qué fracción de las 10 recomendadas era relevante), el \textbf{recall@10} (qué fracción de las películas relevantes del usuario se recomendó), el \textbf{acierto@10} (proporción de usuarios con al menos una recomendación relevante) y el \textbf{NDCG@10}, que además premia colocar las relevantes en los primeros lugares. También se mide la \textbf{cobertura} (qué fracción del catálogo se llega a recomendar alguna vez) y la \textbf{popularidad} de lo recomendado.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} trabajar para una \textit{startup} de transmisión de películas que quiere personalizar las recomendaciones a sus usuarios.
+
+\subsection*{Desafío}
+
+\begin{description}
+    \item[Tarea 1: Agrupar usuarios.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Usar \textit{clustering} para encontrar grupos de usuarios con gustos similares.
+    \end{enumerate}
+    \item[Tarea 2: Sistema de recomendación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Basándose en los grupos, sugerir películas que usuarios similares disfrutaron.
+    \end{enumerate}
+    \item[Tarea 3: Evaluar efectividad.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Medir qué tan relevantes son las recomendaciones.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+El tema no incluye un conjunto de datos para esta actividad. Se utilizó \textbf{MovieLens} \texttt{ml-latest-small}, un conjunto público de calificaciones de películas del grupo de investigación GroupLens, que se descarga automáticamente (\url{https://files.grouplens.org/datasets/movielens/ml-latest-small.zip}): 100\,836 calificaciones de 0.5 a 5 estrellas, hechas por 610 usuarios a 9\,724 películas. Cada usuario calificó al menos 20 películas. El propio conjunto indica que es un conjunto de desarrollo, no apropiado para publicar resultados de investigación; aquí se usa sólo con fines de aprendizaje. No incluye datos demográficos: los gustos se infieren únicamente de las calificaciones.
+
+\section{Desarrollo}
+
+\subsection{Los datos}
+
+\begin{codigo}[label=cod:datos]{Carga de datos y partición de las calificaciones}
+def cargar_datos():
+    carpeta = os.path.join(DATOS, "ml-latest-small")
+    if not os.path.exists(os.path.join(carpeta, "ratings.csv")):
+        with urllib.request.urlopen(URL, timeout=120) as r:
+            zipfile.ZipFile(io.BytesIO(r.read())).extractall(DATOS)
+    ratings = pd.read_csv(os.path.join(carpeta, "ratings.csv"))
+    peliculas = pd.read_csv(os.path.join(carpeta, "movies.csv"))
+    return ratings, peliculas
+
+
+def dividir(ratings, semilla, fraccion=0.2):
+    """Aparta al azar el 20 % de las calificaciones de CADA usuario como prueba."""
+    rng = np.random.default_rng(semilla)
+    elegidos = []
+    for _, g in ratings.groupby("userId"):
+        n = max(1, int(round(fraccion * len(g))))
+        elegidos.extend(rng.choice(g.index.values, size=n, replace=False))
+    prueba = ratings.loc[elegidos]
+    return ratings.drop(prueba.index), prueba
+\end{codigo}
+
+\begin{consola}[label=out:datos]{Descripción del conjunto de datos}
+Calificaciones: 100836, usuarios: 610, películas calificadas: 9724 (de 9742 en el catálogo)
+Densidad de la matriz usuario-película: 1.70% (el 98.30% de las celdas está vacío)
+Calificaciones por usuario: mínimo 20, mediana 70, máximo 2698
+Calificaciones por película: mediana 3, máximo 329; 35.4% de las películas tienen una sola calificación
+Distribución de calificaciones:
+rating
+0.5     1370
+1.0     2811
+1.5     1791
+2.0     7551
+2.5     5550
+3.0    20047
+3.5    13136
+4.0    26818
+4.5     8551
+5.0    13211
+Promedio: 3.50; fracción >= 4.0: 48.2%
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act21/img/datos.png}
+\caption{Distribución de las calificaciones, de las calificaciones por usuario y por película.}
+\label{fig:datos}
+\end{figure}
+
+La matriz usuario-película está vacía en un 98.3~\% (Salida~\ref{out:datos}), y las calificaciones se concentran en pocos títulos: la mediana de una película es de sólo 3 calificaciones y el 35.4~\% de las películas tiene una sola (Figura~\ref{fig:datos}). Esto limita lo que cualquier método puede recomendar con confianza. Además, el 48.2~\% de las calificaciones es de 4 o más estrellas, lo que fija el criterio de relevancia.
+
+La partición es por usuario: se aparta al azar el 20~\% de las calificaciones de cada usuario como \textbf{prueba} y el resto se usa para todo lo demás (agrupar, calcular puntajes y elegir $k$). Así todo usuario tiene historia para el modelo y calificaciones nuevas para evaluar.
+
+\begin{consola}[label=out:split]{Tamaño de la partición}
+Entrenamiento: 80672 calificaciones; prueba: 20164 (9626 relevantes, con calificación >= 4.0)
+Matriz de usuarios: (610, 9724); el SVD con 20 componentes conserva 28.9% de la varianza
+\end{consola}
+
+\subsection{Tarea 1: Agrupar usuarios}
+
+Cada usuario se describe por su vector de calificaciones sobre las 9\,724 películas, que casi siempre es cero. Antes de agrupar se hicieron tres pasos (Código~\ref{cod:matriz}):
+\begin{enumerate}
+    \item \textbf{Centrar} las calificaciones en el promedio de cada usuario, para comparar gustos y no la generosidad (un usuario que califica todo con 5 y otro que califica con 4 lo que más le gusta quedan parecidos).
+    \item \textbf{Reducir la dimensión} a 20 componentes con SVD truncado, que conserva el 28.9~\% de la varianza y resume los patrones de gusto.
+    \item \textbf{Normalizar} cada usuario a longitud 1, de modo que la distancia euclidiana entre usuarios se comporte como una distancia por similitud de coseno y no dependa de cuántas películas calificó.
+\end{enumerate}
+
+\begin{codigo}[label=cod:matriz]{Representación de usuarios y K-Means}
+def matriz_usuarios(ent, usuarios, peliculas_ids):
+    """Matriz usuario-película con calificaciones centradas en el promedio de cada usuario
+    (así se compara el GUSTO y no si el usuario es generoso o estricto). Lo no calificado vale 0."""
+    u = pd.Categorical(ent.userId, categories=usuarios).codes
+    m = pd.Categorical(ent.movieId, categories=peliculas_ids).codes
+    medias = ent.groupby("userId").rating.mean().reindex(usuarios).values
+    centrado = ent.rating.values - medias[u]
+    return sparse.csr_matrix((centrado, (u, m)), shape=(len(usuarios), len(peliculas_ids))), medias
+
+
+def embedding(R, componentes=20):
+    """Reduce la matriz (610 x ~9000, casi vacía) con SVD truncado y normaliza cada usuario."""
+    svd = TruncatedSVD(n_components=componentes, random_state=SEMILLA)
+    Z = svd.fit_transform(R)
+    return normalize(Z), svd.explained_variance_ratio_.sum()
+
+
+def agrupar(Z, k):
+    return KMeans(n_clusters=k, n_init=10, random_state=SEMILLA).fit_predict(Z)
+\end{codigo}
+
+\textbf{Elección de $k$.} Se calcularon la inercia y el coeficiente de silueta para $k=2,\dots,12$ (Salida~\ref{out:k}, Figura~\ref{fig:k}). La inercia baja de forma continua y no hay un codo claro, y la silueta es baja en todos los casos (0.117 con $k=2$ y menos de 0.09 desde $k=3$): los usuarios no forman grupos bien separados, sino una masa continua de gustos que K-Means divide en regiones. Como ninguno de los dos criterios decide, $k$ se eligió por desempeño en \textbf{validación}: se apartó otro 20~\% del conjunto de entrenamiento (sin tocar la prueba), se repitió el proceso completo con 3 particiones y se escogió la $k$ con mayor NDCG@10 de las recomendaciones del Código~\ref{cod:punt} (Salida~\ref{out:val}). El máximo fue en $k=6$ (NDCG@10 de 0.127), con una meseta amplia entre 4 y 15; por encima de 20 baja, porque los grupos se vuelven demasiado pequeños.
+
+\begin{consola}[label=out:k]{Método del codo y silueta}
+Elección del número de grupos:
+    inercia  silueta
+k                   
+2   436.375    0.117
+3   404.164    0.085
+4   386.192    0.070
+5   371.960    0.074
+6   360.174    0.078
+7   349.634    0.066
+8   342.485    0.061
+9   334.591    0.057
+10  329.039    0.063
+11  324.504    0.065
+12  319.690    0.059
+\end{consola}
+
+\begin{consola}[label=out:val]{Elección de $k$ por validación}
+Elección de k por validación (otro 20 % del entrenamiento, 3 particiones; la prueba no se usa):
+    precisión@10  NDCG@10
+k                        
+2         0.0833   0.1151
+3         0.0890   0.1201
+4         0.0904   0.1222
+5         0.0917   0.1249
+6         0.0929   0.1272
+8         0.0906   0.1237
+10        0.0910   0.1225
+15        0.0903   0.1245
+20        0.0831   0.1138
+30        0.0813   0.1111
+40        0.0761   0.1062
+60        0.0730   0.1009
+
+k elegido (mayor NDCG@10 en validación): 6
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{act21/img/eleccion_k.png}
+\caption{Inercia y coeficiente de silueta según el número de grupos.}
+\label{fig:k}
+\end{figure}
+
+\textbf{Perfil de los grupos.} Con $k=6$ se obtienen grupos de 62 a 173 usuarios (Salida~\ref{out:perfil}, Figuras~\ref{fig:grupos} y~\ref{fig:gen}). Para entender qué los distingue se comparó la proporción de cada género entre las películas que califica cada grupo con la proporción global (1.0 significa igual que el total).
+
+\begin{consola}[label=out:perfil]{Perfil de los grupos}
+Perfil de los grupos (entrenamiento):
+       usuarios  calif./usuario  promedio          géneros que sobresalen
+grupo                                                                    
+0            93          194.68      3.30       Sci-Fi, Action, Adventure
+1           173          122.75      3.58       Mystery, Crime, Animation
+2            69          127.68      3.39    Animation, Children, Romance
+3            62           61.03      3.65  Children, Animation, Adventure
+4           115          104.95      3.51       Romance, Action, Thriller
+5            98          170.08      3.65           Drama, Mystery, Crime
+
+Películas mejor valoradas en cada grupo (al menos 5 calificaciones del grupo):
+  Grupo 0: Star Wars: Episode IV - A New Hope (1977)
+           Godfather, The (1972)
+           Dawn of the Dead (1978)
+  Grupo 1: Cinema Paradiso (Nuovo cinema Paradiso) (1989)
+           Fantastic Mr. Fox (2009)
+           Shawshank Redemption, The (1994)
+  Grupo 2: Captain America: The Winter Soldier (2014)
+           Coco (2017)
+           Some Like It Hot (1959)
+  Grupo 3: Spider-Man 2 (2004)
+           Matrix, The (1999)
+           Green Mile, The (1999)
+  Grupo 4: Apocalypse Now (1979)
+           Patton (1970)
+           Star Wars: Episode IV - A New Hope (1977)
+  Grupo 5: Secrets & Lies (1996)
+           Hustler, The (1961)
+           Philadelphia Story, The (1940)
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\linewidth]{act21/img/grupos.png}
+\caption{Usuarios en dos dimensiones (PCA), coloreados por grupo.}
+\label{fig:grupos}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act21/img/generos_grupos.png}
+\caption{Sobrerrepresentación de cada género en cada grupo.}
+\label{fig:gen}
+\end{figure}
+
+Los grupos sí tienen un carácter reconocible, aunque moderado. El grupo 2 se inclina hacia la animación (1.5 veces la proporción global), el cine infantil (1.4) y el romance (1.3), y evita la acción, el crimen y el suspenso (0.7). El grupo 5 es el opuesto en parte: más drama (1.3), misterio (1.2) y crimen, y menos cine infantil (0.6) y animación (0.7). El grupo 0 se inclina a la ciencia ficción y la acción (1.2 ambos) y es el más severo al calificar (promedio de 3.30). Las diferencias son de hasta 1.5 veces, lo cual coincide con la silueta baja: son tendencias y no categorías separadas. Los títulos mejor valorados de cada grupo también son coherentes con esos perfiles (por ejemplo, el grupo 2 incluye \textit{Coco}, y el grupo 4, \textit{Apocalypse Now} y \textit{Patton}).
+
+\subsection{Tarea 2: Sistema de recomendación}
+
+Para cada grupo se calcula un puntaje por película con las calificaciones de entrenamiento de sus miembros y se recomiendan las 10 de mayor puntaje que el usuario aún no ha visto. Se probaron dos definiciones del puntaje (Código~\ref{cod:punt}):
+\begin{itemize}
+    \item \textbf{Mejor valoradas del grupo:} el promedio de calificaciones de la película en el grupo, suavizado con 5 calificaciones virtuales iguales al promedio global de la película, para que una película con una sola calificación de 5 estrellas no encabece la lista.
+    \item \textbf{Más gustadas del grupo:} el número de miembros del grupo que la calificaron con 4 o más. Es la traducción directa de ``películas que usuarios similares disfrutaron''.
+\end{itemize}
+
+\begin{codigo}[label=cod:punt]{Puntajes por grupo y generación de las recomendaciones}
+def promedio_suavizado(suma, cuenta, previo, m=SUAVIZADO):
+    """Promedio con m calificaciones 'virtuales' iguales al valor previo: evita que una película
+    con una sola calificación de 5 estrellas encabece la lista."""
+    return (suma + m * previo) / (cuenta + m)
+
+
+def puntajes_por_grupo(ent, grupo_de_usuario, k, peliculas_ids):
+    """Puntaje de cada película en cada grupo: promedio suavizado de las calificaciones de sus miembros,
+    con el promedio global de la película como valor previo."""
+    mu = ent.rating.mean()
+    glob = ent.groupby("movieId").rating.agg(["sum", "count"]).reindex(peliculas_ids).fillna(0)
+    prev_peli = promedio_suavizado(glob["sum"].values, glob["count"].values, mu)
+    idx = pd.Categorical(ent.movieId, categories=peliculas_ids).codes
+    g = grupo_de_usuario[ent.userId.values]
+    S = np.zeros((k, len(peliculas_ids)))
+    C = np.zeros((k, len(peliculas_ids)))
+    L = np.zeros((k, len(peliculas_ids)))
+    np.add.at(S, (g, idx), ent.rating.values)
+    np.add.at(C, (g, idx), 1)
+    np.add.at(L, (g, idx), (ent.rating.values >= UMBRAL).astype(float))
+    return promedio_suavizado(S, C, prev_peli[None, :]), C, prev_peli, L
+
+
+def recomendar(puntaje, vistas, n=N):
+    p = puntaje.copy()
+    p[list(vistas)] = -np.inf
+    return np.argsort(-p)[:n]
+\end{codigo}
+
+Las recomendaciones para tres usuarios de ejemplo (puntaje ``más gustadas'', $k=6$) están en la Salida~\ref{out:recs}. Las listas son coherentes con el grupo (el usuario 301, del grupo 1, recibe \textit{Shawshank Redemption} y \textit{Fight Club}) pero son muy parecidas entre usuarios del mismo grupo: los usuarios 1 y 101 comparten cuatro de sus cinco recomendaciones. De cada lista de cinco, sólo una fue un acierto verificable en el usuario 1 y otra en el 301; el resto no se puede juzgar con estos datos, porque que un usuario no haya calificado una película no significa que no le gustaría.
+
+\begin{consola}[label=out:recs]{Recomendaciones para tres usuarios}
+Usuario 1 (grupo 5, 186 calificaciones en entrenamiento)
+  Mejor calificadas por el usuario: All Quiet on the Western Front (1930) (5.0); Full Metal Jacket (1987) (5.0); Thin Red Line, The (1998) (5.0); Rushmore (1998) (5.0)
+  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4] 
+  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Star Wars: Episode IV - A New Hope (1977)  [31 de 98 usuarios del grupo la calificaron >= 4] ACIERTO (el usuario la calificó >= 4 en prueba)
+
+Usuario 101 (grupo 5, 49 calificaciones en entrenamiento)
+  Mejor calificadas por el usuario: Eyes Wide Shut (1999) (5.0); Sweet Hereafter, The (1997) (5.0); Election (1999) (5.0); Fight Club (1999) (5.0)
+  -> Fargo (1996)  [43 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4] 
+  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4] 
+
+Usuario 301 (grupo 1, 91 calificaciones en entrenamiento)
+  Mejor calificadas por el usuario: American History X (1998) (4.5); Pulp Fiction (1994) (4.5); Amadeus (1984) (4.5); One Flew Over the Cuckoo's Nest (1975) (4.5)
+  -> Shawshank Redemption, The (1994)  [91 de 173 usuarios del grupo la calificaron >= 4] 
+  -> Fight Club (1999)  [78 de 173 usuarios del grupo la calificaron >= 4] 
+  -> Matrix, The (1999)  [65 de 173 usuarios del grupo la calificaron >= 4] 
+  -> Silence of the Lambs, The (1991)  [62 de 173 usuarios del grupo la calificaron >= 4] 
+  -> Forrest Gump (1994)  [59 de 173 usuarios del grupo la calificaron >= 4] ACIERTO (el usuario la calificó >= 4 en prueba)
+\end{consola}
+
+\subsection{Tarea 3: Evaluación}
+
+\begin{codigo}[label=cod:eval]{Métricas de recomendación}
+def dcg(rel):
+    return sum(r / np.log2(i + 2) for i, r in enumerate(rel))
+
+
+def evaluar_listas(listas, prueba_relevantes, n=N):
+    """listas: dict usuario -> lista de índices de película. Devuelve precisión, recall, NDCG y acierto@n."""
+    P, R, ND, H = [], [], [], []
+    for u, lista in listas.items():
+        rel = prueba_relevantes.get(u, set())
+        if not rel:
+            continue
+        aciertos = [1 if m in rel else 0 for m in lista[:n]]
+        P.append(sum(aciertos) / n)
+        R.append(sum(aciertos) / len(rel))
+        ideal = dcg([1] * min(len(rel), n))
+        ND.append(dcg(aciertos) / ideal)
+        H.append(1.0 if sum(aciertos) else 0.0)
+    return {"precisión@10": np.mean(P), "recall@10": np.mean(R), "NDCG@10": np.mean(ND), "acierto@10": np.mean(H)}
+\end{codigo}
+
+Se comparan cinco sistemas, todos con listas de 10 películas no vistas: \textbf{Aleatorio}; \textbf{Más vistas} (las 10 con más calificaciones, igual para todos); \textbf{Mejor valoradas (global)} (mejor promedio suavizado, igual para todos); y los dos sistemas por grupo. El Código~\ref{cod:eval} muestra las métricas; el proceso completo (partición, agrupamiento y evaluación) se repitió con 5 semillas distintas.
+
+\begin{consola}[label=out:met]{Métricas con la partición principal (semilla 42)}
+Métricas con listas de 10 películas (partición principal; 602 usuarios con películas relevantes en prueba):
+                              precisión@10  recall@10  NDCG@10  acierto@10  cobertura  popularidad media
+Aleatorio                           0.0015     0.0008   0.0018      0.0150     0.4665             0.6389
+Más vistas                          0.1198     0.0964   0.1599      0.5365     0.0059             2.2890
+Mejor valoradas (global)            0.0517     0.0438   0.0771      0.3439     0.0035             1.8301
+Grupo: mejor valoradas (k=6)        0.0611     0.0511   0.0866      0.3787     0.0110             1.7447
+Grupo: más gustadas (k=6)           0.1379     0.1197   0.1826      0.6030     0.0139             2.1601
+
+Predicción de calificaciones de prueba (RMSE, menor es mejor):
+Promedio global                              1.0447
+Promedio de la película                      0.9598
+Promedio de la película en el grupo (k=6)    0.9600
+\end{consola}
+
+\begin{consola}[label=out:rep]{Promedio de 5 particiones}
+Promedio de 5 particiones distintas (semillas [0, 1, 2, 3, 4]), media (desviación):
+                               precisión@10      recall@10        NDCG@10     acierto@10
+Aleatorio                       0.002 (0.0)    0.001 (0.0)  0.002 (0.001)  0.017 (0.003)
+Más vistas                    0.122 (0.003)  0.103 (0.003)  0.164 (0.004)  0.571 (0.008)
+Mejor valoradas (global)      0.047 (0.007)  0.036 (0.005)  0.061 (0.011)   0.317 (0.04)
+Grupo: mejor valoradas (k=6)   0.06 (0.006)  0.051 (0.007)  0.082 (0.009)  0.394 (0.028)
+Grupo: más gustadas (k=6)     0.142 (0.005)  0.121 (0.006)  0.191 (0.006)  0.604 (0.014)
+
+RMSE promedio de las 5 particiones:
+Promedio global                              1.0443
+Promedio de la película                      0.9609
+Promedio de la película en el grupo (k=6)    0.9609
+\end{consola}
+
+\section{Resultados}
+
+\subsection{Relevancia de las recomendaciones}
+
+\begin{table}[H]
+\centering
+\caption{Métricas con listas de 10 películas: media (desviación estándar) de 5 particiones. Cobertura y popularidad: partición principal.}
+\label{tab:res}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Sistema} & \textbf{Precisión} & \textbf{Recall} & \textbf{NDCG} & \textbf{Acierto} & \textbf{Cobertura} \\
+\midrule
+Aleatorio                        & 0.002 (0.000) & 0.001 (0.000) & 0.002 (0.001) & 0.017 (0.003) & 46.7~\% \\
+Más vistas                       & 0.122 (0.003) & 0.103 (0.003) & 0.164 (0.004) & 0.571 (0.008) & 0.6~\% \\
+Mejor valoradas (global)         & 0.047 (0.007) & 0.036 (0.005) & 0.061 (0.011) & 0.317 (0.040) & 0.4~\% \\
+Grupo: mejor valoradas ($k=6$)   & 0.060 (0.006) & 0.051 (0.007) & 0.082 (0.009) & 0.394 (0.028) & 1.1~\% \\
+Grupo: más gustadas ($k=6$)      & \textbf{0.142} (0.005) & \textbf{0.121} (0.006) & \textbf{0.191} (0.006) & \textbf{0.604} (0.014) & 1.4~\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{act21/img/metricas.png}
+\caption{Métricas de recomendación de los cinco sistemas.}
+\label{fig:met}
+\end{figure}
+
+El sistema basado en grupos con el puntaje ``más gustadas'' fue el mejor en las cuatro métricas (Tabla~\ref{tab:res}, Figura~\ref{fig:met}): de cada 10 películas recomendadas, 1.4 eran relevantes en promedio, y el 60.4~\% de los usuarios recibió al menos una recomendación relevante. Esto es unas 70 veces mejor que el azar, y 1.2 veces mejor que recomendar a todos las 10 películas más vistas. Hay tres puntos que matizan este resultado:
+
+\begin{itemize}
+    \item \textbf{La mejora sobre las más vistas es modesta.} De 0.122 a 0.142 de precisión, con desviaciones de 0.003 a 0.005 entre particiones. Las particiones usan los mismos usuarios, por lo que esas desviaciones no son un intervalo de confianza formal; aun así, la diferencia se mantuvo en las cinco particiones.
+    \item \textbf{``Mejor valoradas'' recomienda mal en los dos casos.} Con el promedio, aun suavizado, el sistema por grupo (0.060) y el global (0.047) quedan por debajo de simplemente recomendar las más vistas. Las películas con mejor promedio suelen ser títulos menos conocidos, y el usuario promedio tiene más probabilidad de haber visto (y calificado bien) una película popular. Por eso, el criterio ``cuántos del grupo la disfrutaron'' funciona mejor que ``qué tan alto la califican quienes la vieron''. Aun así, el grupo ayuda al promedio (0.047 a 0.060).
+    \item \textbf{Predecir la calificación no mejora con los grupos.} Para las calificaciones de prueba, el RMSE de usar el promedio de la película en el grupo (0.961) es igual al de usar su promedio global (0.961), y ambos mejoran al promedio global (1.044). Los grupos sirven para elegir qué recomendar, pero no para predecir cuántas estrellas daría el usuario.
+\end{itemize}
+
+\subsection{Efecto del número de grupos}
+
+La Figura~\ref{fig:sens} muestra, con las mismas 5 particiones, el efecto de $k$ sobre las recomendaciones ``más gustadas'' (esta tabla no se usó para elegir $k$; sirve para verificar la elección hecha en validación). Con $k=1$, que equivale a recomendar a todos lo más gustado globalmente, la precisión es de 0.125, igual a la de las más vistas. Agrupar mejora de forma gradual hasta un máximo de 0.147 con $k=10$ (0.142 con $k=6$), y empeora con más grupos: con $k=60$, de unos 10 usuarios cada uno, la precisión baja a 0.117, por debajo de no agrupar. Es el compromiso de siempre: pocos grupos son demasiado generales, y muchos tienen tan poca historia que sus puntajes son ruido. La cobertura crece con $k$ (de 0.5~\% a 7.5~\%), pero no con calidad.
+
+\begin{consola}[label=out:sens]{Sensibilidad al número de grupos}
+Sensibilidad al número de grupos (promedio de 5 particiones; NO se usó para elegir k):
+    precisión@10  NDCG@10  cobertura
+k                                   
+1         0.1254   0.1658     0.0051
+2         0.1290   0.1684     0.0071
+3         0.1342   0.1750     0.0091
+4         0.1364   0.1781     0.0108
+5         0.1407   0.1893     0.0125
+6         0.1417   0.1912     0.0142
+8         0.1439   0.1917     0.0160
+10        0.1466   0.1931     0.0179
+15        0.1437   0.1907     0.0233
+20        0.1403   0.1872     0.0280
+30        0.1330   0.1764     0.0393
+40        0.1259   0.1681     0.0514
+60        0.1166   0.1574     0.0747
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{act21/img/sensibilidad_k.png}
+\caption{Precisión, NDCG y cobertura según el número de grupos.}
+\label{fig:sens}
+\end{figure}
+
+La ganancia real de agrupar es, entonces, de unos 1.6 a 2.1 puntos de precisión sobre no agrupar. Es pequeña, coherente con la baja separación de los grupos vista en la silueta.
+
+\subsection{Consideraciones sobre popularidad y cobertura}
+
+El sistema ganador sólo llega a recomendar el 1.4~\% del catálogo (unas 135 películas de 9\,724), y las recomendaciones son mucho más populares que el azar (popularidad media de 2.16 contra 0.64, en $\log_{10}$ del número de calificaciones). Esto tiene dos implicaciones:
+\begin{itemize}
+    \item La evaluación sin conexión sólo mide si se adivinan películas que los usuarios ya vieron y les gustaron, y esas son mayoritariamente populares. Un sistema que descubra películas poco conocidas pero adecuadas se penaliza en estas métricas, de modo que la relevancia medida no equivale a la utilidad real para el usuario.
+    \item Un sistema así refuerza lo que ya es popular, y la gran mayoría del catálogo casi nunca se recomienda; el 35.4~\% de las películas tiene una sola calificación y no puede ser recomendada con confianza (problema del arranque en frío). Una empresa debería vigilar la cobertura y no sólo la precisión.
+\end{itemize}
+
+\subsection{Aplicación real}
+
+El enfoque por grupos es útil como una primera versión barata de personalización: las listas se calculan una vez por grupo y sirven a usuarios nuevos tras asignarlos a un grupo con unas pocas calificaciones. También sirve para segmentar la audiencia (por ejemplo, para saber qué grupos prefieren el cine infantil). Para un servicio real habría que complementarlo con métodos que personalicen más allá del grupo, con atributos de las películas para el arranque en frío y con pruebas en línea (si el usuario realmente ve y disfruta lo recomendado) en lugar de sólo las métricas sin conexión de este reporte.
+
+\section{Cuaderno de Google Colab}
+
+El código completo de la actividad puede ejecutarse en Google Colab:
+
+\begin{center}
+    \url{https://colab.research.google.com/drive/1G9Ghc3sMtEG5il3Ax6MeLEfLNJk7B739?usp=sharing}
+\end{center}
+
+\textbf{Diferencias entre Colab y la ejecución local.} Las tablas y salidas de este reporte provienen de la ejecución local. Al ejecutar el cuaderno en Colab (otro procesador y unos 15 minutos) los resultados fueron muy parecidos pero no idénticos: la inercia de algunos $k$ cambió en la tercera cifra (por ejemplo, 371.37 contra 371.96 con $k=5$), y la validación de $k$ dio un empate técnico entre $k=6$ y $k=8$ (NDCG@10 de 0.1254 y 0.1255) que en Colab se resolvió a favor de $k=8$ (local: $k=6$). Con $k=8$ el promedio de las 5 particiones fue de 0.145 de precisión@10 (0.008), 0.124 de recall, 0.193 de NDCG y 0.609 de acierto, contra 0.142, 0.121, 0.191 y 0.604 locales; las más vistas obtuvieron 0.123 (local: 0.122), y el RMSE de los grupos fue de 0.9606 (local: 0.9609). Las conclusiones no cambian: el sistema por grupos con el puntaje ``más gustadas'' es el mejor, por un margen pequeño sobre las más vistas, y los grupos no mejoran la predicción de calificaciones. Una explicación probable es que las operaciones numéricas (SVD y K-Means) no dan resultados idénticos entre procesadores; no se verificó. El análisis de sensibilidad al número de grupos se ejecutó sólo en la computadora local.
+
+\section{Conclusiones}
+
+Se agruparon 610 usuarios de MovieLens con K-Means a partir de sus calificaciones centradas, reducidas con SVD, y se construyó un sistema que recomienda a cada usuario las películas que más disfrutaron los miembros de su grupo. Los grupos que resultan tienen perfiles de género reconocibles (animación y cine infantil, drama y misterio, ciencia ficción y acción), pero son tendencias y no categorías separadas: la silueta fue baja (0.117 o menos) y por eso $k=6$ se escogió por validación y no por el método del codo.
+
+El sistema con el puntaje ``más gustadas del grupo'' obtuvo una precisión@10 de 0.142 y un acierto@10 de 0.604, frente a 0.122 y 0.571 de recomendar las películas más vistas y 0.002 del azar. La ganancia de agrupar es real pero pequeña (de 1.6 a 2.1 puntos de precisión sobre no agrupar), y desaparece con demasiados grupos. Los grupos no mejoran la predicción de la calificación. El criterio de ordenar por promedio de calificaciones, en cambio, funcionó peor que recomendar lo más visto.
+
+Las limitaciones son que se evaluó sin conexión con calificaciones que los usuarios ya hicieron (una película no calificada no es una película que no guste), que el conjunto es pequeño y de desarrollo, que las cinco particiones comparten usuarios y que el sistema recomienda una fracción muy pequeña del catálogo, dominada por películas populares. Para ampliar el trabajo se podrían probar otros algoritmos de agrupamiento o de factorización, usar atributos de las películas para el arranque en frío y evaluar la diversidad de las listas, no sólo su precisión.
+
+\referencias
+
+\end{document}

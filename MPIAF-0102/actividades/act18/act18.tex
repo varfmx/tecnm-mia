@@ -1,0 +1,664 @@
+%% =======================================================
+%% Actividad 18: Proyecto "Clasificador de Especies de Animales"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.2. Visión artificial \\ Actividad 18 - Clasificador de \\ Especies de Animales}
+\profesor{M. Lilia Ureña Lugo}
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+La visión artificial es el campo de la inteligencia artificial que busca imitar las capacidades visuales humanas mediante métodos computacionales, con el propósito de inferir propiedades del mundo a partir de imágenes \parencite{iae_u4_t42, marr1982}. Una de sus tareas centrales es la clasificación de imágenes: asignar a una imagen completa una etiqueta, por ejemplo ``perro'', ``gato'' o ``automóvil'', según su contenido \parencite{iae_u4_t42}.
+
+En este reporte se desarrolla un clasificador de especies de animales. Se parte del código base del tema, que construye generadores de datos con aumento de datos, y se avanza en tres etapas: la preparación de los datos, la comparación de una red neuronal convolucional (CNN) propia contra modelos preentrenados con aprendizaje por transferencia, y la evaluación del resultado con validación cruzada, matriz de confusión y optimización de hiperparámetros.
+
+\section{Marco conceptual}
+
+\subsection{La imagen digital y la clasificación de imágenes}
+
+Una imagen se representa digitalmente como una matriz bidimensional de píxeles, donde cada píxel tiene un nivel de intensidad o de color \parencite{iae_u4_t42, gonzalez2018}. Una imagen en color de $224 \times 224$ píxeles es, entonces, un arreglo de $224 \times 224 \times 3$ números. Antes de 2010 la información se extraía con técnicas de procesamiento de imágenes diseñadas a mano (bordes, texturas, descriptores como HOG o SIFT); en el enfoque moderno, el aprendizaje profundo extrae las características de forma automática a partir de imágenes etiquetadas \parencite{iae_u4_t42}. Para clasificar, el modelo recibe la imagen y devuelve una probabilidad por cada clase; la clase predicha es la de mayor probabilidad.
+
+\subsection{Redes neuronales convolucionales}
+
+Una CNN extrae características de forma jerárquica mediante filtros convolucionales. Sus capas típicas son la convolución, el \textit{pooling}, la activación (ReLU) y, al final, capas completamente conectadas \parencite{iae_u4_t42}. Las primeras capas detectan patrones simples, como bordes y texturas, y las más profundas los combinan en partes y objetos. Este tipo de red fue el que consiguió los avances decisivos en la clasificación de imágenes a gran escala \parencite{krizhevsky2012}.
+
+\subsection{Aumento de datos y aprendizaje por transferencia}
+
+Entrenar una CNN desde cero requiere muchos datos. Dos técnicas ayudan cuando hay pocos. El \textbf{aumento de datos} genera variantes de cada imagen de entrenamiento (rotaciones, desplazamientos, volteos), de modo que el modelo ve más variedad sin necesidad de más fotografías. El \textbf{aprendizaje por transferencia} reutiliza una red entrenada previamente en un conjunto de datos muy grande (ImageNet) y sólo entrena una capa final nueva, o ajusta además las últimas capas de la base (\textit{fine-tuning}) \parencite{iae_u4_t42, elgendy2020, lakshmanan2021}. El tema menciona como modelos preentrenados de uso común VGG, Inception, ResNet, DenseNet y MobileNet \parencite{iae_u4_t42}. En esta actividad se usan MobileNetV2 y ResNet50.
+
+\subsection{Evaluación}
+
+Se reporta la exactitud (proporción de aciertos) y, por clase, la precisión, la exhaustividad y el F1. La \textbf{validación cruzada} de $k$ pliegues entrena y evalúa el modelo $k$ veces con particiones distintas de los datos, lo que da una estimación más estable que una sola partición. La \textbf{matriz de confusión} cuenta, para cada clase real, cuántas imágenes se asignaron a cada clase predicha, e indica qué especies se confunden entre sí.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Desarrollar un sistema de clasificación de imágenes que identifique diferentes especies de animales con el código base utilizando el dataset de animales.
+
+\subsection*{Requerimientos del Proyecto}
+
+\begin{description}
+    \item[Tarea 1: Preparación de Datos.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Recolectar y organizar un conjunto de imágenes de animales.
+        \item Implementar aumento de datos (\textit{data augmentation}).
+        \item Crear generadores de datos para el entrenamiento.
+    \end{enumerate}
+    \item[Tarea 2: Arquitectura del Modelo.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Implementar una CNN personalizada.
+        \item Experimentar con diferentes arquitecturas.
+        \item Aplicar aprendizaje por transferencia con modelos preentrenados.
+    \end{enumerate}
+    \item[Tarea 3: Evaluación y Optimización.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Realizar validación cruzada.
+        \item Analizar la matriz de confusión.
+        \item Optimizar hiperparámetros.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+El tema no incluye el conjunto de datos, sólo la ruta de ejemplo \texttt{/ruta/dataset/animales}. Se utilizó un conjunto público de imágenes de 90 especies de animales (60 imágenes por especie), alojado en Hugging Face con el nombre \texttt{mertcobanov/animals}, organizado en una carpeta por especie, que es la estructura que espera \texttt{flow\_from\_directory} del código base. Para que el entrenamiento sea viable en un equipo personal se eligieron 10 especies: gato, perro, elefante, caballo, león, panda, pingüino, oveja, tigre y cebra. Entre ellas hay felinos parecidos (gato, león, tigre) y cuadrúpedos de campo (perro, oveja, caballo), que ponen a prueba al clasificador.
+
+De las 60 imágenes de cada especie se reservaron 10 al azar, con semilla fija, como \textbf{conjunto de prueba} (100 imágenes) que no se usa en ningún entrenamiento ni en la selección de hiperparámetros. Las 50 restantes (500 imágenes) se dividen, con el código base, en 80~\% para entrenamiento (400) y 20~\% para validación (100).
+
+\section{Desarrollo}
+
+\subsection{Tarea 1: Preparación de datos}
+
+El Código~\ref{cod:datos} muestra la función que descarga y organiza el conjunto (carpetas \texttt{entrenamiento/} y \texttt{prueba/}, cada una con una subcarpeta por especie) y la función \texttt{crear\_generadores\_datos} del código base, que se usó sin modificaciones. El generador de entrenamiento escala los píxeles a $[0, 1]$ y aplica aumento de datos (rotaciones de hasta $20^{\circ}$, desplazamientos horizontales y verticales de hasta 20~\% y volteo horizontal); el de validación sólo escala los píxeles. Ambos toman un subconjunto (\texttt{subset}) de la misma carpeta según \texttt{validation\_split=0.2}.
+
+\begin{codigo}[label=cod:datos]{Organización de los datos y generadores del código base}
+def preparar_dataset():
+    """Descarga las especies elegidas y las organiza en carpetas por clase:
+    datos/entrenamiento/<clase>/*.jpg (para entrenar y validar) y datos/prueba/<clase>/*.jpg (reservadas)."""
+    rng = random.Random(SEMILLA)
+    tareas = []
+    for clase in CLASES:
+        rutas = _listar(clase)
+        rng.shuffle(rutas)
+        for i, ruta in enumerate(rutas):
+            carpeta = DIR_PRUEBA if i < N_PRUEBA else DIR_ENTRENAMIENTO
+            os.makedirs(os.path.join(carpeta, clase), exist_ok=True)
+            tareas.append((ruta, os.path.join(carpeta, clase, os.path.basename(ruta))))
+    with ThreadPoolExecutor(8) as ex:
+        list(ex.map(_bajar, tareas))
+    # Se descartan archivos ilegibles (hay imágenes corruptas en algunos conjuntos públicos)
+    for _, destino in tareas:
+        try:
+            with Image.open(destino) as im:
+                im.verify()
+        except Exception:
+            os.remove(destino)
+
+def crear_generadores_datos(ruta_base, objetivo=(224, 224), batch_size=32):
+    """
+    Crea generadores de datos para entrenamiento y validación
+    """
+    datagen_entrenamiento = ImageDataGenerator(
+        rescale=1./255,
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True,
+        validation_split=0.2
+    )
+
+    datagen_validacion = ImageDataGenerator(rescale=1./255, validation_split=0.2)
+
+    generador_entrenamiento = datagen_entrenamiento.flow_from_directory(
+        ruta_base,
+        target_size=objetivo,
+        batch_size=batch_size,
+        class_mode='categorical',
+        subset='training'
+    )
+
+    generador_validacion = datagen_validacion.flow_from_directory(
+        ruta_base,
+        target_size=objetivo,
+        batch_size=batch_size,
+        class_mode='categorical',
+        subset='validation'
+    )
+
+    return generador_entrenamiento, generador_validacion
+\end{codigo}
+
+\begin{consola}[label=out:datos]{Imágenes por especie y generadores}
+Imágenes por especie:
+          entrenamiento+validación  prueba
+cat                             50      10
+dog                             50      10
+elephant                        50      10
+horse                           50      10
+lion                            50      10
+panda                           50      10
+penguin                         50      10
+sheep                           50      10
+tiger                           50      10
+zebra                           50      10
+TOTAL                          500     100
+
+Índices de clase: {'cat': 0, 'dog': 1, 'elephant': 2, 'horse': 3, 'lion': 4, 'panda': 5, 'penguin': 6, 'sheep': 7, 'tiger': 8, 'zebra': 9}
+Lotes de entrenamiento: 13 (tamaño de lote 32); lotes de validación: 4
+\end{consola}
+
+La Figura~\ref{fig:muestras} muestra una imagen de cada especie y la Figura~\ref{fig:aumento}, una misma fotografía con cinco transformaciones aleatorias del aumento de datos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{act18/img/muestras.png}
+\caption{Una imagen de cada una de las 10 especies.}
+\label{fig:muestras}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act18/img/aumento.png}
+\caption{Imagen original y cinco variantes generadas por el aumento de datos.}
+\label{fig:aumento}
+\end{figure}
+
+\subsection{Tarea 2: Arquitectura del modelo}
+
+Se probaron seis modelos con los mismos generadores y parada temprana (se detiene el entrenamiento si la exactitud de validación no mejora en 6 épocas y se conservan los mejores pesos).
+
+\textbf{CNN personalizadas.} Tres variantes con bloques \textit{Conv--ReLU--MaxPooling}, \textit{global average pooling} y una capa densa de 128 unidades con \textit{dropout}: CNN-A (2 bloques, 29\,002 parámetros), CNN-B (3 bloques, 111\,050) y CNN-C (como la B con normalización por lotes, 111\,722).
+
+\textbf{Aprendizaje por transferencia.} MobileNetV2 y ResNet50 preentrenadas en ImageNet, con la base congelada y una cabeza nueva de 10 clases; y MobileNetV2 con \textit{fine-tuning} (primero 8 épocas sólo con la cabeza, luego se descongelan las últimas 30 capas de la base con una tasa de aprendizaje de $10^{-5}$). Las imágenes llegan a los modelos preentrenados en el rango $[0, 1]$ (por el \texttt{rescale} del código base) y una capa inicial las convierte al preprocesamiento que cada base espera (Código~\ref{cod:modelos}).
+
+\begin{codigo}[label=cod:modelos]{CNN personalizada y modelos con aprendizaje por transferencia}
+def crear_cnn(filtros=(32, 64, 128), dropout=0.5, batchnorm=False, lr=1e-3, unidades=128):
+    """CNN personalizada: bloques Conv-(BN)-ReLU-MaxPool, GlobalAveragePooling y capa densa."""
+    capas = [layers.Input((*OBJETIVO, 3))]
+    for f in filtros:
+        capas.append(layers.Conv2D(f, 3, padding="same", use_bias=not batchnorm))
+        if batchnorm:
+            capas.append(layers.BatchNormalization())
+        capas += [layers.Activation("relu"), layers.MaxPooling2D()]
+    capas += [layers.GlobalAveragePooling2D(), layers.Dense(unidades, activation="relu"),
+              layers.Dropout(dropout), layers.Dense(N_CLASES, activation="softmax")]
+    m = models.Sequential(capas)
+    m.compile(optimizer=optimizers.Adam(lr), loss="categorical_crossentropy", metrics=["accuracy"])
+    return m
+
+
+def crear_transfer(nombre="mobilenet", lr=1e-3, descongelar=0):
+    """Transfer learning: base preentrenada en ImageNet + cabeza nueva.
+    Las imágenes llegan en [0, 1] (rescale=1/255 del código base) y se adaptan al preprocesamiento de cada base."""
+    entrada = layers.Input((*OBJETIVO, 3))
+    if nombre == "mobilenet":
+        base = applications.MobileNetV2(include_top=False, weights="imagenet", input_shape=(*OBJETIVO, 3))
+        x = layers.Rescaling(2.0, offset=-1.0)(entrada)                       # [0,1] -> [-1,1]
+    else:
+        base = applications.ResNet50(include_top=False, weights="imagenet", input_shape=(*OBJETIVO, 3))
+        x = layers.Lambda(lambda t: applications.resnet50.preprocess_input(t * 255.0))(entrada)
+    base.trainable = descongelar > 0
+    if descongelar > 0:
+        for capa in base.layers[:-descongelar]:
+            capa.trainable = False
+    x = base(x, training=False)
+    x = layers.GlobalAveragePooling2D()(x)
+    x = layers.Dropout(0.3)(x)
+    salida = layers.Dense(N_CLASES, activation="softmax")(x)
+    m = models.Model(entrada, salida)
+    m.compile(optimizer=optimizers.Adam(lr), loss="categorical_crossentropy", metrics=["accuracy"])
+    return m
+\end{codigo}
+
+\begin{codigo}[label=cod:entrenar]{Entrenamiento de las arquitecturas y ajuste fino}
+def entrenar(construir, epocas, paciencia=6, gen_ent=None, gen_val=None):
+    """Entrena con parada temprana. Devuelve (modelo, historial, segundos)."""
+    tf.keras.utils.set_random_seed(SEMILLA)
+    modelo = construir()
+    cb = [callbacks.EarlyStopping(monitor="val_accuracy", patience=paciencia, restore_best_weights=True)]
+    t0 = time.perf_counter()
+    h = modelo.fit(gen_ent or gen_entrenamiento, validation_data=gen_val or gen_validacion,
+                   epochs=1 if RAPIDO else epocas, callbacks=cb, verbose=0)
+    return modelo, h.history, time.perf_counter() - t0
+
+arquitecturas = {
+    "CNN-A (2 bloques)": (lambda: crear_cnn(filtros=(32, 64), dropout=0.3), 30),
+    "CNN-B (3 bloques)": (lambda: crear_cnn(filtros=(32, 64, 128), dropout=0.5), 30),
+    "CNN-C (3 bloques + BatchNorm)": (lambda: crear_cnn(filtros=(32, 64, 128), dropout=0.5, batchnorm=True), 30),
+    "MobileNetV2 (base congelada)": (lambda: crear_transfer("mobilenet"), 15),
+    "ResNet50 (base congelada)": (lambda: crear_transfer("resnet"), 15),
+}
+
+# Ajuste fino (fine-tuning) de MobileNetV2: se entrena la cabeza y luego se descongelan las últimas capas
+t0 = time.perf_counter()
+tf.keras.utils.set_random_seed(SEMILLA)
+ft = crear_transfer("mobilenet", lr=1e-3)
+cb = [callbacks.EarlyStopping(monitor="val_accuracy", patience=5, restore_best_weights=True)]
+h1 = ft.fit(gen_entrenamiento, validation_data=gen_validacion, epochs=1 if RAPIDO else 8, verbose=0)
+base_mb = next(c for c in ft.layers if isinstance(c, models.Model))   # la base MobileNetV2
+base_mb.trainable = True
+for capa in base_mb.layers[:-30]:
+    capa.trainable = False
+ft.compile(optimizer=optimizers.Adam(1e-5), loss="categorical_crossentropy", metrics=["accuracy"])
+h2 = ft.fit(gen_entrenamiento, validation_data=gen_validacion, epochs=1 if RAPIDO else 12, callbacks=cb, verbose=0)
+\end{codigo}
+
+\subsection{Tarea 3: Evaluación y optimización}
+
+\textbf{Validación cruzada.} Se aplicó validación cruzada estratificada de 5 pliegues sobre las 500 imágenes de entrenamiento y validación, a dos modelos. A la mejor CNN personalizada se le entrenó de nuevo en cada pliegue con aumento de datos. A MobileNetV2 con base congelada, como la base no se entrena, se calcularon una sola vez las 1\,280 características de cada imagen y en cada pliegue sólo se entrenó la cabeza de clasificación; así no hay fuga de información entre pliegues, y el procedimiento es rápido.
+
+\textbf{Optimización de hiperparámetros.} Con esa misma validación cruzada se hizo una búsqueda en rejilla de 18 combinaciones de la cabeza: unidades de la capa oculta (0, 128, 256), \textit{dropout} (0.2, 0.5) y tasa de aprendizaje ($10^{-2}$, $10^{-3}$, $10^{-4}$). El Código~\ref{cod:cv} muestra el procedimiento. Después, el modelo final se entrenó con las 500 imágenes y se evaluó una sola vez con las 100 imágenes de prueba.
+
+\begin{codigo}[label=cod:cv]{Características, validación cruzada y búsqueda de hiperparámetros}
+entrada = layers.Input((*OBJETIVO, 3))
+extractor = models.Model(entrada, layers.GlobalAveragePooling2D()(
+    applications.MobileNetV2(include_top=False, weights="imagenet", input_shape=(*OBJETIVO, 3))(layers.Rescaling(2.0, offset=-1.0)(entrada))))
+
+
+def caracteristicas(rutas):
+    X = np.stack([np.asarray(Image.open(r).convert("RGB").resize(OBJETIVO), dtype="float32") / 255.0 for r in rutas])
+    return extractor.predict(X, batch_size=32, verbose=0)
+
+def crear_cabeza(unidades=128, dropout=0.3, lr=1e-3):
+    capas = [layers.Input((X_todas.shape[1],))]
+    if unidades:
+        capas.append(layers.Dense(unidades, activation="relu"))
+    capas += [layers.Dropout(dropout), layers.Dense(N_CLASES, activation="softmax")]
+    m = models.Sequential(capas)
+    m.compile(optimizer=optimizers.Adam(lr), loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return m
+
+
+def cv_cabeza(**hp):
+    accs = []
+    for tr, va in pliegues:
+        tf.keras.utils.set_random_seed(SEMILLA)
+        m = crear_cabeza(**hp)
+        m.fit(X_todas[tr], y_todas[tr], epochs=1 if RAPIDO else 30, batch_size=32, verbose=0)
+        accs.append(m.evaluate(X_todas[va], y_todas[va], verbose=0)[1])
+    return np.array(accs)
+
+
+base_cv = cv_cabeza()
+print(f"  MobileNetV2 + cabeza por defecto (128 unidades, dropout 0.3, lr 1e-3): {base_cv.mean():.3f} +/- {base_cv.std():.3f}")
+
+busqueda = []
+for unidades in [0, 128, 256]:
+    for dropout in [0.2, 0.5]:
+        for lr in [1e-2, 1e-3, 1e-4]:
+            a = cv_cabeza(unidades=unidades, dropout=dropout, lr=lr)
+            busqueda.append({"unidades": unidades, "dropout": dropout, "lr": lr, "exactitud CV": a.mean(), "desv.": a.std()})
+busqueda = pd.DataFrame(busqueda).sort_values("exactitud CV", ascending=False).reset_index(drop=True)
+print("\nBúsqueda en rejilla de hiperparámetros (validación cruzada de 5 pliegues), mejores 6 y peor:")
+print(busqueda.head(6).round(4).to_string())
+print(busqueda.tail(1).round(4).to_string())
+\end{codigo}
+
+El cuaderno interactivo puede consultarse en Google Colab:
+
+\begin{center}
+    \url{https://colab.research.google.com/drive/1f1QQqKR5S3T1ByWNZbT9WHU_b-Kbxyah?usp=sharing}
+\end{center}
+
+\textbf{Diferencias entre Colab y la ejecución local.} Las tablas y salidas de este reporte provienen de la ejecución en la computadora local. Al ejecutar el cuaderno en Colab (otro procesador, unos 80 minutos en total) los modelos preentrenados dieron exactamente los mismos resultados (MobileNetV2: validación 0.91, prueba 0.94; ResNet50: 0.93 y 0.97; ajuste fino: 0.90 y 0.94), la cabeza por defecto dio la misma exactitud de validación cruzada (0.970 $\pm$ 0.011) y el modelo final repitió 0.98 en prueba con 2 imágenes mal clasificadas, pero otros valores cambiaron:
+\begin{itemize}
+    \item CNN desde cero (validación / prueba): CNN-A 0.35 / 0.33 (local: 0.31 / 0.32), CNN-B 0.33 / 0.26 (local: 0.41 / 0.34) y CNN-C 0.13 / 0.13 (local: 0.14 / 0.11).
+    \item Validación cruzada de la CNN: pliegues de 0.28, 0.32, 0.40, 0.35 y 0.35 (media 0.34; local: 0.378).
+    \item Búsqueda de hiperparámetros: la misma combinación ganó (128 unidades, \textit{dropout} 0.5, $\mathit{lr}=10^{-3}$), pero con 0.968 $\pm$ 0.010 (local: 0.972 $\pm$ 0.007), es decir, en Colab quedó incluso por debajo de la cabeza por defecto (0.970).
+    \item Cinco pruebas: las cinco salieron correctas; la cebra tuvo 94.3~\% de confianza (local: 91.3~\%).
+\end{itemize}
+Una explicación probable es que las operaciones de TensorFlow en CPU no dan resultados idénticos entre procesadores distintos aunque se fije la semilla, y que las redes pequeñas entrenadas desde cero son las más sensibles a ello; no se verificó. Las conclusiones no cambian: el aprendizaje por transferencia supera por mucho a la CNN desde cero, y la optimización de hiperparámetros no aporta una mejora distinguible del ruido.
+
+\section{Resultados}
+
+\subsection{Comparación de arquitecturas}
+
+\begin{table}[H]
+\centering
+\caption{Arquitecturas evaluadas. Validación: 100 imágenes; prueba: 100 imágenes reservadas.}
+\label{tab:arq}
+\begin{tabular}{lrrccr}
+\toprule
+\textbf{Modelo} & \textbf{Parámetros} & \textbf{Épocas} & \textbf{Val.} & \textbf{Prueba} & \textbf{Tiempo (s)} \\
+\midrule
+CNN-A (2 bloques)                    & 29\,002     & 21 & 0.31 & 0.32 & 100 \\
+CNN-B (3 bloques)                    & 111\,050    & 30 & 0.41 & 0.34 & 186 \\
+CNN-C (3 bloques + BatchNorm)        & 111\,722    & 22 & 0.14 & 0.11 & 217 \\
+MobileNetV2 (base congelada)         & 2\,270\,794 & 15 & 0.91 & 0.94 & 58 \\
+ResNet50 (base congelada)            & 23\,608\,202 & 15 & 0.93 & 0.97 & 194 \\
+MobileNetV2 (ajuste fino, 30 capas)  & 2\,270\,794 & 14 & 0.90 & 0.94 & 60 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{consola}[label=out:arq]{Comparación de arquitecturas}
+Comparación de arquitecturas (validación = 20 % de entrenamiento; prueba = 100 imágenes reservadas):
+                             modelo  parámetros  épocas  acc. entrenamiento  acc. validación  acc. prueba  tiempo (s)
+                  CNN-A (2 bloques)       29002      21               0.290             0.31         0.32     100.125
+                  CNN-B (3 bloques)      111050      30               0.425             0.41         0.34     185.596
+      CNN-C (3 bloques + BatchNorm)      111722      22               0.480             0.14         0.11     216.589
+       MobileNetV2 (base congelada)     2270794      15               0.967             0.91         0.94      58.072
+          ResNet50 (base congelada)    23608202      15               0.988             0.93         0.97     193.864
+MobileNetV2 (ajuste fino, 30 capas)     2270794      14               0.835             0.90         0.94      60.472
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act18/img/curvas.png}
+\caption{Curvas de exactitud de entrenamiento y de validación de los seis modelos.}
+\label{fig:curvas}
+\end{figure}
+
+La diferencia entre los dos enfoques es enorme (Tabla~\ref{tab:arq}, Figura~\ref{fig:curvas}). Las CNN entrenadas desde cero con 400 imágenes llegan sólo a 0.32--0.34 de exactitud en prueba (el azar sería 0.10): no tienen datos suficientes para aprender características visuales útiles, y las curvas de validación de CNN-A y CNN-B aún crecen cuando termina el entrenamiento. Los modelos preentrenados superan 0.90 de exactitud de validación en pocas épocas (0.94 a 0.97 en prueba), porque ya traen filtros aprendidos con millones de imágenes. La variante con normalización por lotes (CNN-C) funcionó peor que las otras (validación de 0.14, aunque su exactitud de entrenamiento era 0.48); no se investigó la causa, y una posibilidad es que las estadísticas de la normalización sean inestables con tan pocos datos y lotes pequeños.
+
+El \textit{fine-tuning} no mejoró a la base congelada (0.90 de validación y 0.94 de prueba, frente a 0.91 y 0.94): con 400 imágenes y una tasa de $10^{-5}$ las capas descongeladas casi no cambian (el ajuste fino se detuvo por parada temprana antes de las 12 épocas permitidas). ResNet50 obtuvo la mayor exactitud (0.93 de validación y 0.97 de prueba), pero con 10 veces más parámetros que MobileNetV2 y más de tres veces el tiempo de entrenamiento. Con 100 imágenes de validación o de prueba, cada imagen vale un punto porcentual, por lo que diferencias de 3 a 4 puntos entre los modelos preentrenados no son concluyentes.
+
+\subsection{Validación cruzada}
+
+\begin{consola}[label=out:cv]{Validación cruzada y búsqueda de hiperparámetros}
+  CNN, pliegue 1/5: exactitud = 0.240
+  CNN, pliegue 2/5: exactitud = 0.390
+  CNN, pliegue 3/5: exactitud = 0.410
+  CNN, pliegue 4/5: exactitud = 0.420
+  CNN, pliegue 5/5: exactitud = 0.430
+
+Características MobileNetV2 de las imágenes de entrenamiento: (500, 1280)
+  MobileNetV2 + cabeza por defecto (128 unidades, dropout 0.3, lr 1e-3): 0.970 +/- 0.011
+
+   unidades  dropout     lr  exactitud CV   desv.
+0       128      0.5  0.001         0.972  0.0075
+1       128      0.2  0.001         0.968  0.0098
+2         0      0.5  0.001         0.968  0.0075
+3         0      0.2  0.001         0.968  0.0075
+4       256      0.5  0.001         0.966  0.0049
+5       256      0.2  0.001         0.966  0.0049
+    unidades  dropout      lr  exactitud CV   desv.
+17         0      0.5  0.0001         0.938  0.0147
+
+Resumen de validación cruzada (5 pliegues, 500 imágenes):
+                          modelo  exactitud CV  desv.
+               CNN-B (3 bloques)         0.378  0.070
+MobileNetV2 + cabeza por defecto         0.970  0.011
+ MobileNetV2 + cabeza optimizada         0.972  0.007
+Hiperparámetros elegidos: {'unidades': 128, 'dropout': 0.5, 'lr': 0.001}
+\end{consola}
+
+\begin{table}[H]
+\centering
+\caption{Validación cruzada estratificada de 5 pliegues (500 imágenes).}
+\label{tab:cv}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Modelo} & \textbf{Exactitud media} & \textbf{Desv. est.} \\
+\midrule
+CNN-B (3 bloques), desde cero                          & 0.378 & 0.070 \\
+MobileNetV2 + cabeza por defecto                       & 0.970 & 0.011 \\
+MobileNetV2 + cabeza optimizada                        & 0.972 & 0.007 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La validación cruzada confirma el resultado (Tabla~\ref{tab:cv}): la CNN personalizada obtiene 0.378 y varía mucho entre pliegues (de 0.24 a 0.43), mientras que MobileNetV2 con una cabeza simple alcanza 0.970 con poca variación.
+
+\subsection{Optimización de hiperparámetros}
+
+La Figura~\ref{fig:hp} resume la rejilla. La mejor combinación fue 128 unidades, \textit{dropout} de 0.5 y tasa de aprendizaje de $10^{-3}$, con 0.972 de exactitud, apenas por encima de la cabeza por defecto (0.970, con una desviación de 0.011): la mejora está dentro del ruido de la validación cruzada. Lo que sí resultó claro es el efecto de la tasa de aprendizaje: $10^{-3}$ fue la mejor en las seis combinaciones de unidades y \textit{dropout}. Con $10^{-4}$ la exactitud baja (de 0.938 a 0.962), sobre todo en las cabezas sin capa oculta, probablemente porque con 30 épocas el entrenamiento no llega a converger; con $10^{-2}$ también baja, aunque menos. El número de unidades y el \textit{dropout} influyeron poco.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{act18/img/hiperparametros.png}
+\caption{Exactitud de validación cruzada para cada combinación de hiperparámetros.}
+\label{fig:hp}
+\end{figure}
+
+\subsection{Evaluación final y matriz de confusión}
+
+El modelo final (MobileNetV2 con la cabeza optimizada, entrenado con las 500 imágenes) clasificó correctamente 98 de las 100 imágenes de prueba (Salidas~\ref{out:test} y~\ref{out:reporte}). La Figura~\ref{fig:cm} muestra su matriz de confusión; la de la mejor CNN personalizada, que sólo acierta 34 de 100, se presenta en la Figura~\ref{fig:cmcnn} para comparar.
+
+\begin{consola}[label=out:test]{Exactitud en el conjunto de prueba}
+Exactitud en el conjunto de prueba (100 imágenes nuevas):
+                                        modelo  acc. prueba
+                             CNN-A (2 bloques)         0.32
+                             CNN-B (3 bloques)         0.34
+                 CNN-C (3 bloques + BatchNorm)         0.11
+                  MobileNetV2 (base congelada)         0.94
+                     ResNet50 (base congelada)         0.97
+           MobileNetV2 (ajuste fino, 30 capas)         0.94
+MobileNetV2 + cabeza optimizada (modelo final)         0.98
+\end{consola}
+
+\begin{consola}[label=out:reporte]{Reporte de clasificación del modelo final}
+Reporte de clasificación (modelo final, conjunto de prueba):
+              precision    recall  f1-score   support
+
+         cat      1.000     1.000     1.000        10
+         dog      0.833     1.000     0.909        10
+    elephant      1.000     1.000     1.000        10
+       horse      1.000     1.000     1.000        10
+        lion      1.000     1.000     1.000        10
+       panda      1.000     1.000     1.000        10
+     penguin      1.000     0.900     0.947        10
+       sheep      1.000     0.900     0.947        10
+       tiger      1.000     1.000     1.000        10
+       zebra      1.000     1.000     1.000        10
+
+    accuracy                          0.980       100
+   macro avg      0.983     0.980     0.980       100
+weighted avg      0.983     0.980     0.980       100
+
+Confusiones (real -> predicho, número de imágenes): [('penguin', 'dog', 1), ('sheep', 'dog', 1)]
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\linewidth]{act18/img/matriz_confusion.png}
+\caption{Matriz de confusión del modelo final en el conjunto de prueba.}
+\label{fig:cm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\linewidth]{act18/img/matriz_confusion_cnn.png}
+\caption{Matriz de confusión de la mejor CNN personalizada (CNN-B) en el conjunto de prueba.}
+\label{fig:cmcnn}
+\end{figure}
+
+\subsection{Cinco pruebas con imágenes nuevas}
+
+Para ilustrar el uso del clasificador se eligieron al azar, con semilla fija, cinco especies distintas y una imagen de prueba de cada una (imágenes que el modelo nunca vio). La Tabla~\ref{tab:cinco} y la Figura~\ref{fig:cinco} presentan los resultados: las cinco se clasificaron correctamente, la menos segura fue la cebra, con 91.3~\% de confianza.
+
+\begin{table}[H]
+\centering
+\caption{Resultados de las cinco pruebas con imágenes nuevas.}
+\label{tab:cinco}
+\begin{tabular}{clllc}
+\toprule
+\textbf{Prueba} & \textbf{Animal real} & \textbf{Clasificación obtenida} & \textbf{Confianza} & \textbf{¿Correcta?} \\
+\midrule
+1 & perro (\textit{dog})         & perro (\textit{dog})         & 99.9~\%  & sí \\
+2 & gato (\textit{cat})          & gato (\textit{cat})          & 100.0~\% & sí \\
+3 & león (\textit{lion})         & león (\textit{lion})         & 100.0~\% & sí \\
+4 & cebra (\textit{zebra})       & cebra (\textit{zebra})       & 91.3~\%  & sí \\
+5 & pingüino (\textit{penguin})  & pingüino (\textit{penguin})  & 100.0~\% & sí \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act18/img/pruebas.png}
+\caption{Las cinco imágenes de prueba con la clase real y la predicha.}
+\label{fig:cinco}
+\end{figure}
+
+\begin{consola}[label=out:cinco]{Cinco pruebas con imágenes nuevas}
+Cinco pruebas con imágenes nuevas:
+ prueba animal real clasificación confianza ¿correcta?
+      1         dog           dog     99.9%         sí
+      2         cat           cat    100.0%         sí
+      3        lion          lion    100.0%         sí
+      4       zebra         zebra     91.3%         sí
+      5     penguin       penguin    100.0%         sí
+\end{consola}
+
+\subsection{Análisis de errores}
+
+Como las cinco pruebas salieron bien, los errores se analizaron en el conjunto de prueba completo, donde el modelo falló en dos imágenes de 100 (Salida~\ref{out:errores}, Figura~\ref{fig:errores}). Ambas se clasificaron como perro.
+
+\begin{consola}[label=out:errores]{Imágenes mal clasificadas}
+Imágenes mal clasificadas por el modelo final: 2 de 100
+  1b1080b026.jpg: real=penguin, predicho=dog (51.1%), segunda opción=penguin (47.3%)
+  59b791b7a3.jpg: real=sheep, predicho=dog (90.3%), segunda opción=sheep (9.2%)
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{act18/img/errores.png}
+\caption{Imágenes de prueba mal clasificadas por el modelo final, con las dos clases más probables.}
+\label{fig:errores}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Pingüino $\rightarrow$ perro} (51.1~\% contra 47.3~\% de la clase correcta). La imagen muestra dos crías de pingüino sobre nieve, con plumón gris. Probablemente se parezcan poco a los pingüinos adultos blanco y negro típicos de las demás imágenes, y el modelo dudó entre las dos clases, como indica la cercanía de las probabilidades.
+    \item \textbf{Oveja $\rightarrow$ perro} (90.3~\%). Es un error más seguro y más grave. La oveja tiene la cara clara y las orejas erguidas, y aparece junto a una persona, un contexto más frecuente en las fotos de perros. Es una hipótesis: no se probó qué parte de la imagen influyó en la decisión.
+\end{itemize}
+
+En ambos casos intervienen el contexto de la imagen (fondo, presencia de personas) y la poca variedad de los ejemplos de entrenamiento (50 por especie). Además, el modelo no distingue entre ``seguro'' y ``acertado'': la confianza fue de 90.3~\% en un error. Una forma de reducir estos errores sería ampliar el conjunto de entrenamiento con más fotos de cada especie en poses y entornos distintos, y aplicar \textit{fine-tuning} con más datos.
+
+\subsection{Aplicación real}
+
+Un clasificador de especies de este tipo se usa en el monitoreo de fauna silvestre con cámaras trampa: cientos de miles de fotografías tomadas automáticamente en campo se clasifican por especie para estimar poblaciones, detectar especies amenazadas o invasoras y reducir el trabajo manual de los biólogos. Los errores descritos son relevantes en ese contexto, porque las imágenes de campo tienen peor iluminación, animales parcialmente ocultos y fondos variados; un sistema real necesitaría datos del propio sitio y revisión humana de las predicciones poco seguras.
+
+\section{Conclusiones}
+
+El aprendizaje por transferencia resolvió el problema con pocos datos: MobileNetV2 preentrenada, con una cabeza de clasificación nueva, alcanzó 0.972 de exactitud en validación cruzada y 0.98 en 100 imágenes nuevas, mientras que las CNN entrenadas desde cero con las mismas 400 imágenes no pasaron de 0.34 en prueba. Con un conjunto de datos de este tamaño no tiene sentido entrenar una CNN desde cero; la inversión conviene en reutilizar una base preentrenada.
+
+Otras observaciones de los experimentos: el aumento de datos y el código base de los generadores funcionaron sin cambios; el \textit{fine-tuning} no aportó mejora con tan pocos datos; la optimización de hiperparámetros sólo mostró un efecto claro en la tasa de aprendizaje, y la ganancia total (0.970 a 0.972) está dentro del ruido; y los dos únicos errores del modelo final involucraron contexto visual atípico (crías de pingüino, una oveja con una persona).
+
+Las limitaciones son que se usaron sólo 10 de las 90 especies, un conjunto de prueba de 100 imágenes (una diferencia de 3 puntos equivale a 3 imágenes), una sola partición de prueba y un conjunto de datos público cuyas fotografías probablemente son más limpias y variadas en composición que las de un caso real. Los resultados se obtuvieron con semilla fija y pueden variar ligeramente en otro equipo. Para ampliar el trabajo se podría probar con las 90 especies, con otros modelos preentrenados y con fotografías tomadas en condiciones reales.
+
+\referencias
+
+\end{document}

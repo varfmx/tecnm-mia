@@ -28,3 +28,8 @@ __pycache__/
 .DS_Store
 # Registros generados por la interfaz del chatbot (act17)
 MPIAF-0102/actividades/act17/logs/
+MPIAF-0102/actividades/act18/datos/
+# act19: se descargan los modelos YOLO y las imágenes de COCO; el video de prueba se genera y sí se versiona
+MPIAF-0102/actividades/act19/datos/modelos/
+MPIAF-0102/actividades/act19/datos/validacion/
+MPIAF-0102/actividades/act21/datos/

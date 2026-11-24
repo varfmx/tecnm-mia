@@ -1,0 +1,677 @@
+%% =======================================================
+%% Actividad 20: "Diagnóstico Médico Asistido"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.3. Aprendizaje automático \\ Actividad 20 - Diagnóstico \\ Médico Asistido}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+El aprendizaje automático permite que un sistema aprenda patrones a partir de datos en lugar de programar reglas explícitas \parencite{iae_u4_t43, geron2022}. Una de sus aplicaciones más relevantes es el apoyo al diagnóstico médico: predecir, a partir de exámenes de rutina, qué pacientes tienen riesgo de una enfermedad cardíaca. El tema señala que en este tipo de aplicaciones no basta con predecir bien; también importa entender por qué el modelo decide lo que decide \parencite{iae_u4_t43}.
+
+En este reporte se desarrolla la actividad ``Diagnóstico Médico Asistido'' del Tema 4.3. A partir del código base del tema se explora un conjunto de 1\,000 pacientes con ocho características, se comparan cinco algoritmos de clasificación con validación cruzada y un conjunto de prueba reservado, se optimizan los mejores y se interpretan los resultados con tres técnicas distintas de importancia de características. Además, como los datos son simulados, se verifica lo que las técnicas de interpretación encuentran contra la estructura real con la que se generaron los datos.
+
+\section{Marco conceptual}
+
+\subsection{Aprendizaje supervisado y clasificación}
+
+En el aprendizaje supervisado se proporcionan ejemplos con su respuesta correcta; es el enfoque indicado cuando hay datos históricos con resultados conocidos, por ejemplo para diagnosticar enfermedades \parencite{iae_u4_t43}. Cuando la respuesta es una categoría (aquí, ``sano'' o ``con riesgo'') el problema es de clasificación. El tema presenta la regresión logística, los árboles de decisión, Random Forest, las máquinas de soporte vectorial (SVM) y los $k$ vecinos más cercanos como algoritmos de clasificación \parencite{iae_u4_t43}.
+
+\subsection{Los algoritmos comparados}
+
+La \textbf{regresión logística} estima la probabilidad de la clase positiva con una función lineal de las características; su frontera de decisión es lineal. Un \textbf{árbol de decisión} formula preguntas sucesivas sobre las características, es fácil de explicar y por eso útil donde la transparencia importa, como en diagnósticos médicos \parencite{iae_u4_t43}. \textbf{Random Forest} combina muchos árboles, cada uno entrenado con una versión distinta de los datos, y se queda con la respuesta mayoritaria, lo que lo hace más robusto que un árbol individual \parencite{iae_u4_t43}. La \textbf{SVM} y los \textbf{$k$ vecinos} son los otros dos modelos que el tema compara en su ejemplo de evaluación.
+
+\subsection{Evaluación}
+
+El tema insiste en no confiar en el desempeño durante el entrenamiento y en evaluar con datos nuevos \parencite{iae_u4_t43}. Se usan las métricas que menciona: la \textbf{precisión} (de los casos que el modelo marcó como riesgo, cuántos lo eran), el \textbf{recall} o exhaustividad (de los pacientes con riesgo reales, cuántos se detectaron), el \textbf{F1} (balance entre ambos) y la \textbf{matriz de confusión}, que muestra dónde se equivoca el modelo. También se reporta la exactitud, el área bajo la curva ROC (AUC) y la validación cruzada estratificada de 5 pliegues. En un contexto médico los dos errores no cuestan lo mismo: un \textbf{falso negativo} es un paciente con riesgo que se deja sin atender, y un \textbf{falso positivo} es un estudio adicional innecesario; por eso se presta atención especial al recall.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} formar parte de un equipo de investigación médica que desarrolla un sistema para predecir enfermedades cardíacas con base en exámenes de rutina.
+
+\subsection*{Misión}
+
+\begin{description}
+    \item[Tarea 1: Explorar los datos.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Analizar los historiales médicos para entender qué factores predicen mejor los problemas cardíacos.
+    \end{enumerate}
+    \item[Tarea 2: Construir modelos.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Implementar varios algoritmos de clasificación para comparar su desempeño.
+    \end{enumerate}
+    \item[Tarea 3: Interpretar resultados.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item No sólo predecir, sino entender qué factores son más importantes.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+El enunciado habla de historiales reales anonimizados, pero el código base indica que los datos son simulados (``simulados para este ejercicio'') y los genera con \texttt{make\_classification}: 1\,000 pacientes, 8 características de las cuales 5 son informativas, 2 clases y \texttt{random\_state=42}. Se usó exactamente ese esqueleto. Las ocho columnas reciben nombres médicos (edad, presión arterial, colesterol, glucosa, IMC, fumador, actividad física e historial familiar), pero \textbf{son sólo etiquetas}: \texttt{make\_classification} decide al azar qué columnas son informativas y sus relaciones con la clase no tienen sentido clínico. Esto se verifica y se discute en la sección de resultados, y es una limitación central de la actividad: las conclusiones describen estos datos simulados, no la fisiología de las enfermedades cardíacas.
+
+\section{Desarrollo}
+
+\subsection{Tarea 1: Exploración de los datos}
+
+El Código~\ref{cod:skel} es la función del código base, sin modificaciones salvo la eliminación de un símbolo gráfico del texto impreso. El Código~\ref{cod:desc} la utiliza y calcula los estadísticos que guían el análisis.
+
+\begin{codigo}[label=cod:skel]{Función base \texttt{explorar\_datos\_salud}}
+def explorar_datos_salud():
+    """Comienza tu análisis aquí"""
+    # Cargar datos de salud (simulados para este ejercicio)
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=1000, n_features=8,
+                               n_informative=5, n_classes=2,
+                               random_state=42)
+
+    feature_names = ['Edad', 'Presión Arterial', 'Colesterol', 'Glucosa',
+                     'IMC', 'Fumador', 'Actividad Física', 'Historial Familiar']
+
+    print("Análisis de Datos de Salud Cardíaca")
+    print(f"Muestras: {X.shape[0]}, Características: {X.shape[1]}")
+    print(f"Pacientes sanos: {sum(y==0)}, Pacientes con riesgo: {sum(y==1)}")
+
+    return X, y, feature_names
+\end{codigo}
+
+\begin{codigo}[label=cod:desc]{Estadísticos descriptivos y correlaciones}
+df = pd.DataFrame(X, columns=nombres)
+df["Riesgo"] = y
+
+print("\nValores faltantes por columna:", int(df.isna().sum().sum()))
+print("\nEstadísticos descriptivos:")
+print(df[nombres].describe().T[["mean", "std", "min", "50%", "max"]].round(2).to_string())
+
+print("\nMedia de cada característica por grupo:")
+medias = df.groupby("Riesgo")[nombres].mean().T
+medias.columns = ["Sano (0)", "Riesgo (1)"]
+medias["diferencia"] = medias["Riesgo (1)"] - medias["Sano (0)"]
+print(medias.round(2).to_string())
+
+corr = df.corr()
+corr_y = corr["Riesgo"].drop("Riesgo")
+print("\nCorrelación de cada característica con el riesgo (ordenada por |r|):")
+print(corr_y.reindex(corr_y.abs().sort_values(ascending=False).index).round(3).to_string())
+pares = [(a, b, corr.loc[a, b]) for i, a in enumerate(nombres) for b in nombres[i + 1:] if abs(corr.loc[a, b]) >= 0.3]
+print("\nPares de características con |r| >= 0.3:", [(a, b, round(float(r), 2)) for a, b, r in pares] or "ninguno")
+\end{codigo}
+
+\begin{consola}[label=out:expl]{Exploración de los datos}
+Análisis de Datos de Salud Cardíaca
+Muestras: 1000, Características: 8
+Pacientes sanos: 498, Pacientes con riesgo: 502
+
+Valores faltantes por columna: 0
+
+Estadísticos descriptivos:
+                    mean   std   min   50%   max
+Edad               -0.01  1.62 -5.81  0.03  4.61
+Presión Arterial   -0.49  1.52 -4.26 -0.76  5.69
+Colesterol         -0.04  1.04 -3.58 -0.03  3.24
+Glucosa             0.63  2.81 -8.10  0.99  7.93
+IMC                 0.48  1.58 -4.66  0.58  5.07
+Fumador             0.46  2.00 -7.30  0.55  7.46
+Actividad Física    0.50  1.62 -4.34  0.45  5.61
+Historial Familiar  0.47  1.49 -3.89  0.54  6.04
+
+Media de cada característica por grupo:
+                    Sano (0)  Riesgo (1)  diferencia
+Edad                    0.02       -0.04       -0.06
+Presión Arterial       -1.01        0.02        1.03
+Colesterol             -0.07       -0.01        0.06
+Glucosa                 0.75        0.52       -0.23
+IMC                    -0.01        0.97        0.98
+Fumador                 0.58        0.33       -0.25
+Actividad Física        0.97        0.03       -0.94
+Historial Familiar      0.95       -0.01       -0.96
+
+Correlación de cada característica con el riesgo (ordenada por |r|):
+Presión Arterial      0.340
+Historial Familiar   -0.321
+IMC                   0.308
+Actividad Física     -0.291
+Fumador              -0.061
+Glucosa              -0.042
+Colesterol            0.028
+Edad                 -0.018
+\end{consola}
+
+\begin{consola}[label=out:pares]{Pares de características correlacionadas entre sí}
+Pares de características con |r| >= 0.3: [('Edad', 'Glucosa', -0.69), ('Edad', 'Fumador', 0.34), ('Edad', 'Actividad Física', 0.4), ('Presión Arterial', 'Glucosa', -0.69), ('Presión Arterial', 'Fumador', 0.57), ('Glucosa', 'Fumador', -0.42), ('Glucosa', 'Actividad Física', -0.62), ('Glucosa', 'Historial Familiar', 0.51), ('Fumador', 'Actividad Física', 0.53), ('Fumador', 'Historial Familiar', 0.4)]
+\end{consola}
+
+\subsection{Preprocesamiento}
+
+Los datos no tienen valores faltantes. Se separó el 30~\% de los pacientes (300) como \textbf{conjunto de prueba}, con partición estratificada para conservar la proporción de clases, y no se usó para entrenar ni para elegir modelos. Como la regresión logística, la SVM y los $k$ vecinos son sensibles a la escala de las variables (las desviaciones estándar van de 1.04 a 2.81), se estandarizaron las variables con \texttt{StandardScaler} dentro de un \texttt{Pipeline}. Así, en la validación cruzada el escalador se ajusta únicamente con los datos de entrenamiento de cada pliegue y no hay fuga de información hacia el pliegue de validación.
+
+\begin{codigo}[label=cod:prep]{Partición estratificada}
+X_ent, X_prueba, y_ent, y_prueba = train_test_split(X, y, test_size=0.3, random_state=SEMILLA, stratify=y)
+print(f"Entrenamiento: {len(y_ent)} pacientes (riesgo: {y_ent.mean():.1%})")
+print(f"Prueba:        {len(y_prueba)} pacientes (riesgo: {y_prueba.mean():.1%})")
+print("El escalado (StandardScaler) va dentro de un Pipeline: se ajusta sólo con los datos de entrenamiento de cada pliegue.")
+\end{codigo}
+
+\subsection{Tarea 2: Construcción de modelos}
+
+Se compararon los cinco algoritmos del tema con sus hiperparámetros por defecto (Código~\ref{cod:mods}). La comparación se hizo en dos pasos: primero con validación cruzada de 5 pliegues sobre los 700 pacientes de entrenamiento, que es la que se usa para elegir; después se ajustó cada modelo con todo el entrenamiento y se evaluó una sola vez en los 300 pacientes de prueba (Código~\ref{cod:final}). El mejor modelo se eligió con el F1 de validación cruzada y no con el de prueba, para que el conjunto de prueba siga siendo una estimación honesta.
+
+\begin{codigo}[label=cod:mods]{Modelos y validación cruzada}
+modelos = {
+    "Regresión Logística": make_pipeline(StandardScaler(), LogisticRegression(random_state=SEMILLA)),
+    "Árbol de decisión": DecisionTreeClassifier(random_state=SEMILLA),
+    "Random Forest": RandomForestClassifier(n_estimators=100, random_state=SEMILLA),
+    "SVM": make_pipeline(StandardScaler(), SVC(probability=True, random_state=SEMILLA)),
+    "K-Vecinos": make_pipeline(StandardScaler(), KNeighborsClassifier()),
+}
+metricas = {"exactitud": "accuracy", "precisión": "precision", "recall": "recall", "F1": "f1", "AUC": "roc_auc"}
+
+filas_cv = []
+for nombre, modelo in modelos.items():
+    r = cross_validate(modelo, X_ent, y_ent, cv=cv, scoring=list(metricas.values()), return_train_score=True)
+    fila = {"modelo": nombre}
+    for corto, largo in metricas.items():
+        fila[f"{corto} CV"] = r[f"test_{largo}"].mean()
+    fila["F1 CV desv."] = r["test_f1"].std()
+    fila["exactitud entren."] = r["train_accuracy"].mean()
+    filas_cv.append(fila)
+tabla_cv = pd.DataFrame(filas_cv).set_index("modelo")
+print("\nValidación cruzada estratificada de 5 pliegues (sobre los 700 pacientes de entrenamiento):")
+print(tabla_cv.round(3).to_string())
+\end{codigo}
+
+\begin{codigo}[label=cod:final]{Evaluación en el conjunto de prueba}
+# Se ajusta cada modelo con todo el entrenamiento y se evalúa UNA vez en la prueba
+filas_te, predicciones, probas = [], {}, {}
+for nombre, modelo in modelos.items():
+    modelo.fit(X_ent, y_ent)
+    pred = modelo.predict(X_prueba)
+    proba = modelo.predict_proba(X_prueba)[:, 1]
+    predicciones[nombre], probas[nombre] = pred, proba
+    filas_te.append({"modelo": nombre,
+                     "exactitud": accuracy_score(y_prueba, pred),
+                     "precisión": precision_score(y_prueba, pred),
+                     "recall": recall_score(y_prueba, pred),
+                     "F1": f1_score(y_prueba, pred),
+                     "AUC": roc_auc_score(y_prueba, proba)})
+tabla_te = pd.DataFrame(filas_te).set_index("modelo")
+print("\nDesempeño en el conjunto de prueba (300 pacientes):")
+print(tabla_te.round(3).to_string())
+\end{codigo}
+
+\begin{consola}[label=out:cv]{Validación cruzada y prueba de los cinco modelos}
+Validación cruzada estratificada de 5 pliegues (sobre los 700 pacientes de entrenamiento):
+                     exactitud CV  precisión CV  recall CV  F1 CV  AUC CV  F1 CV desv.  exactitud entren.
+modelo                                                                                                   
+Regresión Logística         0.827         0.827      0.829  0.828   0.889        0.020              0.830
+Árbol de decisión           0.897         0.907      0.892  0.897   0.897        0.005              1.000
+Random Forest               0.926         0.920      0.937  0.927   0.977        0.025              1.000
+SVM                         0.916         0.898      0.940  0.918   0.967        0.024              0.933
+K-Vecinos                   0.920         0.947      0.892  0.918   0.968        0.023              0.951
+
+Desempeño en el conjunto de prueba (300 pacientes):
+                     exactitud  precisión  recall     F1    AUC
+modelo                                                         
+Regresión Logística      0.783      0.791   0.775  0.783  0.867
+Árbol de decisión        0.870      0.873   0.868  0.870  0.870
+Random Forest            0.930      0.922   0.940  0.931  0.972
+SVM                      0.900      0.885   0.921  0.903  0.963
+K-Vecinos                0.903      0.930   0.874  0.901  0.963
+
+Mejor modelo según el F1 de validación cruzada (no de prueba): Random Forest
+\end{consola}
+
+Después se aplicó una búsqueda en rejilla (\texttt{GridSearchCV}, F1 con la misma validación cruzada) a Random Forest y a la SVM, los dos mejores modelos (Código~\ref{cod:grid}).
+
+\begin{codigo}[label=cod:grid]{Optimización de hiperparámetros}
+rejillas = {
+    "Random Forest": (RandomForestClassifier(random_state=SEMILLA),
+                      {"n_estimators": [100, 300], "max_depth": [None, 5, 10], "min_samples_leaf": [1, 3, 5]}),
+    "SVM": (make_pipeline(StandardScaler(), SVC(probability=True, random_state=SEMILLA)),
+            {"svc__C": [0.1, 1, 10, 100], "svc__gamma": ["scale", 0.01, 0.1]}),
+}
+optimos, filas_opt = {}, []
+for nombre, (base, rejilla) in rejillas.items():
+    gs = GridSearchCV(base, rejilla, scoring="f1", cv=cv, n_jobs=-1).fit(X_ent, y_ent)
+    optimos[nombre] = gs.best_estimator_
+    pred = gs.best_estimator_.predict(X_prueba)
+    proba = gs.best_estimator_.predict_proba(X_prueba)[:, 1]
+    print(f"{nombre}: mejores hiperparámetros {gs.best_params_}")
+    print(f"   F1 CV: {gs.best_score_:.3f} (por defecto: {tabla_cv.loc[nombre, 'F1 CV']:.3f})")
+    filas_opt.append({"modelo": f"{nombre} optimizado", "exactitud": accuracy_score(y_prueba, pred),
+                      "precisión": precision_score(y_prueba, pred), "recall": recall_score(y_prueba, pred),
+                      "F1": f1_score(y_prueba, pred), "AUC": roc_auc_score(y_prueba, proba)})
+\end{codigo}
+
+\begin{consola}[label=out:opt]{Resultado de la optimización}
+Random Forest: mejores hiperparámetros {'max_depth': None, 'min_samples_leaf': 1, 'n_estimators': 300}
+   F1 CV: 0.930 (por defecto: 0.927)
+SVM: mejores hiperparámetros {'svc__C': 10, 'svc__gamma': 'scale'}
+   F1 CV: 0.929 (por defecto: 0.918)
+
+Modelos optimizados en el conjunto de prueba:
+                          exactitud  precisión  recall     F1    AUC
+modelo                                                              
+Random Forest optimizado      0.943      0.935   0.954  0.944  0.971
+SVM optimizado                0.923      0.910   0.940  0.925  0.971
+\end{consola}
+
+\subsection{Tarea 3: Interpretación}
+
+Se usaron tres formas de medir la importancia de cada característica, porque cada una responde una pregunta distinta (Código~\ref{cod:interp}): (a) los \textbf{coeficientes de la regresión logística} sobre variables estandarizadas, que miden el efecto lineal y su signo; (b) la \textbf{importancia por impureza} de Random Forest, que se calcula durante el entrenamiento; y (c) la \textbf{importancia por permutación}, que mide cuánto cae el AUC en el conjunto de prueba al desordenar al azar los valores de una característica (30 repeticiones). Además se entrenó un árbol de profundidad 3 para leer reglas explícitas y se explicaron dos pacientes concretos con la regresión logística.
+
+\begin{codigo}[label=cod:interp]{Importancia de las características}
+# (a) Regresión logística: coeficientes sobre variables estandarizadas
+rl = modelos["Regresión Logística"]
+coef = pd.Series(rl[-1].coef_[0], index=nombres)
+oddsratio = np.exp(coef)
+
+# (b) Random Forest: importancia por reducción de impureza
+rf = modelos["Random Forest"]
+imp_rf = pd.Series(rf.feature_importances_, index=nombres)
+
+# (c) Importancia por permutación (en prueba, 30 repeticiones): cuánto cae el AUC al desordenar una característica
+perm = permutation_importance(rf, X_prueba, y_prueba, scoring="roc_auc", n_repeats=30, random_state=SEMILLA)
+imp_perm = pd.Series(perm.importances_mean, index=nombres)
+imp_perm_sd = pd.Series(perm.importances_std, index=nombres)
+\end{codigo}
+
+\section{Resultados}
+
+\subsection{Exploración: qué factores parecen predecir el riesgo}
+
+Los dos grupos están equilibrados (498 sanos y 502 con riesgo). Cuatro características muestran una correlación moderada con el riesgo (Salida~\ref{out:expl}): presión arterial ($r=+0.34$), historial familiar ($-0.32$), IMC ($+0.31$) y actividad física ($-0.29$). Las otras cuatro tienen $|r|<0.07$. Sin embargo, la correlación lineal sólo detecta diferencias en la media, y las distribuciones de la Figura~\ref{fig:dist} muestran que ése no es el único tipo de diferencia: la glucosa casi no tiene correlación con el riesgo ($r=-0.04$), pero en los pacientes con riesgo es mucho más dispersa (desviación mucho mayor, con dos modas) que en los sanos, de modo que sí contiene información. Esto anticipa que un modelo lineal desaprovechará algunas características.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act20/img/distribuciones.png}
+\caption{Distribución de cada característica según el grupo, con su correlación con el riesgo.}
+\label{fig:dist}
+\end{figure}
+
+Además, las características están correlacionadas entre sí (Salida~\ref{out:pares}, Figura~\ref{fig:corr}): por ejemplo glucosa con edad y con presión arterial ($r=-0.69$ en ambos casos). Esto dificulta atribuir el efecto a una sola variable y es relevante para la interpretación.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.62\linewidth]{act20/img/correlaciones.png}
+\caption{Matriz de correlación entre las características y el riesgo.}
+\label{fig:corr}
+\end{figure}
+
+\subsection{Comparación de modelos}
+
+\begin{table}[H]
+\centering
+\caption{Desempeño de los cinco modelos. CV: validación cruzada de 5 pliegues (700 pacientes); prueba: 300 pacientes reservados.}
+\label{tab:modelos}
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Exactitud}} & \multicolumn{2}{c}{\textbf{F1}} & \multicolumn{2}{c}{\textbf{AUC}} \\
+\textbf{Modelo} & CV & Prueba & CV & Prueba & CV & Prueba \\
+\midrule
+Regresión logística & 0.827 & 0.783 & 0.828 & 0.783 & 0.889 & 0.867 \\
+Árbol de decisión   & 0.897 & 0.870 & 0.897 & 0.870 & 0.897 & 0.870 \\
+Random Forest       & 0.926 & 0.930 & 0.927 & 0.931 & 0.977 & 0.972 \\
+SVM                 & 0.916 & 0.900 & 0.918 & 0.903 & 0.967 & 0.963 \\
+$k$ vecinos         & 0.920 & 0.903 & 0.918 & 0.901 & 0.968 & 0.963 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{act20/img/comparacion.png}
+\caption{Métricas de los cinco modelos en el conjunto de prueba.}
+\label{fig:comp}
+\end{figure}
+
+Random Forest fue el mejor en validación cruzada (F1 de 0.927) y también en prueba (exactitud 0.930, recall 0.940, AUC 0.972), seguido de la SVM y de los $k$ vecinos, que quedaron muy cerca entre sí (Tabla~\ref{tab:modelos}, Figura~\ref{fig:comp}). La \textbf{regresión logística fue claramente la peor} (exactitud de prueba 0.783 contra 0.930), lo que indica que la relación entre las características y el riesgo no es lineal; es coherente con lo visto en la exploración, donde la diferencia más marcada en la glucosa era de dispersión y no de media. El árbol individual sobreajustó: acierta 100~\% en entrenamiento y baja a 0.897 en validación cruzada, mientras que el bosque, que también acierta 100~\% en entrenamiento, conserva 0.926. Con 300 pacientes de prueba, una diferencia de 3 puntos equivale a unos 9 pacientes, por lo que la SVM, los $k$ vecinos y Random Forest no son claramente distinguibles entre sí; lo que sí es claro es que están por encima del árbol y de la regresión logística.
+
+La Figura~\ref{fig:cm} muestra las matrices de confusión y la Figura~\ref{fig:roc}, las curvas ROC, donde las de Random Forest, SVM y $k$ vecinos casi se superponen.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{act20/img/matrices_confusion.png}
+\caption{Matrices de confusión de los cinco modelos en el conjunto de prueba.}
+\label{fig:cm}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\linewidth]{act20/img/roc.png}
+\caption{Curvas ROC en el conjunto de prueba.}
+\label{fig:roc}
+\end{figure}
+
+\subsection{Optimización de hiperparámetros}
+
+La búsqueda subió el F1 de validación cruzada de 0.927 a 0.930 en Random Forest (300 árboles, sin límite de profundidad) y de 0.918 a 0.929 en la SVM ($C=10$); en prueba, Random Forest optimizado obtuvo exactitud 0.943 y recall 0.954, y la SVM optimizada, 0.923 y 0.940 (Salida~\ref{out:opt}). La mejora en prueba de Random Forest (de 0.930 a 0.943) equivale a unos 4 pacientes de 300, y la mejora de validación cruzada es de apenas 0.003, de modo que es pequeña y está dentro del ruido; en cambio, la SVM sí ganó más (1.1 puntos de F1 en CV) al elegir un $C$ mayor. Para el resto del análisis se conservó el Random Forest por defecto, que fue el elegido antes de optimizar y ya era prácticamente igual de bueno.
+
+\subsection{Evaluación detallada del mejor modelo}
+
+\begin{consola}[label=out:det]{Reporte de clasificación de Random Forest}
+              precision    recall  f1-score   support
+
+        Sano      0.938     0.919     0.929       149
+      Riesgo      0.922     0.940     0.931       151
+
+    accuracy                          0.930       300
+   macro avg      0.930     0.930     0.930       300
+weighted avg      0.930     0.930     0.930       300
+
+Verdaderos negativos: 137, falsos positivos: 12, falsos negativos: 9, verdaderos positivos: 142
+Pacientes con riesgo que el modelo NO detectó (falsos negativos): 9 de 151
+\end{consola}
+
+Random Forest clasificó bien a 279 de los 300 pacientes. Dejó sin detectar a \textbf{9 de los 151 pacientes con riesgo} (falsos negativos) y marcó como riesgo a 12 de los 149 sanos (falsos positivos). En un sistema médico los falsos negativos son los más costosos, así que se exploró mover el umbral de decisión. El umbral se eligió \textbf{sólo con el entrenamiento}: con las predicciones de validación cruzada se buscó el mayor umbral que mantuviera un recall de al menos 0.97 (Código~\ref{cod:umbral}, Figura~\ref{fig:umbral}).
+
+\begin{codigo}[label=cod:umbral]{Elección del umbral con validación cruzada}
+proba_cv = cross_val_predict(modelo_final, X_ent, y_ent, cv=cv, method="predict_proba")[:, 1]
+umbrales = np.linspace(0.05, 0.95, 91)
+rec_cv = np.array([recall_score(y_ent, proba_cv >= u) for u in umbrales])
+pre_cv = np.array([precision_score(y_ent, proba_cv >= u, zero_division=0) for u in umbrales])
+umbral_97 = umbrales[rec_cv >= 0.97].max()
+print(f"\nMayor umbral con recall >= 0.97 en validación cruzada: {umbral_97:.2f}")
+\end{codigo}
+
+\begin{consola}[label=out:umb]{Efecto del umbral de decisión}
+Mayor umbral con recall >= 0.97 en validación cruzada: 0.31
+Efecto del umbral en el conjunto de prueba:
+                             precisión  recall     F1  falsos neg.  falsos pos.
+umbral                                                                         
+0.50 (por defecto)               0.922    0.94  0.931            9           12
+0.31 (recall >= 0.97 en CV)      0.841    0.98  0.905            3           28
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{act20/img/umbral.png}
+\caption{Recall y precisión en función del umbral de decisión (validación cruzada).}
+\label{fig:umbral}
+\end{figure}
+
+Con el umbral de 0.31 los falsos negativos en prueba bajan de 9 a 3 (recall de 0.98), pero los falsos positivos suben de 12 a 28 y la precisión cae de 0.922 a 0.841. Es un intercambio explícito: se detecta a casi todos los pacientes con riesgo a cambio de enviar a más de uno de cada seis pacientes sanos a estudios adicionales. Si ese costo es aceptable es una decisión clínica y no estadística.
+
+\subsection{Interpretación: ¿qué factores son más importantes?}
+
+\begin{consola}[label=out:imp]{Importancia de las características}
+Importancia de las características (ordenadas por permutación):
+                    coef. logística (z)  odds ratio  importancia RF  permutación (caída AUC)  desv. perm.
+Historial Familiar               -1.037       0.355           0.222                    0.118        0.016
+IMC                               1.045       2.844           0.147                    0.082        0.009
+Actividad Física                 -1.077       0.340           0.136                    0.068        0.009
+Presión Arterial                  1.301       3.673           0.151                    0.023        0.007
+Glucosa                           0.036       1.036           0.154                    0.013        0.005
+Edad                             -0.491       0.612           0.070                    0.007        0.002
+Fumador                          -0.143       0.866           0.086                    0.004        0.002
+Colesterol                        0.103       1.109           0.035                    0.001        0.001
+
+Posición de cada característica según cada método (1 = más importante):
+                    logística  RF  permutación
+Historial Familiar          4   1            1
+IMC                         3   4            2
+Actividad Física            2   5            3
+Presión Arterial            1   3            4
+Glucosa                     8   2            5
+Edad                        5   7            6
+Fumador                     6   6            7
+Colesterol                  7   8            8
+
+Correlación de Spearman entre los rangos:
+             logística    RF  permutación
+logística         1.00  0.24         0.62
+RF                0.24  1.00         0.76
+permutación       0.62  0.76         1.00
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act20/img/importancias.png}
+\caption{Importancia de las características según tres métodos.}
+\label{fig:imp}
+\end{figure}
+
+Los tres métodos coinciden en lo grueso (Salida~\ref{out:imp}, Figura~\ref{fig:imp}): \textbf{historial familiar, IMC, actividad física y presión arterial} son los factores principales, y colesterol, fumador y edad los menos relevantes. Pero difieren en los detalles, y esas diferencias son instructivas:
+\begin{itemize}
+    \item La \textbf{importancia por permutación} (que se mide en datos de prueba) pone primero al historial familiar (caída del AUC de 0.118), seguido de IMC (0.082) y actividad física (0.068); la presión arterial queda cuarta (0.023). Su rango coincide bastante con el de Random Forest (correlación de Spearman de 0.76) y con el de la regresión logística (0.62).
+    \item La \textbf{regresión logística} da la mayor importancia a la presión arterial (coeficiente de 1.30, razón de momios de 3.67 por desviación estándar), pero casi ninguna a la glucosa (0.04), que por la exploración sabemos que tiene información no lineal. Su ranking coincide poco con el de Random Forest (0.24).
+    \item La importancia por impureza de Random Forest coloca la glucosa en segundo lugar, pero al desordenarla en el conjunto de prueba el AUC casi no cambia (0.013). La glucosa está fuertemente correlacionada con otras variables (hasta $-0.69$), de modo que el bosque puede obtener la misma información de ellas; la importancia por impureza se calcula con los datos de entrenamiento y no refleja necesariamente la utilidad al predecir datos nuevos.
+\end{itemize}
+
+Los signos de los coeficientes además contradicen el sentido médico: el historial familiar tiene coeficiente negativo (razón de momios de 0.36: más historial familiar, \emph{menos} riesgo) y fumador también es negativo, aunque pequeño ($-0.14$). Es otra señal de que las etiquetas son arbitrarias.
+
+\begin{consola}[label=out:ver]{Verificación con la estructura real de los datos simulados}
+Verificación con la estructura real de los datos simulados:
+                       rol real  |coef.| logística  importancia RF  permutación
+Historial Familiar  informativa              1.037           0.222        0.118
+IMC                 informativa              1.045           0.147        0.082
+Actividad Física    informativa              1.077           0.136        0.068
+Presión Arterial    informativa              1.301           0.151        0.023
+Glucosa              redundante              0.036           0.154        0.013
+Edad                informativa              0.491           0.070        0.007
+Fumador              redundante              0.143           0.086        0.004
+Colesterol                ruido              0.103           0.035        0.001
+
+Los nombres médicos (Edad, Colesterol...) son sólo etiquetas: make_classification asigna el rol a columnas al azar.
+Por eso la importancia aquí describe los datos simulados, no la fisiología de las enfermedades cardíacas.
+\end{consola}
+
+Como los datos son simulados, se pudo comprobar lo que cada método encontró. Generando los mismos datos con \texttt{shuffle=False} se conoce qué columnas son informativas, cuáles son combinaciones lineales de ellas (redundantes) y cuál es ruido puro; las columnas se identifican por sus valores (Salida~\ref{out:ver}). Resultados de la verificación:
+\begin{itemize}
+    \item La importancia por permutación es la que mejor concuerda con la realidad: sus cuatro primeros lugares son características informativas y el \textbf{colesterol, que es ruido puro, queda último} con importancia prácticamente cero ($0.001\pm0.001$).
+    \item La \textbf{edad} es informativa, pero tiene poca importancia (0.007): ``informativa'' no quiere decir ``influyente''; en \texttt{make\_classification} cada columna informativa aporta una cantidad distinta de información.
+    \item La \textbf{glucosa es una variable redundante} (combinación de las informativas), no una causa por sí misma. La importancia por impureza de Random Forest le dio el segundo lugar, un ejemplo de cómo esta medida puede sobrevalorar variables correlacionadas con las informativas.
+\end{itemize}
+
+Además, la Salida~\ref{out:tree} y la Figura~\ref{fig:arbol} muestran un árbol de profundidad 3, que alcanza una exactitud de prueba de 0.857 (frente a 0.870 del árbol sin límite y 0.930 de Random Forest). Es la opción más transparente y pierde sólo unos cuantos puntos respecto al árbol completo; sus preguntas usan las mismas variables que los rankings anteriores (historial familiar, presión arterial, IMC y actividad física).
+
+\begin{consola}[label=out:tree]{Reglas del árbol de profundidad 3}
+Árbol de profundidad 3: exactitud en prueba 0.857 (árbol sin límite: 0.870)
+|--- Historial Familiar <= -0.37
+|   |--- Presión Arterial <= -1.62
+|   |   |--- IMC <= -0.12
+|   |   |   |--- class: 0
+|   |   |--- IMC >  -0.12
+|   |   |   |--- class: 1
+|   |--- Presión Arterial >  -1.62
+|   |   |--- Historial Familiar <= -0.48
+|   |   |   |--- class: 1
+|   |   |--- Historial Familiar >  -0.48
+|   |   |   |--- class: 1
+|--- Historial Familiar >  -0.37
+|   |--- Actividad Física <= -0.28
+|   |   |--- IMC <= -1.49
+|   |   |   |--- class: 0
+|   |   |--- IMC >  -1.49
+|   |   |   |--- class: 1
+|   |--- Actividad Física >  -0.28
+|   |   |--- IMC <= 2.04
+|   |   |   |--- class: 0
+|   |   |--- IMC >  2.04
+|   |   |   |--- class: 1
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act20/img/arbol.png}
+\caption{Árbol de decisión de profundidad 3.}
+\label{fig:arbol}
+\end{figure}
+
+\subsection{Explicación de casos individuales y errores}
+
+\begin{consola}[label=out:pac]{Dos pacientes explicados con la regresión logística}
+paciente de mayor riesgo en prueba: probabilidad de riesgo 98.8% (real: riesgo)
+   aportes al logit (coef. x valor estandarizado), de mayor a menor |aporte|:
+IMC                   1.96
+Presión Arterial      1.43
+Historial Familiar    1.24
+Edad                 -0.48
+
+paciente más dudoso en prueba: probabilidad de riesgo 50.3% (real: sano)
+   aportes al logit (coef. x valor estandarizado), de mayor a menor |aporte|:
+IMC                  -2.51
+Actividad Física      1.70
+Historial Familiar    1.37
+Presión Arterial     -1.25
+\end{consola}
+
+\begin{consola}[label=out:fn]{Falsos negativos de Random Forest}
+Falsos negativos de Random Forest: 9; probabilidad de riesgo asignada: [0.32, 0.47, 0.48, 0.02, 0.43, 0.03, 0.44, 0.27, 0.48]
+\end{consola}
+
+La regresión logística permite descomponer una predicción: el paciente de mayor riesgo en prueba (98.8~\%) lo debe sobre todo a su IMC, su presión arterial y su historial familiar; el paciente más dudoso (50.3~\%) tiene contribuciones que se compensan entre sí (IMC pesa $-2.51$ y la actividad física $+1.70$) y era en realidad un paciente sano. Esa transparencia es una ventaja de los modelos lineales, aunque aquí cuesten 15 puntos de exactitud respecto de Random Forest.
+
+Los 9 falsos negativos de Random Forest se dividen en dos tipos: la mayoría recibió probabilidades de 0.27 a 0.48, cerca del umbral (por eso al bajar el umbral a 0.31 se recuperan varios), pero dos recibieron 0.02 y 0.03 y el modelo estaba ``seguro'' de que eran sanos (y uno más, 0.27, tampoco se recupera con el umbral de 0.31). Esos casos no se pueden recuperar moviendo el umbral, y muestran que la probabilidad del modelo no debe leerse como certeza.
+
+\subsection{Aplicación real}
+
+Un sistema como éste, con datos reales, podría usarse como herramienta de priorización: ordenar a los pacientes de un examen de rutina por probabilidad de riesgo para canalizar primero a los de mayor riesgo, con la decisión final en manos del médico. Esto concuerda con el énfasis del tema en que comprender por qué decide el modelo es tan importante como su precisión \parencite{iae_u4_t43}. Para un uso real harían falta datos reales y representativos de la población, evaluación por subgrupos (edad, sexo) y revisión humana de los casos dudosos.
+
+\section{Cuaderno de Google Colab}
+
+El código completo de la actividad puede ejecutarse en Google Colab:
+
+\begin{center}
+    \url{https://colab.research.google.com/drive/1sLpYzArTlmKvMQ3DzmnF7D96IGFgsPQg?usp=sharing}
+\end{center}
+
+Se ejecutó el cuaderno completo en Colab y las tablas de validación cruzada, prueba, optimización, umbral, importancias y falsos negativos coincidieron con las de la ejecución local (los datos son simulados con semilla fija).
+
+\section{Conclusiones}
+
+Se compararon cinco algoritmos para predecir riesgo cardíaco en 1\,000 pacientes simulados. Random Forest fue el mejor (F1 de validación cruzada de 0.927 y exactitud de 0.930 en 300 pacientes de prueba), con SVM y $k$ vecinos cerca, y la regresión logística fue claramente la peor (0.783), lo que indica una relación no lineal entre las características y el riesgo. La optimización de hiperparámetros aportó mejoras pequeñas (entre 1.3 y 2.3 puntos de exactitud en prueba).
+
+En la interpretación, la importancia por permutación en datos de prueba fue la más confiable: identificó correctamente al historial familiar, el IMC, la actividad física y la presión arterial como factores principales y al colesterol como ruido, y se verificó contra la estructura conocida de los datos. La importancia por impureza sobrevaloró una variable redundante (glucosa), y los coeficientes de la regresión logística ignoraron una variable con efecto no lineal. Ninguna medida basta por sí sola; conviene contrastar varias. Además, ajustar el umbral de decisión mostró el intercambio entre falsos negativos y falsos positivos: bajar los falsos negativos de 9 a 3 costó pasar de 12 a 28 falsos positivos.
+
+Las limitaciones son claras. Los datos son simulados y los nombres de las columnas son sólo etiquetas, por lo que los hallazgos (incluso signos contrarios al sentido clínico) no dicen nada sobre cardiopatías reales. El conjunto de prueba es de 300 pacientes, y diferencias de pocos puntos no son concluyentes; se usó una sola partición de prueba y una sola semilla. Las conclusiones sobre importancia dependen de la estructura de \texttt{make\_classification} (dos \textit{clusters} por clase, variables redundantes). Para ampliar el trabajo se podrían usar datos clínicos reales con su evaluación por subgrupos, otros modelos como el \textit{gradient boosting}, y repetir la partición con distintas semillas.
+
+\referencias
+
+\end{document}

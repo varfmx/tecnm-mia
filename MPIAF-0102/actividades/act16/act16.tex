@@ -140,11 +140,11 @@ En este reporte se desarrolla un sistema completo de análisis de sentimientos p
 
 \subsection{Pipeline de preprocesamiento}
 
-Los textos escritos por usuarios son ruidosos: mezclan mayúsculas, puntuación, abreviaturas («xq», «bn», «tmb»), alargamientos de letras («buenooo») y emoticonos. El pipeline típico de PLN tokeniza, elimina \textit{stopwords} y lematiza para reducir cada palabra a su forma base \parencite{bird2022, iae_u4_t41}. Sin embargo, la eliminación indiscriminada de \textit{stopwords} resulta perjudicial para el análisis de sentimientos, porque palabras como «no», «nada» o «sin» invierten la polaridad de lo que las rodea.
+Los textos escritos por usuarios son ruidosos: mezclan mayúsculas, puntuación, abreviaturas (``xq'', ``bn'', ``tmb''), alargamientos de letras (``buenooo'') y emoticonos. El pipeline típico de PLN tokeniza, elimina \textit{stopwords} y lematiza para reducir cada palabra a su forma base \parencite{bird2022, iae_u4_t41}. Sin embargo, la eliminación indiscriminada de \textit{stopwords} resulta perjudicial para el análisis de sentimientos, porque palabras como ``no'', ``nada'' o ``sin'' invierten la polaridad de lo que las rodea.
 
 \subsection{Expansión de negaciones}
 
-Una técnica clásica consiste en marcar con un prefijo (aquí \texttt{no\_}) las palabras que aparecen dentro del alcance de una negación, de modo que «no es bueno» produzca los términos \texttt{no}, \texttt{no\_ser}, \texttt{no\_bueno}, distintos de «bueno». El alcance de la negación termina al encontrar un signo de puntuación o una conjunción adversativa («pero», «aunque»).
+Una técnica clásica consiste en marcar con un prefijo (aquí \texttt{no\_}) las palabras que aparecen dentro del alcance de una negación, de modo que ``no es bueno'' produzca los términos \texttt{no}, \texttt{no\_ser}, \texttt{no\_bueno}, distintos de ``bueno''. El alcance de la negación termina al encontrar un signo de puntuación o una conjunción adversativa (``pero'', ``aunque'').
 
 \subsection{Representación vectorial del texto}
 
@@ -161,19 +161,19 @@ Como las clases son tres, se reportan exactitud (\textit{accuracy}) y precisión
 \subsection*{Requerimientos del Proyecto}
 
 \begin{description}
-    \item[Tarea 1: Preprocesamiento de Texto.]
+    \item[Tarea 1: Preprocesamiento de Texto.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Implementar un pipeline de limpieza y normalización de texto.
         \item Manejar emoticonos y lenguaje informal.
         \item Aplicar técnicas de expansión de negaciones.
     \end{enumerate}
-    \item[Tarea 2: Extracción de Características.]
+    \item[Tarea 2: Extracción de Características.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Implementar TF-IDF y Word2Vec.
         \item Comparar diferentes esquemas de vectorización.
         \item Seleccionar las características más relevantes.
     \end{enumerate}
-    \item[Tarea 3: Modelado y Evaluación.]
+    \item[Tarea 3: Modelado y Evaluación.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Entrenar múltiples modelos de clasificación.
         \item Evaluar el rendimiento con métricas apropiadas.
@@ -183,7 +183,7 @@ Como las clases son tres, se reportan exactitud (\textit{accuracy}) y precisión
 
 \subsection*{Datos utilizados}
 
-El código base del tema simula únicamente cinco reseñas (dos positivas, dos negativas y una neutral), insuficientes para validación cruzada o para estimar métricas por clase. Por ello se conservaron esas cinco reseñas como las primeras filas del conjunto de datos y se amplió con reseñas simuladas en el mismo estilo hasta obtener \textbf{180 reseñas balanceadas} (60 por clase). Las reseñas añadidas se generan de forma reproducible (semilla fija) combinando productos y opiniones, e incluyen negaciones («no está nada mal», positiva), opiniones mixtas («llegó rápido, pero\ldots »), lenguaje informal y emoticonos, que en un 15\,\% de los casos contradicen la polaridad del texto. Se trata de un conjunto \textbf{simulado}, no de reseñas reales, lo cual se considera al interpretar los resultados.
+El código base del tema simula únicamente cinco reseñas (dos positivas, dos negativas y una neutral), insuficientes para validación cruzada o para estimar métricas por clase. Por ello se conservaron esas cinco reseñas como las primeras filas del conjunto de datos y se amplió con reseñas simuladas en el mismo estilo hasta obtener \textbf{180 reseñas balanceadas} (60 por clase). Las reseñas añadidas se generan de forma reproducible (semilla fija) combinando productos y opiniones, e incluyen negaciones (``no está nada mal'', positiva), opiniones mixtas (``llegó rápido, pero\ldots ''), lenguaje informal y emoticonos, que en un 15\,\% de los casos contradicen la polaridad del texto. Se trata de un conjunto \textbf{simulado}, no de reseñas reales, lo cual se considera al interpretar los resultados.
 
 \section{Desarrollo}
 
@@ -279,7 +279,7 @@ def expandir_negaciones(lemas, ventana=3):
     return salida
 \end{codigo}
 
-El Código~\ref{cod:prep} integra todo en la función \texttt{preprocesar}, con dos modos: el pipeline \textit{básico} del tema (lematización con spaCy y eliminación total de \textit{stopwords} de NLTK) y el \textit{completo} propuesto aquí, que conserva negadores e intensificadores («no», «nada», «sin», «muy», «pero») porque portan polaridad, y que corrige algunos lemas erróneos del modelo \texttt{es\_core\_news\_sm} (por ejemplo, «recomendar» lematizado como «recomeir»).
+El Código~\ref{cod:prep} integra todo en la función \texttt{preprocesar}, con dos modos: el pipeline \textit{básico} del tema (lematización con spaCy y eliminación total de \textit{stopwords} de NLTK) y el \textit{completo} propuesto aquí, que conserva negadores e intensificadores (``no'', ``nada'', ``sin'', ``muy'', ``pero'') porque portan polaridad, y que corrige algunos lemas erróneos del modelo \texttt{es\_core\_news\_sm} (por ejemplo, ``recomendar'' lematizado como ``recomeir'').
 
 \begin{codigo}[label=cod:prep]{Función de preprocesamiento}
 
@@ -314,7 +314,7 @@ def preprocesar(textos, modo="completo"):
     return resultado
 \end{codigo}
 
-La Salida~\ref{out:prep} compara ambos pipelines sobre reseñas con jerga, emoticonos y negaciones. El pipeline básico elimina por completo la información de negación («no me gustó» queda como \texttt{gustar}), mientras que el completo conserva \texttt{no no\_gustar}.
+La Salida~\ref{out:prep} compara ambos pipelines sobre reseñas con jerga, emoticonos y negaciones. El pipeline básico elimina por completo la información de negación (``no me gustó'' queda como \texttt{gustar}), mientras que el completo conserva \texttt{no no\_gustar}.
 
 \begin{consola}[label=out:prep]{Comparación de los pipelines de preprocesamiento}
 Original : Excelente producto, cumple con todas las expectativas
@@ -474,7 +474,7 @@ Word2Vec (promedio, 50d) & 0.870 & 0.877 & 0.870 & 0.870 \\
 \end{tabular}
 \end{table}
 
-TF-IDF con bigramas fue el mejor esquema (Tabla~\ref{tab:vec}) y Word2Vec el peor. Esto es esperable: con apenas 180 reseñas y un vocabulario de unas 100 palabras, Word2Vec no tiene datos para aprender buenos vectores. La Salida~\ref{out:w2v} lo confirma: las palabras más cercanas a «excelente» y «pésimo» tienen similitud de 0.99 con términos arbitrarios, y «pésimo» aparece entre los vecinos de «excelente». Los antónimos comparten contextos sintácticos («el producto es \ldots »), y sin un corpus grande el modelo distribucional no distingue la polaridad.
+TF-IDF con bigramas dio el mejor resultado (Tabla~\ref{tab:vec}) y Word2Vec el peor. Tiene sentido: con 180 reseñas y solo 101 palabras distintas, Word2Vec casi no tiene de dónde aprender. La Salida~\ref{out:w2v} lo muestra. Entre las vecinas de excelente'' aparecen llegar'' y celular'', que no tienen relación, y también pésimo''; a su vez, pésimo'' tiene como vecina a encantar''. Todas salen con una similitud de 0.99, así que el modelo prácticamente no distingue unas de otras. Las dos palabras aparecen en frases casi idénticas (el producto es \ldots'') y, con tan pocos textos, el modelo no llega a notar que significan lo contrario.
 
 \begin{consola}[label=out:w2v]{Word2Vec y comparación de vectorizaciones}
 Vocabulario Word2Vec: 101 palabras, vectores de 50 dimensiones
@@ -500,7 +500,7 @@ Word2Vec (promedio, 50d)     0.870      0.877   0.870 0.870  0.056
 
 \subsection{Selección de características}
 
-La Figura~\ref{fig:sel} presenta los 12 términos con mayor estadístico $\chi^2$ y el efecto de conservar solo las $k$ mejores características. Los términos más relevantes son los emoticonos (\texttt{emopos}, \texttt{emoneg}, \texttt{emoneu}), las negaciones expandidas (\texttt{no\_valer}, \texttt{no\_recomendar}, \texttt{no\_tener}) y términos positivos como «muy bueno». En este conjunto la selección \emph{no mejora} el desempeño: el F1 crece de forma monótona con $k$ (0.544 con 10 características, 0.866 con 100, 0.948 con las 360), de modo que se conservaron todas.
+La Figura~\ref{fig:sel} presenta los 12 términos con mayor estadístico $\chi^2$ y el efecto de conservar solo las $k$ mejores características. Los términos más relevantes son los emoticonos (\texttt{emopos}, \texttt{emoneg}, \texttt{emoneu}), las negaciones expandidas (\texttt{no\_valer}, \texttt{no\_recomendar}, \texttt{no\_tener}) y términos positivos como ``muy bueno''. En este conjunto la selección \emph{no mejora} el desempeño: el F1 crece de forma monótona con $k$ (0.544 con 10 características, 0.866 con 100, 0.948 con las 360), de modo que se conservaron todas.
 
 \begin{figure}[H]
 \centering

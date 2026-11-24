@@ -1,0 +1,13 @@
+{
+ "configuración": "yolov3-608",
+ "umbral": 0.3,
+ "imágenes": 200,
+ "objetos": 1433,
+ "TP": 896,
+ "FP": 435,
+ "FN": 537,
+ "precisión": 0.6732,
+ "recall": 0.6253,
+ "F1": 0.6483,
+ "AP50": 0.6125
+}

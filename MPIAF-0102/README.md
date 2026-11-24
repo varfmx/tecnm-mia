@@ -29,6 +29,40 @@ python act17.py          # evaluación del motor
 streamlit run app.py     # interfaz web en http://localhost:8501
 ```
 
+Actividad 18 (clasificador de animales con TensorFlow/Keras): la primera vez descarga unas 600
+imágenes (~80 MB) a `actividades/act18/datos/` (ignorada por git) y tarda ~35 min en CPU.
+
+```bash
+cd actividades/act18
+python act18.py
+```
+
+Actividad 19 (detección de objetos con YOLO y OpenCV): la primera vez descarga los modelos (~280 MB)
+y 200 imágenes de validación de COCO a `actividades/act19/datos/` (ignorada por git). Requiere
+OpenCV 4.x (la versión 5 ya no lee modelos Darknet). Lee `actividades/act19/LEEME.txt`.
+
+```bash
+cd actividades/act19
+python act19.py                  # evaluación (~5 min en CPU)
+python act19.py --camara         # cámara web (q para salir)
+streamlit run app.py             # interfaz web
+```
+
+Actividad 20 (diagnóstico médico asistido con scikit-learn; datos simulados, sin descargas, ~1 min):
+
+```bash
+cd actividades/act20
+python act20.py
+```
+
+Actividad 21 (recomendación de películas con K-Means sobre MovieLens): descarga ~1 MB a `actividades/act21/datos/`
+(ignorada por git); tarda ~2.5 min.
+
+```bash
+cd actividades/act21
+python act21.py
+```
+
 Compilar el reporte PDF (requiere `latexmk` y `biber`):
 
 ```bash

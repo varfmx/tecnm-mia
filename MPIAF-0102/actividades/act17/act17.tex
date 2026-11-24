@@ -148,7 +148,7 @@ Para tolerar paráfrasis, cada consulta se compara con enunciados de ejemplo de 
 
 \subsection{Contexto y fallback}
 
-Una conversación no es una sucesión de preguntas independientes. Preguntas como «¿y cuánto cuesta?» sólo se entienden a partir del tema anterior, y algunas respuestas requieren un dato que el usuario aún no dio (el número de pedido). Además, ningún sistema entiende todo: cuando la confianza es baja, el chatbot debe reconocerlo con una respuesta de \textit{fallback} y no inventar una respuesta, y escalar a un humano si persiste el problema.
+Una conversación no es una sucesión de preguntas independientes. Preguntas como ``¿y cuánto cuesta?'' sólo se entienden a partir del tema anterior, y algunas respuestas requieren un dato que el usuario aún no dio (el número de pedido). Además, ningún sistema entiende todo: cuando la confianza es baja, el chatbot debe reconocerlo con una respuesta de \textit{fallback} y no inventar una respuesta, y escalar a un humano si persiste el problema.
 
 \subsection{Evaluación}
 
@@ -161,19 +161,19 @@ La comprensión se mide con la exactitud sobre un conjunto de consultas de prueb
 \subsection*{Requerimientos del Proyecto}
 
 \begin{description}
-    \item[Tarea 1: Diseño de Intenciones.]
+    \item[Tarea 1: Diseño de Intenciones.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Definir intenciones y patrones de usuario.
         \item Crear respuestas apropiadas.
         \item Implementar un sistema de coincidencia de patrones.
     \end{enumerate}
-    \item[Tarea 2: Procesamiento de Consultas.]
+    \item[Tarea 2: Procesamiento de Consultas.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Desarrollar un sistema de comprensión de lenguaje natural.
         \item Implementar manejo de contexto.
         \item Crear un sistema de \textit{fallback} para consultas no entendidas.
     \end{enumerate}
-    \item[Tarea 3: Interfaz de Usuario.]
+    \item[Tarea 3: Interfaz de Usuario.]\mbox{}\\[-1.3\baselineskip]
     \begin{enumerate}
         \item Desarrollar una interfaz web simple.
         \item Implementar historial de conversación.
@@ -189,7 +189,7 @@ El motor del chatbot y su evaluación están en un solo archivo, \texttt{act17.p
 
 \subsection{Tarea 1: Diseño de intenciones}
 
-Se definieron 15 intenciones para una tienda en línea: saludo, despedida, agradecimiento, horario, tiempo de envío, costo de envío, rastreo de pedido, devolución, formas de pago, garantía, cancelación, cuenta, promociones, agente humano y una intención ambigua de costo genérico, que se resuelve con el contexto. Cada una tiene patrones (expresiones regulares), de 4 a 9 enunciados de ejemplo y una o más respuestas (Código~\ref{cod:intenciones}, Salida~\ref{out:intenciones}). Los patrones compuestos, que exigen dos grupos de palabras (por ejemplo, «envío» y «tarda»), pesan el doble que los simples, de modo que «¿cuánto cuesta enviar?» se asigna a \texttt{envio\_costo} y no a la intención genérica de costo.
+Se definieron 15 intenciones para una tienda en línea: saludo, despedida, agradecimiento, horario, tiempo de envío, costo de envío, rastreo de pedido, devolución, formas de pago, garantía, cancelación, cuenta, promociones, agente humano y una intención ambigua de costo genérico, que se resuelve con el contexto. Cada una tiene patrones (expresiones regulares), de 4 a 9 enunciados de ejemplo y una o más respuestas (Código~\ref{cod:intenciones}, Salida~\ref{out:intenciones}). Los patrones compuestos, que exigen dos grupos de palabras (por ejemplo, ``envío'' y ``tarda''), pesan el doble que los simples, de modo que ``¿cuánto cuesta enviar?'' se asigna a \texttt{envio\_costo} y no a la intención genérica de costo.
 
 \begin{codigo}[label=cod:intenciones]{Definición de intenciones (fragmento)}
     "envio_tiempo": {
@@ -252,7 +252,7 @@ Total: 15 intenciones, 115 ejemplos, 24 patrones
 
 \subsection{Tarea 2: Procesamiento de consultas}
 
-\textbf{Comprensión.} El Código~\ref{cod:modelo} muestra la normalización (minúsculas, sin acentos ni puntuación), la tokenización con \textit{stemming} y el clasificador. Se conservan las palabras que importan en un chatbot («cuánto», «cuándo», «dónde», «no», «sin»), pero se descartan las interrogativas genéricas («qué», «cómo», «cuál», «por»), que producían similitudes falsas con las intenciones. El clasificador \emph{híbrido} usa primero los patrones y, si ninguno coincide, la similitud TF-IDF con un umbral de 0.45; si no lo supera, la consulta se considera no entendida.
+\textbf{Comprensión.} El Código~\ref{cod:modelo} muestra la normalización (minúsculas, sin acentos ni puntuación), la tokenización con \textit{stemming} y el clasificador. Se conservan las palabras que importan en un chatbot (``cuánto'', ``cuándo'', ``dónde'', ``no'', ``sin''), pero se descartan las interrogativas genéricas (``qué'', ``cómo'', ``cuál'', ``por''), que producían similitudes falsas con las intenciones. El clasificador \emph{híbrido} usa primero los patrones y, si ninguno coincide, la similitud TF-IDF con un umbral de 0.45; si no lo supera, la consulta se considera no entendida.
 
 \begin{codigo}[label=cod:modelo]{Normalización y clasificador de intenciones}
 def quitar_acentos(t):
@@ -356,7 +356,7 @@ Coincidencia de patrones y similitud sobre consultas de ejemplo:
     patrones: None (puntaje 0) | tf-idf: rastreo (similitud 0.71); siguiente: envio_tiempo (0.36)
 \end{consola}
 
-\textbf{Contexto y \textit{fallback}.} La clase \texttt{Chatbot} (Código~\ref{cod:bot}) conserva el estado de la conversación: el nombre del usuario, el último tema tratado, si espera un dato (el número de pedido) y si espera un sí o no. Con ello resuelve tres casos: (1) las preguntas de seguimiento o ambiguas («¿y cuánto cuesta?») se interpretan agregando el último tema a la consulta; (2) el rastreo de pedidos pide el número y lo recibe en el mensaje siguiente; (3) ante una consulta no entendida el \textit{fallback} es escalonado: primero pide reformular, luego muestra los temas disponibles y, a la tercera vez, ofrece transferir con un agente humano y espera la confirmación.
+\textbf{Contexto y \textit{fallback}.} La clase \texttt{Chatbot} (Código~\ref{cod:bot}) conserva el estado de la conversación: el nombre del usuario, el último tema tratado, si espera un dato (el número de pedido) y si espera un sí o no. Con ello resuelve tres casos: (1) las preguntas de seguimiento o ambiguas (``¿y cuánto cuesta?'') se interpretan agregando el último tema a la consulta; (2) el rastreo de pedidos pide el número y lo recibe en el mensaje siguiente; (3) ante una consulta no entendida el \textit{fallback} es escalonado: primero pide reformular, luego muestra los temas disponibles y, a la tercera vez, ofrece transferir con un agente humano y espera la confirmación.
 
 \begin{codigo}[label=cod:bot]{Comprensión con contexto, diálogo y fallback}
     def entender(self, texto):
@@ -548,7 +548,7 @@ Híbrido       & 0.912 & 0.929 & 0.833 \\
 \label{fig:estrategias}
 \end{figure}
 
-Las dos estrategias son complementarias (Tabla~\ref{tab:estrategias}, Figura~\ref{fig:estrategias}). Los patrones nunca aceptan una consulta ajena al dominio (rechazo de 1.0), pero fallan ante paráfrasis que no anticiparon, como «¿Cuánto debo esperar para recibir mi pedido?». La similitud TF-IDF reconoce más paráfrasis, pero también acepta por error consultas fuera de dominio. El método híbrido combina ambas ventajas y logra la mejor exactitud (0.912), con 6 errores en 68 consultas.
+Las dos estrategias son complementarias (Tabla~\ref{tab:estrategias}, Figura~\ref{fig:estrategias}). Los patrones nunca aceptan una consulta ajena al dominio (rechazo de 1.0), pero fallan ante paráfrasis que no anticiparon, como ``¿Cuánto debo esperar para recibir mi pedido?''. La similitud TF-IDF reconoce más paráfrasis, pero también acepta por error consultas fuera de dominio. El método híbrido combina ambas ventajas y logra la mejor exactitud (0.912), con 6 errores en 68 consultas.
 
 \begin{consola}[label=out:reporte]{Reporte por intención y errores del método híbrido}
 Reporte por intención (método híbrido):
@@ -585,7 +585,7 @@ Consultas mal clasificadas por el método híbrido: 6 de 68
                          Háblame de política     fallback     devolucion
 \end{consola}
 
-La Salida~\ref{out:reporte} muestra que casi todas las intenciones se reconocen sin error. Los puntos débiles son la despedida (exhaustividad de 0.50: «Bueno, me retiro» se confunde con un saludo y «Eso sería todo por hoy» no se reconoce) y el saludo coloquial («Qué onda, ¿hay alguien ahí?» se confunde con la petición de un agente). Dos consultas fuera de dominio se aceptaron por error: «¿Cuánto es 25 por 4?» (por la palabra «cuánto») y «Háblame de política», que se asoció con la «política de devoluciones». Son errores propios de un sistema basado en palabras: no entiende el significado, sólo coincide con el vocabulario.
+La Salida~\ref{out:reporte} muestra que casi todas las intenciones se reconocen sin error. Los puntos débiles son la despedida (exhaustividad de 0.50: ``Bueno, me retiro'' se confunde con un saludo y ``Eso sería todo por hoy'' no se reconoce) y el saludo coloquial (``Qué onda, ¿hay alguien ahí?'' se confunde con la petición de un agente). Dos consultas fuera de dominio se aceptaron por error: ``¿Cuánto es 25 por 4?'' (por la palabra ``cuánto'') y ``Háblame de política'', que se asoció con la ``política de devoluciones''. Son errores propios de un sistema basado en palabras: no entiende el significado, sólo coincide con el vocabulario.
 
 \subsection{Umbral de confianza}
 
@@ -622,7 +622,7 @@ Barrido del umbral de confianza (solo TF-IDF):
 
 \subsection{Contexto, rastreo de pedidos y \textit{fallback}}
 
-La Salida~\ref{out:demo} reproduce tres conversaciones. En la A, el bot recuerda el nombre del usuario y resuelve «¿y cuánto cuesta?» como costo de envío, porque el tema anterior fue el envío (método \texttt{contexto}). En la B, el bot pide el número de pedido y lo recibe en el mensaje siguiente (método \texttt{slot}); después consulta otro pedido con sólo «¿y el pedido 1004?». En la C, ante tres consultas ajenas el \textit{fallback} escala de pedir reformular, a mostrar los temas disponibles, a ofrecer un agente humano, y un «sí» activa la transferencia.
+La Salida~\ref{out:demo} reproduce tres conversaciones. En la A, el bot recuerda el nombre del usuario y resuelve ``¿y cuánto cuesta?'' como costo de envío, porque el tema anterior fue el envío (método \texttt{contexto}). En la B, el bot pide el número de pedido y lo recibe en el mensaje siguiente (método \texttt{slot}); después consulta otro pedido con sólo ``¿y el pedido 1004?''. En la C, ante tres consultas ajenas el \textit{fallback} escala de pedir reformular, a mostrar los temas disponibles, a ofrecer un agente humano, y un ``sí'' activa la transferencia.
 
 \begin{consola}[label=out:demo]{Conversaciones de demostración}
 A) Contexto: preguntas de seguimiento
@@ -687,9 +687,9 @@ La Figura~\ref{fig:ui} muestra la interfaz tras una conversación de seis mensaj
 
 El chatbot cumple las tres tareas: reconoce 15 intenciones con patrones y similitud TF-IDF, mantiene contexto (tema anterior, número de pedido, confirmaciones), responde con un \textit{fallback} escalonado cuando no entiende, y ofrece una interfaz web con historial y evaluación de satisfacción. El método híbrido alcanzó 0.912 de exactitud en las 68 consultas de prueba, por encima de cualquiera de sus dos componentes por separado.
 
-Los resultados deben leerse con cautela. El conjunto de prueba es pequeño (68 consultas, escritas por quien diseñó el sistema), y las paráfrasis están en el mismo estilo que los ejemplos. Además, al revisar las conversaciones de demostración se encontró que consultas fuera de dominio, como «¿Cuál es la capital de Francia?», se aceptaban por similitud con palabras interrogativas genéricas. Se retiraron esas palabras y se limitó el uso del contexto a los mensajes de seguimiento; ese ajuste se hizo después de una primera evaluación (exactitud de 0.882 y rechazo fuera de dominio de 0.75) y se midió sobre el mismo conjunto de prueba, por lo que la mejora puede estar algo inflada.
+Los resultados deben leerse con cautela. El conjunto de prueba es pequeño (68 consultas, escritas por quien diseñó el sistema), y las paráfrasis están en el mismo estilo que los ejemplos. Además, al revisar las conversaciones de demostración se encontró que consultas fuera de dominio, como ``¿Cuál es la capital de Francia?'', se aceptaban por similitud con palabras interrogativas genéricas. Se retiraron esas palabras y se limitó el uso del contexto a los mensajes de seguimiento; ese ajuste se hizo después de una primera evaluación (exactitud de 0.882 y rechazo fuera de dominio de 0.75) y se midió sobre el mismo conjunto de prueba, por lo que la mejora puede estar algo inflada.
 
-Las limitaciones son las propias de un sistema basado en vocabulario: no entiende el significado, por lo que confunde «política» de gobierno con «política de devoluciones»; no maneja varias intenciones en un mismo mensaje; y los datos de pedidos son simulados. Para una versión de producción habría que probar con consultas reales de clientes, y reemplazar la similitud TF-IDF por representaciones que capten el significado, como los modelos de tipo \textit{transformer} que presenta el tema.
+Las limitaciones son las propias de un sistema basado en vocabulario: no entiende el significado, por lo que confunde ``política'' de gobierno con ``política de devoluciones''; no maneja varias intenciones en un mismo mensaje; y los datos de pedidos son simulados. Para una versión de producción habría que probar con consultas reales de clientes, y reemplazar la similitud TF-IDF por representaciones que capten el significado, como los modelos de tipo \textit{transformer} que presenta el tema.
 
 \referencias
 

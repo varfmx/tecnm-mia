@@ -1,0 +1,717 @@
+%% =======================================================
+%% Actividad 19: Proyecto "Sistema de Detección de Objetos en Tiempo Real"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.2. Visión artificial \\ Actividad 19 - Detección de Objetos \\ en Tiempo Real}
+\profesor{M. Lilia Ureña Lugo}
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+La detección de objetos va un paso más allá de la clasificación de imágenes: además de decir qué hay en una imagen, indica \textit{dónde} está cada objeto mediante una caja delimitadora (\textit{bounding box}) y una etiqueta con su confianza \parencite{iae_u4_t42, elgendy2020}. Cuando la entrada es un video o una cámara web, el sistema debe además hacerlo con la rapidez suficiente para que la imagen se vea fluida.
+
+En este reporte se construye un sistema de detección de objetos con YOLO a partir del código base. Se mide el compromiso entre velocidad y calidad (Tarea 1), se desarrolla una interfaz web con métricas en vivo y grabación de resultados (Tarea 2) y se evalúa con precisión y recall sobre imágenes con etiquetas reales, analizando los falsos positivos y los falsos negativos (Tarea 3).
+
+\section{Marco conceptual}
+
+\subsection{YOLO}
+
+YOLO (\textit{You Only Look Once}) es un modelo de detección de objetos en tiempo real basado en aprendizaje profundo. En lugar de recorrer la imagen por regiones o ventanas deslizantes, analiza la imagen completa una sola vez, la divide en una cuadrícula y predice las cajas y las clases de los objetos presentes \parencite{iae_u4_t42}. El código base usa YOLOv3 con las 80 clases del conjunto COCO y lo ejecuta con el módulo de redes neuronales de OpenCV. Existe también una versión reducida, YOLOv3-tiny, con menos capas.
+
+\subsection{Supresión de no máximos e IoU}
+
+Un mismo objeto suele recibir varias cajas superpuestas. La supresión de no máximos (\textit{non-maximum suppression}, NMS) conserva la de mayor confianza y descarta las que se superponen con ella más de un umbral \parencite{iae_u4_t42}. La superposición entre dos cajas se mide con la intersección sobre la unión (IoU): el área común dividida entre el área total que cubren juntas \parencite{elgendy2020}.
+
+\subsection{Precisión, recall y tipos de error}
+
+Una detección es un \textbf{verdadero positivo} (TP) si coincide con un objeto real de su clase con $\mathrm{IoU}\geq 0.5$; si no, es un \textbf{falso positivo} (FP). Un objeto real sin detección es un \textbf{falso negativo} (FN). La \textbf{precisión} es $\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$ (qué fracción de lo detectado es correcto) y el \textbf{recall} es $\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})$ (qué fracción de los objetos reales se encontró); el F1 es su media armónica. Ambas dependen del umbral de confianza: subirlo aumenta la precisión y baja el recall. La \textbf{AP@0.5} resume la curva precisión-recall en un solo número \parencite{elgendy2020}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Crear un sistema que detecte objetos en video en tiempo real usando la cámara web.
+
+\subsection*{Requerimientos del Proyecto}
+
+\begin{description}
+    \item[Tarea 1: Implementación YOLO.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Configurar YOLO para detección en tiempo real.
+        \item Optimizar para rendimiento en video.
+        \item Manejar múltiples objetos simultáneamente.
+    \end{enumerate}
+    \item[Tarea 2: Interfaz de Usuario.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Desarrollar interfaz para visualización.
+        \item Mostrar métricas en tiempo real.
+        \item Implementar grabación de resultados.
+    \end{enumerate}
+    \item[Tarea 3: Análisis de Resultados.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Calcular precisión y recall.
+        \item Analizar falsos positivos y falsos negativos.
+        \item Generar reportes de desempeño.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Organización del código y de los datos}
+
+El sistema está en dos archivos: \texttt{act19.py} (detección, flujo de video, grabación y evaluación) y \texttt{app.py} (interfaz web con Streamlit). Todas las mediciones se hicieron en la CPU de una computadora portátil, sin tarjeta gráfica, por lo que los tiempos son una referencia y no valores absolutos; al repetir la corrida variaron hasta alrededor de 35~\% (por ejemplo, YOLOv3 416 midió entre 121 y 163 ms).
+
+Para medir precisión y recall se necesitan imágenes con los objetos ya etiquetados, y el tema no las incluye. Se usaron \textbf{200 imágenes tomadas al azar} (semilla fija) del conjunto de validación de COCO, con sus 1\,433 objetos etiquetados. Se eligió el conjunto de \textit{validación} y no el de entrenamiento porque el modelo preentrenado pudo haber visto las imágenes de entrenamiento, lo que inflaría los resultados. Las regiones marcadas como ``multitud'' en las etiquetas (grupos de personas que no se separan individualmente) se ignoran: una detección sobre ellas no cuenta como error. Los archivos de los modelos (YOLOv3 y YOLOv3-tiny con sus configuraciones) provienen del proyecto original de YOLO y se descargan automáticamente.
+
+\newpage
+
+\section{Desarrollo}
+
+\subsection{Tarea 1: Implementación de YOLO}
+
+\textbf{Configuración.} El Código~\ref{cod:yolo} es el código base del tema con dos cambios necesarios. Primero, las capas de salida se obtienen con \texttt{.flatten()}, porque en las versiones actuales de OpenCV \texttt{getUnconnectedOutLayers()} devuelve un arreglo plano y el índice \texttt{i[0]} del código base provoca un error. Segundo, se separó la detección (que devuelve una lista de cajas, confianzas y clases) del dibujado, para poder medir cada parte y reutilizar la detección en el video y en la evaluación. Se añadió además la opción de aplicar la NMS por clase, de modo que dos objetos de clases distintas muy superpuestos (por ejemplo, una persona y su corbata) no se eliminen entre sí. Además, el código base se instaló con OpenCV 4.12: la versión 5 eliminó la lectura de modelos Darknet y no puede cargar YOLOv3.
+
+\begin{codigo}[label=cod:yolo]{Configuración de YOLO, detección y dibujado}
+def configurar_yolo(modelo="yolov3"):
+    """Configura YOLO para detección de objetos (código base). Cambios respecto al base: se elige
+    entre yolov3 y yolov3-tiny, y las capas de salida se obtienen con .flatten() porque en las
+    versiones actuales de OpenCV getUnconnectedOutLayers() devuelve un arreglo plano (i[0] falla)."""
+    with open(os.path.join(MODELOS, "coco.names"), "r") as f:
+        classes = [line.strip() for line in f.readlines()]
+    net = cv2.dnn.readNet(os.path.join(MODELOS, f"{modelo}.weights"), os.path.join(MODELOS, f"{modelo}.cfg"))
+    layer_names = net.getLayerNames()
+    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers().flatten()]
+    return net, output_layers, classes
+
+
+def detectar(imagen, net, output_layers, conf_min=0.5, nms_umbral=0.4, tam=416, por_clase=False):
+    """Detección con YOLO (misma lógica del código base) que devuelve una lista de
+    (caja [x, y, w, h], confianza, índice de clase). Con por_clase=True la supresión de no
+    máximos se aplica dentro de cada clase, no entre todas."""
+    height, width = imagen.shape[:2]
+    blob = cv2.dnn.blobFromImage(imagen, 0.00392, (tam, tam), (0, 0, 0), True, crop=False)
+    net.setInput(blob)
+    outputs = net.forward(output_layers)
+    boxes, confidences, class_ids = [], [], []
+    for output in outputs:
+        for detection in output:
+            scores = detection[5:]
+            class_id = int(np.argmax(scores))
+            confidence = float(scores[class_id])
+            if confidence > conf_min:
+                w, h = int(detection[2] * width), int(detection[3] * height)
+                x, y = int(detection[0] * width - w / 2), int(detection[1] * height - h / 2)
+                boxes.append([x, y, w, h])
+                confidences.append(confidence)
+                class_ids.append(class_id)
+    if not boxes:
+        return []
+    if por_clase:
+        indexes = cv2.dnn.NMSBoxesBatched(boxes, confidences, class_ids, conf_min, nms_umbral)
+    else:
+        indexes = cv2.dnn.NMSBoxes(boxes, confidences, conf_min, nms_umbral)
+    return [(boxes[i], confidences[i], class_ids[i]) for i in np.array(indexes).flatten()]
+
+def dibujar(imagen, detecciones, classes, colors=None, grosor=2):
+    """Dibuja las cajas y etiquetas (como en el código base). Modifica y devuelve la imagen."""
+    colors = colores_clases(len(classes)) if colors is None else colors
+    escala = max(0.4, min(imagen.shape[:2]) / 800)
+    for (x, y, w, h), confianza, cid in detecciones:
+        color = tuple(int(c) for c in colors[cid])
+        cv2.rectangle(imagen, (x, y), (x + w, y + h), color, grosor)
+        texto = f"{classes[cid]} {confianza:.2f}"
+        (tw, th), _ = cv2.getTextSize(texto, cv2.FONT_HERSHEY_SIMPLEX, escala, 1)
+        cv2.rectangle(imagen, (x, max(y - th - 6, 0)), (x + tw + 4, max(y, th + 6)), color, -1)
+        cv2.putText(imagen, texto, (x + 2, max(y - 4, th + 2)), cv2.FONT_HERSHEY_SIMPLEX, escala, (0, 0, 0), 1, cv2.LINE_AA)
+    return imagen
+\end{codigo}
+
+\textbf{Múltiples objetos.} La detección devuelve todos los objetos que superan el umbral en el mismo paso: una sola pasada por la red produce las cajas de todas las clases a la vez. La Figura~\ref{fig:ejemplos} muestra ejemplos reales, desde una imagen con un bateador, un receptor y un árbitro hasta un collage con decenas de platillos y utensilios. Las cajas verdes delgadas son las etiquetas reales y las gruesas de color son las detecciones.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act19/img/ejemplos.png}
+\caption{Detecciones de YOLOv3 (608, umbral 0.3) sobre imágenes de validación. Verde delgado: objetos reales; color: detecciones. TP, FP y FN se cuentan por imagen.}
+\label{fig:ejemplos}
+\end{figure}
+
+\textbf{Optimización para video.} Se probaron cuatro palancas, medidas sobre las mismas 200 imágenes (Salida~\ref{out:t1} y Tabla~\ref{tab:t1}):
+\begin{enumerate}
+    \item \textbf{Modelo:} YOLOv3-tiny frente a YOLOv3.
+    \item \textbf{Tamaño de entrada de la red:} 320, 416 o 608 píxeles por lado.
+    \item \textbf{NMS por clase} frente a NMS entre todas las clases (código base).
+    \item \textbf{Inferencia cada $N$ fotogramas:} los fotogramas intermedios reutilizan las últimas cajas.
+\end{enumerate}
+Los fotogramas se reducen además a un ancho máximo de 640 píxeles antes de procesarse.
+
+\begin{consola}[label=out:datos]{Datos de evaluación}
+Imágenes de validación (COCO val2017, semilla 42): 200; objetos etiquetados: 1433; clases presentes: 76 de 80
+OpenCV 4.12.0
+\end{consola}
+
+\begin{consola}[label=out:t1]{Velocidad y calidad por configuración}
+Velocidad y calidad por configuración (IoU 0.5; prec., recall y F1 con umbral 0.5;
+ms = latencia mediana en CPU; umbral y F1 máx = el de mejor F1 de cada una):
+                       ms    FPS  prec.  recall     F1   AP50  umbral  F1 máx
+configuración
+yolov3-tiny-320        10  100.9  0.525   0.111  0.183  0.182     0.2   0.247
+yolov3-tiny-416        15   68.9  0.556   0.114  0.190  0.207     0.2   0.268
+yolov3-tiny-608        26   38.5  0.536   0.109  0.181  0.208     0.2   0.283
+yolov3-320             79   12.7  0.790   0.479  0.596  0.556     0.3   0.612
+yolov3-416            121    8.2  0.771   0.514  0.617  0.615     0.3   0.638
+yolov3-608            240    4.2  0.762   0.544  0.635  0.612     0.3   0.648
+yolov3-416-nms_clase  126    8.0  0.767   0.523  0.622  0.617     0.3   0.641
+
+NMS entre todas las clases (código base) frente a NMS por clase, YOLOv3-416:
+  yolov3-416             TP= 736  FP= 218  FN= 697  precisión=0.771  recall=0.514
+  yolov3-416-nms_clase   TP= 749  FP= 228  FN= 684  precisión=0.767  recall=0.523
+
+Mejor F1 con al menos 15 FPS: yolov3-tiny-608 (umbral 0.2)
+Mejor F1 sin restricción de FPS: yolov3-608 (umbral 0.3)
+\end{consola}
+
+\begin{table}[H]
+\centering
+\caption{Velocidad y calidad de cada configuración en 200 imágenes de validación (IoU 0.5). Latencia: mediana en CPU. Precisión, recall y F1 con umbral 0.5; la última columna es el mejor F1 que se obtiene eligiendo el umbral de cada configuración.}
+\label{tab:t1}
+\small
+\begin{tabular}{lrrcccccc}
+\toprule
+\textbf{Configuración} & \textbf{ms} & \textbf{FPS} & \textbf{Prec.} & \textbf{Recall} & \textbf{F1} & \textbf{AP50} & \textbf{Umbral} & \textbf{F1 máx.} \\
+\midrule
+YOLOv3-tiny 320 & 10 & 100.9 & 0.525 & 0.111 & 0.183 & 0.182 & 0.2 & 0.247 \\
+YOLOv3-tiny 416 & 15 & 68.9 & 0.556 & 0.114 & 0.190 & 0.207 & 0.2 & 0.268 \\
+YOLOv3-tiny 608 & 26 & 38.5 & 0.536 & 0.109 & 0.181 & 0.208 & 0.2 & 0.283 \\
+YOLOv3 320 & 79 & 12.7 & 0.790 & 0.479 & 0.596 & 0.556 & 0.3 & 0.612 \\
+YOLOv3 416 & 121 & 8.2 & 0.771 & 0.514 & 0.617 & 0.615 & 0.3 & 0.638 \\
+YOLOv3 608 & 240 & 4.2 & 0.762 & 0.544 & 0.635 & 0.612 & 0.3 & 0.648 \\
+YOLOv3 416, NMS por clase & 126 & 8.0 & 0.767 & 0.523 & 0.622 & 0.617 & 0.3 & 0.641 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\linewidth]{act19/img/rendimiento.png}
+\caption{Compromiso entre la latencia por imagen y el mejor F1 de cada configuración.}
+\label{fig:rendimiento}
+\end{figure}
+
+Los resultados muestran dos grupos separados (Figura~\ref{fig:rendimiento}). YOLOv3-tiny es unas 8 a 9 veces más rápido, pero su recall es muy bajo: con umbral 0.5 encuentra aproximadamente 1 de cada 9 objetos (0.11), y aun con el umbral más permisivo llega solo a 0.21 (AP50 de 0.21 frente a 0.62 de YOLOv3). YOLOv3 completo es mucho más fiable (F1 de 0.60 a 0.65), pero con 4 a 13 imágenes por segundo en esta CPU no alcanza un video fluido. Aumentar el tamaño de entrada sube el F1 de YOLOv3 de 0.61 (320) a 0.65 (608), a cambio de triplicar la latencia; con 200 imágenes la diferencia entre 416 y 608 es pequeña y no puede afirmarse que sea real (la AP50 incluso es igual: 0.615 y 0.612).
+
+\textbf{NMS por clase.} Con YOLOv3-416, aplicar la NMS por clase recupera 13 verdaderos positivos más (749 frente a 736) a cambio de 10 falsos positivos más (228 frente a 218). El recall sube de 0.514 a 0.523 y la precisión baja de 0.771 a 0.767: una mejora muy pequeña, dentro de lo que cabe esperar de una sola muestra, por lo que se mantiene como opción, no como conclusión firme.
+
+\textbf{Velocidad del ciclo completo.} La latencia de la tabla es solo la de la red. El ciclo de video incluye además leer el fotograma, dibujar las cajas y mostrarlo. La Salida~\ref{out:video} lo mide sobre un video de prueba de 180 fotogramas (resolución $640\times 480$) variando cada cuántos fotogramas se hace la inferencia.
+
+\begin{consola}[label=out:video]{FPS del ciclo de video completo}
+Ciclo de video (leer + detectar + dibujar), video de prueba de 640x480:
+     modelo inferencia cada  fotogramas  FPS del ciclo
+yolov3-tiny  1 fotograma(s)         180           53.2
+yolov3-tiny  2 fotograma(s)         180          118.4
+yolov3-tiny  3 fotograma(s)         180          167.0
+     yolov3  1 fotograma(s)         180            6.6
+     yolov3  2 fotograma(s)         180           12.8
+     yolov3  3 fotograma(s)         180           23.0
+\end{consola}
+
+Saltar fotogramas es la forma más barata de ganar fluidez: con YOLOv3 e inferencia cada 3 fotogramas el ciclo llega a unos 23 FPS, y con YOLOv3-tiny a más de 160. El costo es que las cajas de los fotogramas intermedios son las del último análisis, de modo que un objeto que se mueve rápido se desfasa de su caja. Ese efecto no se midió en este reporte (el video de prueba no tiene etiquetas), por lo que no se puede cuantificar cuánta calidad se pierde.
+
+\textbf{Configuración por defecto.} Entre las configuraciones que alcanzan al menos 15 imágenes por segundo, la de mejor F1 es YOLOv3-tiny (el valor máximo, 0.283, con entrada 608 y umbral 0.2): es la más rápida pero también la que más objetos pasa por alto. Por eso la interfaz permite elegir el modelo y el salto de fotogramas, y usa un umbral de 0.3, que fue el de mejor F1 de YOLOv3 en la Tarea 3, en lugar del 0.5 del código base.
+
+\subsection{Tarea 2: Interfaz de usuario}
+
+El Código~\ref{cod:flujo} contiene el motor de tiempo real. \texttt{flujo\_video} es un generador: abre la fuente (el número 0 es la cámara web, o la ruta de un archivo de video), lee cada fotograma, ejecuta la detección, dibuja las cajas y entrega el fotograma junto con sus métricas (FPS del ciclo, milisegundos de la inferencia, objetos en el fotograma y detecciones acumuladas por clase). Como es un generador, la misma función sirve para una ventana de OpenCV (\texttt{python act19.py --camara}) y para la interfaz web. Si se pide grabar, la clase \texttt{Grabador} guarda un video \texttt{.mp4} con las detecciones dibujadas y un \texttt{.csv} con las métricas de cada fotograma.
+
+\begin{codigo}[label=cod:flujo]{Motor de tiempo real: configuración, grabación y flujo de video}
+@dataclass
+class Config:
+    modelo: str = "yolov3-tiny"     # yolov3 (preciso, lento) o yolov3-tiny (rápido)
+    tam: int = 416                  # lado de la entrada de la red: 320, 416 o 608
+    conf: float = 0.3               # umbral de confianza (0.3 dio el mejor F1 de YOLOv3 en la evaluación; el código base usa 0.5)
+    nms: float = 0.4                # umbral de IoU de la supresión de no máximos
+    por_clase: bool = True          # NMS por clase (permite objetos de distinta clase superpuestos)
+    saltar: int = 1                 # inferencia cada N fotogramas (los demás reutilizan las últimas cajas)
+    ancho_max: int = 640            # los fotogramas más anchos se reducen antes de procesarse
+
+
+class Grabador:
+    """Guarda el video con las detecciones dibujadas (.mp4) y un CSV con las métricas de cada fotograma."""
+    def __init__(self, base, fps, tamano):
+        self.video = cv2.VideoWriter(base + ".mp4", cv2.VideoWriter_fourcc(*"mp4v"), fps, tamano)
+        self.csv = open(base + ".csv", "w")
+        self.csv.write("fotograma,segundos,fps,ms_inferencia,objetos,clases\n")
+        self.t0 = time.perf_counter()
+
+    def escribir(self, frame, m, nombres):
+        self.video.write(frame)
+        clases = "|".join(sorted(set(nombres)))
+        self.csv.write(f"{m['fotograma']},{time.perf_counter() - self.t0:.3f},{m['fps']:.1f},{m['ms']:.1f},{m['objetos']},{clases}\n")
+
+    def cerrar(self):
+        self.video.release()
+        self.csv.close()
+
+
+def flujo_video(fuente, cfg, grabar=None, parar=lambda: False):
+    """Generador: lee fotogramas de la fuente (0 = cámara web, o ruta de un video), detecta objetos y
+    produce (fotograma dibujado, métricas). Métricas: fps del ciclo completo, ms de inferencia, objetos
+    en el fotograma y detecciones acumuladas por clase. Si grabar es una ruta base, guarda .mp4 y .csv."""
+    net, salidas, nombres = configurar_yolo(cfg.modelo)
+    colores = colores_clases(len(nombres))
+    cap = cv2.VideoCapture(fuente)
+    if not cap.isOpened():
+        raise RuntimeError(f"No se pudo abrir la fuente de video: {fuente}")
+    grabador, detecciones, ms, fps, n = None, [], 0.0, 0.0, 0
+    acumulado = Counter()
+    t_prev = time.perf_counter()
+    try:
+        while not parar():
+            ok, frame = cap.read()
+            if not ok:
+                break
+            if frame.shape[1] > cfg.ancho_max:
+                frame = cv2.resize(frame, (cfg.ancho_max, int(frame.shape[0] * cfg.ancho_max / frame.shape[1])))
+            if n % cfg.saltar == 0:
+                t0 = time.perf_counter()
+                detecciones = detectar(frame, net, salidas, cfg.conf, cfg.nms, cfg.tam, cfg.por_clase)
+                ms = (time.perf_counter() - t0) * 1000
+                acumulado.update(nombres[d[2]] for d in detecciones)
+            dibujar(frame, detecciones, nombres, colores)
+            ahora = time.perf_counter()
+            fps = 1 / (ahora - t_prev) if fps == 0 else 0.9 * fps + 0.1 / (ahora - t_prev)
+            t_prev = ahora
+            metricas = {"fotograma": n, "fps": fps, "ms": ms, "objetos": len(detecciones), "acumulado": dict(acumulado)}
+            cv2.putText(frame, f"{fps:.1f} FPS | {ms:.0f} ms | {len(detecciones)} objetos", (8, 22),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2, cv2.LINE_AA)
+            if grabar:
+                if grabador is None:
+                    origen = cap.get(cv2.CAP_PROP_FPS)
+                    grabador = Grabador(grabar, origen if 1 < origen < 120 else 20, (frame.shape[1], frame.shape[0]))
+                grabador.escribir(frame, metricas, [nombres[d[2]] for d in detecciones])
+            n += 1
+            yield frame, metricas
+    finally:
+        cap.release()
+        if grabador:
+            grabador.cerrar()
+\end{codigo}
+
+La interfaz (Código~\ref{cod:app}) se hizo con Streamlit, como en la actividad 17, porque permite una página completa en Python. La barra lateral elige la fuente de video (cámara web, video de prueba o un archivo subido), el modelo, el tamaño de entrada, el umbral de confianza, el salto de fotogramas y si se graban los resultados. Al activar la detección se muestra el video con las cajas, cuatro métricas que se actualizan en cada fotograma (FPS, latencia, objetos en pantalla y fotogramas procesados) y una tabla con las detecciones acumuladas por clase.
+
+\begin{codigo}[label=cod:app]{Interfaz web (app.py, sin las importaciones)}
+with st.sidebar:
+    st.header("Configuración")
+    origen = st.radio("Fuente de video", ["Cámara web", "Video de prueba", "Subir un video"])
+    archivo = st.file_uploader("Video (mp4, avi, mov)", type=["mp4", "avi", "mov"]) if origen == "Subir un video" else None
+    modelo = st.selectbox("Modelo", ["yolov3-tiny", "yolov3"], help="yolov3-tiny es mucho más rápido; yolov3 es más preciso.")
+    tam = st.select_slider("Tamaño de entrada", [320, 416, 608], value=416, help="Menor tamaño = más rápido y menos preciso.")
+    conf = st.slider("Umbral de confianza", 0.1, 0.9, 0.3, 0.05)
+    saltar = st.slider("Inferencia cada N fotogramas", 1, 5, 1, help="Los fotogramas intermedios reutilizan las últimas cajas.")
+    grabar = st.checkbox("Grabar resultados (video + CSV)")
+    st.divider()
+    activo = st.toggle("Iniciar detección", value=False)
+
+# ----------------------------- Paneles ----------------------------------------
+col_video, col_datos = st.columns([3, 2])
+marco = col_video.empty()
+with col_datos:
+    c1, c2 = st.columns(2)
+    m_fps, m_ms = c1.empty(), c2.empty()
+    c3, c4 = st.columns(2)
+    m_obj, m_total = c3.empty(), c4.empty()
+    tabla = st.empty()
+    estado = st.empty()
+
+
+def fuente_de_video():
+    if origen == "Cámara web":
+        return 0
+    if origen == "Video de prueba":
+        if not os.path.exists(VIDEO_PRUEBA):
+            st.warning("El video de prueba se crea al ejecutar «python act19.py».")
+            return None
+        return VIDEO_PRUEBA
+    if archivo is None:
+        st.info("Sube un archivo de video para continuar.")
+        return None
+    ruta = os.path.join(DATOS, "subido_" + archivo.name)
+    with open(ruta, "wb") as f:
+        f.write(archivo.getbuffer())
+    return ruta
+
+
+if not activo:
+    estado.info("Activa «Iniciar detección» en la barra lateral.")
+else:
+    fuente = fuente_de_video()
+    if fuente is not None:
+        base = os.path.join(RESULTADOS, time.strftime("grabacion_%Y%m%d_%H%M%S")) if grabar else None
+        cfg = Config(modelo=modelo, tam=tam, conf=conf, saltar=saltar)
+        historial = []
+        try:
+            for frame, m in flujo_video(fuente, cfg, grabar=base):
+                marco.image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), channels="RGB", use_container_width=True)
+                historial.append(m["fps"])
+                m_fps.metric("FPS", f"{m['fps']:.1f}")
+                m_ms.metric("Latencia de inferencia", f"{m['ms']:.0f} ms")
+                m_obj.metric("Objetos en el fotograma", m["objetos"])
+                m_total.metric("Fotogramas", m["fotograma"] + 1)
+                top = pd.Series(m["acumulado"], dtype=int).sort_values(ascending=False).head(8)
+                tabla.dataframe(top.rename("detecciones acumuladas").to_frame(), use_container_width=True)
+            estado.success("El video terminó." + (f" Grabación guardada en {os.path.basename(base)}.mp4 y .csv" if base else ""))
+        except RuntimeError as error:
+            estado.error(f"{error}. Si usas la cámara web, concede el permiso de cámara a la terminal o al navegador.")
+\end{codigo}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act19/img/ui_deteccion.png}
+\caption{Interfaz durante la detección sobre el video de prueba, con YOLOv3-tiny.}
+\label{fig:ui}
+\end{figure}
+
+La Figura~\ref{fig:ui} es una captura de la interfaz funcionando. Para comprobar la grabación se procesó el video de prueba con la grabación activada (Salida~\ref{out:grab}): se guardaron los 180 fotogramas en un archivo de video y un CSV con una fila por fotograma.
+
+\begin{consola}[label=out:grab]{Grabación de resultados}
+Fotogramas procesados y grabados: 180; FPS promedio: 53.8; objetos por fotograma: 6.6
+Archivos: demo_grabacion.mp4 (8.1 MB) y demo_grabacion.csv
+Más frecuentes: {'person': 815, 'boat': 114, 'cup': 58}
+\end{consola}
+
+\textbf{Prueba con la cámara web.} Las mediciones de velocidad y de calidad de este reporte se hicieron con imágenes de COCO y con un video de prueba generado a partir de ellas (un acercamiento lento sobre las imágenes con más objetos). Se eligió así para que cualquiera pueda reproducirlas, pero ese video no tiene movimiento real. Además, se hizo una prueba con la cámara web del equipo (fuente \texttt{0}, YOLOv3 con entrada de 416, NMS por clase y umbral de 0.3): durante 25 segundos se procesaron 183 fotogramas, con una latencia media de la inferencia de unos 120 ms, y se colocaron frente a la cámara una taza, una banana y una botella a la vez. La Figura~\ref{fig:camara} muestra el fotograma de esa prueba con más objetos de esas tres clases detectados.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{act19/img/camara.png}
+\caption{Detección con la cámara web: persona, botella, taza y banana en el mismo fotograma (YOLOv3, umbral 0.3).}
+\label{fig:camara}
+\end{figure}
+
+Esta prueba es una demostración cualitativa, no una medición: el fotograma se escogió entre los 183 porque era el que más objetos de las tres clases mostraba, así que no representa la tasa de acierto promedio, y no se contó en cuántos fotogramas se detectó cada objeto.
+
+\subsection{Tarea 3: Análisis de resultados}
+
+Para calcular la precisión y el recall, el Código~\ref{cod:eval} empareja las detecciones de cada imagen con los objetos reales: se recorren de mayor a menor confianza y cada una se asigna al objeto real libre de su misma clase con mayor IoU ($\geq 0.5$). Las detecciones sin pareja son falsos positivos, que se clasifican por su causa: \textit{duplicada} (el objeto ya tenía otra detección), \textit{clase equivocada} (coincide con un objeto de otra clase), \textit{mala localización} (se superpone solo parcialmente, IoU entre 0.1 y 0.5, con un objeto de su clase) o \textit{fondo} (no hay ningún objeto cerca). Los objetos reales sin pareja son falsos negativos. Las detecciones se guardan con un umbral bajo y el umbral de confianza se aplica después, lo que permite barrerlo sin repetir la inferencia.
+
+\begin{codigo}[label=cod:eval]{Emparejamiento, precisión, recall y AP50}
+def iou(a, b):
+    """IoU de dos cajas [x, y, w, h]."""
+    iw = max(0, min(a[0] + a[2], b[0] + b[2]) - max(a[0], b[0]))
+    ih = max(0, min(a[1] + a[3], b[1] + b[3]) - max(a[1], b[1]))
+    inter = iw * ih
+    union = a[2] * a[3] + b[2] * b[3] - inter
+    return inter / union if union > 0 else 0.0
+
+
+def emparejar(dets, gts, iou_min=0.5):
+    """Empareja las detecciones de UNA imagen con las cajas reales. Se recorren de mayor a menor confianza y
+    cada una se asigna a la caja real libre de su clase con mayor IoU (>= iou_min): verdadero positivo (TP).
+    Si no hay pareja es un falso positivo (FP), que se clasifica como: duplicada, clase equivocada,
+    mala localización (IoU 0.1-0.5 con un objeto de su clase) o fondo (no hay objeto). Las detecciones sobre
+    regiones 'multitud' de COCO se ignoran. Devuelve (filas de detecciones, confianza con que se halló cada objeto)."""
+    reales = [g for g in gts if not g[5]]
+    multitud = [g for g in gts if g[5]]
+    hallado = [None] * len(reales)
+    filas = []
+    for caja, conf, c in sorted(dets, key=lambda d: -d[1]):
+        mejor, j_mejor = 0.0, None
+        for j, g in enumerate(reales):
+            if g[4] == c and hallado[j] is None:
+                v = iou(caja, g[:4])
+                if v > mejor:
+                    mejor, j_mejor = v, j
+        if j_mejor is not None and mejor >= iou_min:
+            hallado[j_mejor] = conf
+            filas.append((c, conf, "TP", ""))
+            continue
+        if any(g[4] == c and iou(caja, g[:4]) >= 0.3 for g in multitud):
+            filas.append((c, conf, "ignorada", ""))
+            continue
+        misma = max([iou(caja, g[:4]) for g in reales if g[4] == c], default=0.0)
+        otra = max([iou(caja, g[:4]) for g in reales if g[4] != c], default=0.0)
+        tipo = "duplicada" if misma >= iou_min else "clase equivocada" if otra >= iou_min else "mala localización" if misma >= 0.1 else "fondo"
+        filas.append((c, conf, "FP", tipo))
+    return filas, hallado, reales
+
+
+def evaluar_configuracion(detecciones, etiquetas):
+    """Empareja todas las imágenes. Devuelve dos tablas: una fila por detección y una por objeto real."""
+    d_filas, g_filas = [], []
+    for i, (dets, e) in enumerate(zip(detecciones, etiquetas)):
+        filas, hallado, reales = emparejar(dets, e["cajas"])
+        d_filas += [(i,) + f for f in filas]
+        g_filas += [(i, g[4], g[2] * g[3], h) for g, h in zip(reales, hallado)]
+    return (pd.DataFrame(d_filas, columns=["imagen", "clase", "conf", "estado", "tipo"]),
+            pd.DataFrame(g_filas, columns=["imagen", "clase", "area", "conf_hallado"]))
+
+
+def metricas(d, g, umbral):
+    """Precisión, recall y F1 globales con el umbral de confianza dado."""
+    sel = d[(d["conf"] >= umbral) & (d["estado"] != "ignorada")]
+    tp, fp = int((sel["estado"] == "TP").sum()), int((sel["estado"] == "FP").sum())
+    fn = len(g) - tp
+    p = tp / (tp + fp) if tp + fp else 0.0
+    r = tp / len(g) if len(g) else 0.0
+    return {"TP": tp, "FP": fp, "FN": fn, "precisión": p, "recall": r, "F1": 2 * p * r / (p + r) if p + r else 0.0}
+
+
+def ap50(d, g):
+    """AP@0.5: área bajo la curva precisión-recall (interpolación de todos los puntos), promediada sobre las
+    clases que aparecen en las etiquetas (una clase sin detecciones aporta 0)."""
+    aps = []
+    for c, n_real in g.groupby("clase").size().items():
+        s = d[(d["clase"] == c) & (d["estado"] != "ignorada")].sort_values("conf", ascending=False)
+        tp = np.cumsum((s["estado"] == "TP").to_numpy())
+        fp = np.cumsum((s["estado"] == "FP").to_numpy())
+        rec, pre = np.concatenate([[0], tp / n_real, [1]]), np.concatenate([[0], tp / np.maximum(tp + fp, 1), [0]])
+        for k in range(len(pre) - 2, -1, -1):
+            pre[k] = max(pre[k], pre[k + 1])
+        idx = np.where(rec[1:] != rec[:-1])[0]
+        aps.append(float(np.sum((rec[idx + 1] - rec[idx]) * pre[idx + 1])))
+    return float(np.mean(aps))
+\end{codigo}
+
+Se analiza la configuración de mejor calidad, YOLOv3 con entrada de 608 (Salida~\ref{out:umbral}). La Figura~\ref{fig:umbral} muestra cómo el umbral desplaza el equilibrio: al subirlo de 0.3 a 0.9 la precisión pasa de 0.67 a 0.88 y el recall cae de 0.63 a 0.36. El mejor F1 (0.648) se logra con 0.3, y con 0.1 y 0.2 los resultados son idénticos. Una posible explicación es que OpenCV entrega ya filtradas las puntuaciones inferiores a 0.2, pero no se comprobó en su código.
+
+\begin{consola}[label=out:umbral]{Precisión y recall según el umbral de confianza}
+Configuración analizada: yolov3-608, con su mejor umbral de confianza (0.3)
+
+Precisión y recall según el umbral de confianza:
+         TP   FP   FN  precisión  recall     F1
+umbral
+0.1     950  595  483      0.615   0.663  0.638
+0.2     950  595  483      0.615   0.663  0.638
+0.3     896  435  537      0.673   0.625  0.648
+0.4     834  325  599      0.720   0.582  0.644
+0.5     780  243  653      0.762   0.544  0.635
+0.6     738  190  695      0.795   0.515  0.625
+0.7     687  144  746      0.827   0.479  0.607
+0.8     623  112  810      0.848   0.435  0.575
+0.9     518   70  915      0.881   0.361  0.513
+
+Con umbral 0.3: TP=896, FP=435, FN=537; precisión=0.673, recall=0.625, F1=0.648; AP50=0.612
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act19/img/umbral.png}
+\caption{Izquierda: efecto del umbral de confianza en YOLOv3-608. Derecha: curva precisión-recall de tres configuraciones.}
+\label{fig:umbral}
+\end{figure}
+
+La curva precisión-recall (derecha de la Figura~\ref{fig:umbral}) confirma lo visto en la Tarea 1: la de YOLOv3-tiny queda muy por debajo y a la izquierda, es decir, para cualquier precisión encuentra muchos menos objetos. Las curvas de YOLOv3 con entrada de 416 y de 608 casi se superponen.
+
+\section{Resultados}
+
+\subsection{Falsos positivos y falsos negativos}
+
+Con el umbral de 0.3 y YOLOv3-608 hubo 896 verdaderos positivos, 435 falsos positivos y 537 falsos negativos sobre 1\,433 objetos: \textbf{precisión de 0.673, recall de 0.625 y F1 de 0.648} (AP50 de 0.612).
+
+\begin{consola}[label=out:fp]{Falsos positivos por tipo y por clase}
+Falsos positivos por tipo (umbral 0.3):
+tipo
+fondo                261
+mala localización    146
+clase equivocada      24
+duplicada              4
+
+Clases con más falsos positivos:
+clase
+person           222
+sheep             35
+car               13
+chair             12
+traffic light     11
+knife              9
+\end{consola}
+
+\textbf{Falsos positivos.} La mayoría (261 de 435) son de tipo \textit{fondo}: detecciones donde no hay un objeto etiquetado. Les siguen los de \textit{mala localización} (146): el objeto sí existe, pero la caja se superpone con él por debajo de 0.5. Las confusiones de clase (24) y las detecciones duplicadas (4) son raras; esto último indica que la NMS cumple su función. Más de la mitad de los falsos positivos son de la clase \textit{person} (222), que también es la más abundante en los datos. En la imagen con más falsos positivos (Figura~\ref{fig:ejemplos}, un partido de béisbol) se ve que muchos corresponden a espectadores de las gradas, que el modelo detecta pero que no tienen etiqueta; es decir, una parte de estos ``falsos positivos'' puede ser en realidad el conjunto de etiquetas incompleto, no un error de YOLO. No se cuantificó cuántos de los 222 se explican así.
+
+\begin{consola}[label=out:tam]{Recall según el tamaño del objeto y clases con más omisiones}
+Recall según el tamaño del objeto en píxeles (umbral 0.3):
+                objetos  detectados  recall
+tamaño
+pequeño (<32^2)      442         188   0.425
+mediano             499         322   0.645
+grande (>96^2)       492         386   0.785
+
+Clases con más falsos negativos:
+clase
+person    87
+chair     22
+car       22
+boat      21
+book      19
+bowl      16
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act19/img/errores.png}
+\caption{Izquierda: falsos positivos por tipo. Derecha: recall según el tamaño del objeto (YOLOv3-608, umbral 0.3).}
+\label{fig:errores}
+\end{figure}
+
+\textbf{Falsos negativos.} El factor más claro es el tamaño (Figura~\ref{fig:errores}): se encuentra alrededor del 79~\% de los objetos grandes (más de $96^2$ píxeles), el 65~\% de los medianos y solo el 43~\% de los pequeños (menos de $32^2$). Una causa plausible es que los objetos pequeños ocupan pocas celdas de la cuadrícula de la red y su información se pierde al reducir la imagen, aunque este análisis no prueba la causa. Por clase, la mayor cantidad de omisiones corresponde otra vez a \textit{person} (87), seguida de \textit{chair}, \textit{car} y \textit{boat}; en términos relativos, los más difíciles son \textit{sandwich} (recall de 0.33) y \textit{boat} (0.38), que además suelen aparecer pequeños o parcialmente ocultos.
+
+\subsection{Reporte de desempeño}
+
+La Salida~\ref{out:rep} muestra el reporte por clase de las 10 clases con más objetos. El programa guarda el reporte completo (76 clases) en \texttt{resultados/reporte\_desempeno.csv} y el resumen global en \texttt{resultados/resumen.json}, además de las grabaciones de video y sus métricas por fotograma, de modo que el desempeño de cada corrida queda registrado en archivos.
+
+\begin{consola}[label=out:rep]{Reporte por clase (10 clases con más objetos)}
+Reporte por clase (10 clases con más objetos):
+               objetos   TP   FP  FN  precisión  recall
+clase
+person             424  337  222  87      0.603   0.795
+chair               62   40   12  22      0.769   0.645
+car                 60   38   13  22      0.745   0.633
+bowl                38   22    8  16      0.733   0.579
+diningtable         37   24    7  13      0.774   0.649
+cup                 35   25    9  10      0.735   0.714
+boat                34   13    7  21      0.650   0.382
+donut               32   16    8  16      0.667   0.500
+traffic light       26   12   11  14      0.522   0.462
+sandwich            24    8    1  16      0.889   0.333
+
+Archivos: resultados/reporte_desempeno.csv, resultados/resumen.json
+\end{consola}
+
+\subsection{Cuaderno de Google Colab}
+
+El cuaderno interactivo ejecuta la evaluación (Tareas 1 y 3) y la prueba del flujo de video con un archivo; la cámara web y la interfaz de Streamlit no pueden usarse desde Colab, por lo que se ejecutan localmente.
+
+\begin{center}
+    \textbf{[URL de Google Colab pendiente]}
+\end{center}
+
+\section{Conclusiones}
+
+YOLOv3 con OpenCV resuelve la detección de múltiples objetos en una sola pasada, pero en una CPU común impone una decisión entre velocidad y calidad. YOLOv3-tiny supera los 30 FPS y YOLOv3 alcanza unos 4 a 13, pero YOLOv3-tiny encuentra solo una fracción de los objetos (recall de 0.11 con el umbral del código base, AP50 de 0.21 frente a 0.62), por lo que sirve para ``tiempo real'' solo si se acepta perder muchos objetos. Con YOLOv3 la opción práctica en CPU es saltar fotogramas (unos 23 FPS inferiendo cada 3), con la limitación, no medida aquí, de que las cajas se desfasan en objetos que se mueven rápido. Una tarjeta gráfica cambiaría esta conclusión, pero no se probó.
+
+La mejor calidad (YOLOv3, entrada 608, umbral 0.3) fue de 0.673 de precisión y 0.625 de recall. Los errores se concentran en objetos pequeños (recall de 0.43), en la clase persona, y en falsos positivos de fondo, de los cuales una parte probablemente corresponde a objetos reales sin etiquetar. El umbral de 0.5 del código base no fue el mejor: 0.3 dio un F1 un poco mayor (0.648 frente a 0.635).
+
+Las limitaciones son: una muestra de 200 imágenes de un solo conjunto (diferencias de pocos puntos, como la de las entradas 416 y 608 o la de la NMS por clase, no son concluyentes); tiempos medidos en una sola máquina y con variaciones de hasta 35~\% entre corridas; la prueba con la cámara web fue solo una demostración de una escena, sin medición de acierto, y no se midió la calidad al saltar fotogramas; y que se evaluó solo YOLOv3, sin comparar con otros detectores.
+
+\referencias
+
+\end{document}

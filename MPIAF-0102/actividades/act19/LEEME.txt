@@ -1,0 +1,25 @@
+Actividad 19 - Sistema de Detección de Objetos en Tiempo Real
+==============================================================
+
+Archivos
+  act19.py   Detección con YOLO (OpenCV), flujo de video, grabación y evaluación.
+  app.py     Interfaz web (Streamlit) con cámara web o video.
+
+Requisitos
+  Python 3.10 a 3.12 (se probó con 3.12).
+
+Instalacion:
+  pip install "opencv-python<4.13" numpy pandas matplotlib streamlit
+  (OpenCV 5.x ya no lee modelos Darknet; por eso se limita a la serie 4.x)
+
+Ejecucion:
+  python act19.py                 Evaluación completa (precisión, recall, errores). ~5 min en CPU
+  python act19.py --camara        Detección con la cámara web. Teclas: q = salir
+  python act19.py --video v.mp4   Igual con un archivo de video (opciones: --modelo yolov3 --grabar --saltar 3)
+  streamlit run app.py            Interfaz web en http://localhost:8501
+
+Notas
+  - La primera vez se descargan solos los modelos YOLO (~280 MB) y 200 imágenes de validación
+    de COCO (requiere internet).
+  - En macOS, la primera vez que se usa la cámara hay que darle permiso a la terminal o al navegador.
+  - Las grabaciones (video .mp4 y métricas .csv) se guardan en resultados/.
