@@ -1,0 +1,21 @@
+Actividad 17 - Chatbot de Atención al Cliente Básico
+=====================================================
+
+Archivos
+  act17.py   Motor del chatbot (intenciones, contexto, fallback) y su evaluación.
+  app.py     Interfaz web (Streamlit).
+
+Requisitos
+  Python 3.10 o superior (se probó con 3.12).
+
+Instalacion:
+  pip install streamlit nltk scikit-learn pandas matplotlib seaborn
+
+Ejecucion:
+  streamlit run app.py      Abre la interfaz en http://localhost:8501
+  python act17.py           Solo la evaluación del motor (sin interfaz)
+
+Notas
+  - La primera vez, NLTK descarga solas las "stopwords" en español (requiere internet).
+  - Las valoraciones de satisfacción se guardan en logs/satisfaccion.csv.
+  - Pedidos de prueba para la función de rastreo: TM-1001, TM-1002, TM-1003, TM-1004.

@@ -26,3 +26,5 @@ __pycache__/
 
 # macOS
 .DS_Store
+# Registros generados por la interfaz del chatbot (act17)
+MPIAF-0102/actividades/act17/logs/

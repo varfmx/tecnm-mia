@@ -1,0 +1,696 @@
+%% =======================================================
+%% Actividad 17: Proyecto "Chatbot de Atención al Cliente Básico"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {¿}{{?`}}1 {¡}{{!`}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.1. Procesamiento del lenguaje natural \\ Actividad 17 - Chatbot de Atención \\ al Cliente Básico}
+\profesor{M. Lilia Ureña Lugo}
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Los chatbots y asistentes virtuales figuran entre las aplicaciones más conocidas del Procesamiento de Lenguaje Natural (PLN), junto con el análisis de sentimientos, la traducción y el resumen automático \parencite{iae_u4_t41, jurafsky2021}. En la atención al cliente, un chatbot permite responder de inmediato las preguntas frecuentes, a cualquier hora y sin saturar a los agentes humanos.
+
+En este reporte se desarrolla un chatbot básico de atención al cliente para una tienda en línea ficticia, TecnoMIA, que vende electrónicos. El sistema se construye en tres partes: el diseño de intenciones con un sistema de coincidencia de patrones, el procesamiento de consultas (comprensión del lenguaje, contexto y respuesta cuando no se entiende), y una interfaz web sencilla con historial de conversación y evaluación de satisfacción.
+
+\section{Marco conceptual}
+
+\subsection{Intenciones y coincidencia de patrones}
+
+Un chatbot orientado a preguntas frecuentes se modela alrededor de \textit{intenciones}: lo que el usuario quiere lograr (consultar el horario, devolver un producto, rastrear un pedido). Cada intención se describe con patrones de lo que el usuario puede escribir y con una o más respuestas. La coincidencia de patrones con expresiones regulares es rápida y predecible, pero frágil ante paráfrasis: sólo reconoce las formas que el diseñador anticipó.
+
+\subsection{Comprensión mediante similitud de texto}
+
+Para tolerar paráfrasis, cada consulta se compara con enunciados de ejemplo de cada intención. Se emplean las técnicas de preprocesamiento del tema (tokenización, eliminación de \textit{stopwords} y reducción de las palabras a su raíz) y la representación TF-IDF \parencite{iae_u4_t41, bird2022}. La consulta se asigna a la intención del ejemplo más parecido según la similitud coseno entre vectores TF-IDF. En este proyecto se usó \textit{stemming} (algoritmo Snowball de NLTK) en lugar de lematización con spaCy: es menos preciso, pero evita una dependencia pesada y un modelo adicional, lo que simplifica la instalación.
+
+\subsection{Contexto y fallback}
+
+Una conversación no es una sucesión de preguntas independientes. Preguntas como «¿y cuánto cuesta?» sólo se entienden a partir del tema anterior, y algunas respuestas requieren un dato que el usuario aún no dio (el número de pedido). Además, ningún sistema entiende todo: cuando la confianza es baja, el chatbot debe reconocerlo con una respuesta de \textit{fallback} y no inventar una respuesta, y escalar a un humano si persiste el problema.
+
+\subsection{Evaluación}
+
+La comprensión se mide con la exactitud sobre un conjunto de consultas de prueba distinto de los ejemplos de entrenamiento, y con precisión, exhaustividad y F1 por intención \parencite{geron2022}. En un chatbot es igual de importante el rechazo de consultas \emph{fuera de dominio}, que deben terminar en \textit{fallback}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} Crear un chatbot simple capaz de entender y responder preguntas frecuentes.
+
+\subsection*{Requerimientos del Proyecto}
+
+\begin{description}
+    \item[Tarea 1: Diseño de Intenciones.]
+    \begin{enumerate}
+        \item Definir intenciones y patrones de usuario.
+        \item Crear respuestas apropiadas.
+        \item Implementar un sistema de coincidencia de patrones.
+    \end{enumerate}
+    \item[Tarea 2: Procesamiento de Consultas.]
+    \begin{enumerate}
+        \item Desarrollar un sistema de comprensión de lenguaje natural.
+        \item Implementar manejo de contexto.
+        \item Crear un sistema de \textit{fallback} para consultas no entendidas.
+    \end{enumerate}
+    \item[Tarea 3: Interfaz de Usuario.]
+    \begin{enumerate}
+        \item Desarrollar una interfaz web simple.
+        \item Implementar historial de conversación.
+        \item Agregar evaluación de satisfacción.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Organización del código}
+
+El motor del chatbot y su evaluación están en un solo archivo, \texttt{act17.py}, que puede ejecutarse sin interfaz. La interfaz web está en \texttt{app.py} (Streamlit) e importa el motor. Se eligió Streamlit porque permite construir una interfaz de chat completa en Python, sin HTML ni JavaScript, y añade una sola dependencia.
+
+\section{Desarrollo}
+
+\subsection{Tarea 1: Diseño de intenciones}
+
+Se definieron 15 intenciones para una tienda en línea: saludo, despedida, agradecimiento, horario, tiempo de envío, costo de envío, rastreo de pedido, devolución, formas de pago, garantía, cancelación, cuenta, promociones, agente humano y una intención ambigua de costo genérico, que se resuelve con el contexto. Cada una tiene patrones (expresiones regulares), de 4 a 9 enunciados de ejemplo y una o más respuestas (Código~\ref{cod:intenciones}, Salida~\ref{out:intenciones}). Los patrones compuestos, que exigen dos grupos de palabras (por ejemplo, «envío» y «tarda»), pesan el doble que los simples, de modo que «¿cuánto cuesta enviar?» se asigna a \texttt{envio\_costo} y no a la intención genérica de costo.
+
+\begin{codigo}[label=cod:intenciones]{Definición de intenciones (fragmento)}
+    "envio_tiempo": {
+        "patrones": [r"\b(envio|envios|entrega|entregan|paquete|compra|pedido)\b"
+                     r".*\b(tarda|tardan|demora|demoran|dias|tiempo|llega|llegar)\b",
+                     r"\b(tarda|tardan|demora|demoran)\b.*\b(envio|entrega|paquete)\b"],
+        "ejemplos": ["¿cuánto tarda el envío?", "¿cuántos días tarda en llegar mi pedido?",
+                     "¿en cuánto tiempo llega mi compra?", "tiempo de entrega",
+                     "¿cuándo me llega el paquete?", "¿cuánto demora la entrega?",
+                     "¿qué tan rápido es el envío?", "¿hacen envíos express?"],
+        "respuestas": ["El envío estándar tarda de 3 a 5 días hábiles y el envío express de 24 a 48 horas "
+                       "(zonas metropolitanas)."],
+    },
+    "envio_costo": {
+        "patrones": [r"\b(envio|envios|entrega|enviar|domicilio)\b"
+                     r".*\b(cuesta|costo|precio|gratis|cobran|cobro|tarifa)\b",
+                     r"\b(cuesta|costo|cobran|gratis)\b.*\b(envio|enviar|entrega)\b"],
+        "ejemplos": ["¿cuánto cuesta el envío?", "¿el envío es gratis?", "costo de envío",
+                     "¿cobran por la entrega?", "¿tiene costo el envío a domicilio?",
+                     "¿cuánto cobran por enviar?", "tarifa de envío", "envío gratis"],
+        "respuestas": ["El envío estándar cuesta $99 MXN y es gratis en compras mayores a $999 MXN. "
+                       "El envío express cuesta $199 MXN."],
+    },
+    # ... (15 intenciones en total)
+}
+
+# Palabra ancla de cada intención: sirve para dar contexto a preguntas de seguimiento
+TEMAS = {"envio_tiempo": "envío", "envio_costo": "envío", "rastreo": "pedido",
+         "devolucion": "devolución", "pago": "pago", "garantia": "garantía",
+         "cancelar": "pedido", "cuenta": "cuenta", "promociones": "promoción",
+         "horario": "horario"}
+
+# Base de pedidos simulada para la intención de rastreo
+PEDIDOS = {"TM-1001": "En camino: salió del almacén y llega mañana antes de las 18:00 h.",
+           "TM-1002": "Entregado el pasado lunes.",
+           "TM-1003": "En preparación: se enviará en las próximas 24 horas.",
+           "TM-1004": "Con retraso por clima adverso; la nueva fecha estimada es en 2 días."}
+\end{codigo}
+
+\begin{consola}[label=out:intenciones]{Intenciones definidas}
+     intención  patrones  ejemplos  respuestas
+        saludo         1         9           2
+     despedida         1         9           2
+agradecimiento         1         7           2
+       horario         4         8           1
+  envio_tiempo         2         8           1
+   envio_costo         2         8           1
+       rastreo         3         8           1
+    devolucion         2         8           1
+          pago         1         8           1
+      garantia         2         8           1
+      cancelar         1         7           1
+        cuenta         1         8           1
+   promociones         1         8           1
+        humano         1         7           1
+costo_generico         1         4           1
+
+Total: 15 intenciones, 115 ejemplos, 24 patrones
+\end{consola}
+
+\subsection{Tarea 2: Procesamiento de consultas}
+
+\textbf{Comprensión.} El Código~\ref{cod:modelo} muestra la normalización (minúsculas, sin acentos ni puntuación), la tokenización con \textit{stemming} y el clasificador. Se conservan las palabras que importan en un chatbot («cuánto», «cuándo», «dónde», «no», «sin»), pero se descartan las interrogativas genéricas («qué», «cómo», «cuál», «por»), que producían similitudes falsas con las intenciones. El clasificador \emph{híbrido} usa primero los patrones y, si ninguno coincide, la similitud TF-IDF con un umbral de 0.45; si no lo supera, la consulta se considera no entendida.
+
+\begin{codigo}[label=cod:modelo]{Normalización y clasificador de intenciones}
+def quitar_acentos(t):
+    return "".join(c for c in unicodedata.normalize("NFD", t) if unicodedata.category(c) != "Mn")
+
+
+# Las palabras interrogativas y los negadores sí aportan información en un chatbot
+# (se descartan las genéricas «qué», «cómo», «cuál», «por»..., que producen similitudes falsas)
+_CONSERVAR = {"no", "nada", "sin", "cuando", "donde", "cuanto", "cuanta", "cuantos"}
+STOP = {quitar_acentos(w) for w in stopwords.words("spanish")} - _CONSERVAR
+
+
+def normalizar(texto):
+    """Minúsculas, sin acentos ni puntuación (se usa para las expresiones regulares)."""
+    t = quitar_acentos(texto.lower())
+    t = re.sub(r"[^\w\s-]", " ", t)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def tokenizar(texto):
+    """Normaliza, quita stopwords y aplica stemming (se usa para TF-IDF)."""
+    toks = [w for w in normalizar(texto).split() if w not in STOP]
+    toks = toks or normalizar(texto).split()
+    return " ".join(STEMMER.stem(w) for w in toks)
+
+
+AFIRMACION = re.compile(r"^(si|claro|ok|okay|vale|por favor|dale|sip|afirmativo|esta bien)\b")
+NEGACION = re.compile(r"^(no|nop|nel|negativo|no gracias|ahorita no)\b")
+SEGUIMIENTO = re.compile(r"^(y|e|entonces|ademas|tambien|y si|pero)\b")
+RE_PEDIDO =re.compile(r"\b(?:tm-?)?(\d{4})\b", re.I)
+RE_NOMBRE = re.compile(r"\b(?:me llamo|mi nombre es|soy)\s+([a-záéíóúñ]+)", re.I)
+
+
+class ModeloIntenciones:
+    """Clasificador de intenciones: (a) patrones regex, (b) similitud coseno con TF-IDF."""
+
+    def __init__(self, intenciones=INTENCIONES):
+        self.intenciones = intenciones
+        self.regex = {i: [re.compile(p) for p in d["patrones"]] for i, d in intenciones.items()}
+        self.ejemplos, self.etiquetas = [], []
+        for i, d in intenciones.items():
+            for e in d["ejemplos"]:
+                self.ejemplos.append(tokenizar(e))
+                self.etiquetas.append(i)
+        self.etiquetas = np.array(self.etiquetas)
+        self.vectorizador = TfidfVectorizer(ngram_range=(1, 2))
+        self.matriz = self.vectorizador.fit_transform(self.ejemplos)
+
+    def por_patrones(self, texto):
+        """Devuelve (intención, puntaje). Un patrón compuesto (con '.*') pesa 2."""
+        t = normalizar(texto)
+        puntajes = {}
+        for i, pats in self.regex.items():
+            p = sum(2 if ".*" in r.pattern else 1 for r in pats if r.search(t))
+            if p:
+                puntajes[i] = p
+        if not puntajes:
+            return None, 0
+        mejor = max(puntajes, key=puntajes.get)
+        return mejor, puntajes[mejor]
+
+    def por_similitud(self, texto):
+        """Devuelve (intención, similitud máxima) y el ranking de intenciones."""
+        consulta = self.vectorizador.transform([tokenizar(texto)])
+        sims = cosine_similarity(consulta, self.matriz)[0]
+        ranking = {}
+        for e, s in zip(self.etiquetas, sims):
+            ranking[e] = max(ranking.get(e, 0.0), s)
+        ranking = dict(sorted(ranking.items(), key=lambda kv: -kv[1]))
+        mejor = next(iter(ranking))
+        return mejor, ranking[mejor], ranking
+
+    def clasificar(self, texto, umbral=0.45, metodo="hibrido"):
+        """metodo: 'patrones', 'tfidf' o 'hibrido'. Devuelve (intención|None, confianza, método usado)."""
+        if metodo in ("patrones", "hibrido"):
+            i, p = self.por_patrones(texto)
+            if i:
+                return i, min(0.6 + 0.2 * p, 1.0), "patrones"
+            if metodo == "patrones":
+                return None, 0.0, "patrones"
+        i, s, _ = self.por_similitud(texto)
+        return (i, s, "tfidf") if s >= umbral else (None, s, "tfidf")
+\end{codigo}
+
+\begin{consola}[label=out:norm]{Normalización y comparación de patrones con similitud}
+Normalización (para patrones) y tokenización con stemming (para TF-IDF):
+  '¿Cuánto TARDA el envío a Monterrey?'
+    -> 'cuanto tarda el envio a monterrey'
+    -> 'cuant tard envi monterrey'
+  'Quiero DEVOLVER mi pedido!!!'
+    -> 'quiero devolver mi pedido'
+    -> 'quier devolv ped'
+  'No me llegó mi paquete'
+    -> 'no me llego mi paquete'
+    -> 'no lleg paquet'
+
+Coincidencia de patrones y similitud sobre consultas de ejemplo:
+  ¿Cuántos días tarda en llegar mi paquete?
+    patrones: envio_tiempo (puntaje 2) | tf-idf: envio_tiempo (similitud 0.78); siguiente: rastreo (0.42)
+  ¿Cuánto debo esperar para recibir mi pedido?
+    patrones: None (puntaje 0) | tf-idf: rastreo (similitud 0.71); siguiente: envio_tiempo (0.36)
+\end{consola}
+
+\textbf{Contexto y \textit{fallback}.} La clase \texttt{Chatbot} (Código~\ref{cod:bot}) conserva el estado de la conversación: el nombre del usuario, el último tema tratado, si espera un dato (el número de pedido) y si espera un sí o no. Con ello resuelve tres casos: (1) las preguntas de seguimiento o ambiguas («¿y cuánto cuesta?») se interpretan agregando el último tema a la consulta; (2) el rastreo de pedidos pide el número y lo recibe en el mensaje siguiente; (3) ante una consulta no entendida el \textit{fallback} es escalonado: primero pide reformular, luego muestra los temas disponibles y, a la tercera vez, ofrece transferir con un agente humano y espera la confirmación.
+
+\begin{codigo}[label=cod:bot]{Comprensión con contexto, diálogo y fallback}
+    def entender(self, texto):
+        """Clasificación con contexto. Devuelve (intención|None, confianza, método)."""
+        intencion, conf, metodo = self.modelo.clasificar(texto, self.umbral)
+        # Contexto: una pregunta ambigua («¿cuánto cuesta?») o de seguimiento («¿y el pago?»)
+        # se interpreta con el último tema de la conversación
+        seguimiento = bool(SEGUIMIENTO.match(normalizar(texto))) or intencion == "costo_generico"
+        if self.ultimo_tema and seguimiento and intencion in (None, "costo_generico"):
+            i2, c2, _ = self.modelo.clasificar(f"{texto} {self.ultimo_tema}", self.umbral)
+            if i2 and i2 != "costo_generico":
+                return i2, c2, "contexto"
+        return intencion, conf, metodo
+
+    # -- diálogo ----------------------------------------------------------------
+    def responder(self, texto):
+        norm = normalizar(texto)
+        m = RE_NOMBRE.search(texto)
+        if m:
+            self.nombre = m.group(1).capitalize()
+        pedido = RE_PEDIDO.search(texto)
+
+        # 1) El bot esperaba un número de pedido
+        if self.esperando == "pedido":
+            if pedido:
+                self.esperando = ""
+                self.fallos_seguidos = 0
+                return self._registrar(texto, self._consultar_pedido(pedido.group(1)), "rastreo", 1.0, "slot")
+            self.esperando = ""        # el usuario cambió de tema: se procesa normalmente
+
+        # 2) El bot esperaba un sí/no
+        if self.pendiente:
+            propuesta, self.pendiente = self.pendiente, ""
+            if AFIRMACION.match(norm):
+                self.fallos_seguidos = 0
+                return self._registrar(texto, self._respuesta(propuesta), propuesta, 1.0, "confirmacion")
+            if NEGACION.match(norm):
+                return self._registrar(texto, "De acuerdo. " + self._menu(), "negacion", 1.0, "confirmacion")
+
+        # 3) Clasificación de la intención
+        intencion, conf, metodo = self.entender(texto)
+
+        if intencion is None:
+            return self._fallback(texto, conf)
+
+        self.fallos_seguidos = 0
+        if intencion in TEMAS:
+            self.ultimo_tema = TEMAS[intencion]
+
+        if intencion == "rastreo":
+            if pedido:
+                resp = self._consultar_pedido(pedido.group(1))
+            else:
+                self.esperando = "pedido"
+                resp = "Con gusto. ¿Cuál es tu número de pedido? (formato TM-1234)"
+        elif intencion == "saludo" and self.nombre:
+            resp = f"¡Hola, {self.nombre}! ¿En qué puedo ayudarte?"
+        else:
+            resp = self._respuesta(intencion)
+        return self._registrar(texto, resp, intencion, conf, metodo)
+
+    def _fallback(self, texto, conf):
+        """Fallback escalonado: reformular -> sugerir opciones -> ofrecer un agente humano."""
+        self.fallos_seguidos += 1
+        if self.fallos_seguidos == 1:
+            resp = "Lo siento, no estoy seguro de haber entendido. ¿Podrías decirlo con otras palabras?"
+        elif self.fallos_seguidos == 2:
+            resp = "Sigo sin entender tu consulta. " + self._menu()
+        else:
+            self.pendiente = "humano"
+            resp = "Parece que no logro ayudarte con esto. ¿Quieres que te transfiera con un agente humano?"
+        return self._registrar(texto, resp, "fallback", conf, "fallback")
+\end{codigo}
+
+\subsection{Tarea 3: Interfaz de usuario}
+
+La interfaz (Código~\ref{cod:app}) usa los componentes de chat de Streamlit. El historial se guarda en \texttt{st.session\_state}, de modo que cada sesión del navegador tiene su propia conversación y su propio contexto. Cada respuesta del bot lleva botones de pulgar arriba o abajo, y al final de la conversación un panel permite calificar de 1 a 5 estrellas y dejar un comentario. Las valoraciones se guardan en un archivo CSV y la barra lateral muestra la satisfacción promedio acumulada, el porcentaje de consultas entendidas y un botón para descargar el historial. Para ejecutarla: \texttt{streamlit run app.py}.
+
+\begin{codigo}[label=cod:app]{Interfaz web con Streamlit (fragmentos de \texttt{app.py})}
+@st.cache_resource
+def cargar_modelo():
+    """El modelo (TF-IDF + patrones) se entrena una sola vez y se comparte entre sesiones."""
+    return ModeloIntenciones()
+
+
+def nueva_conversacion():
+    st.session_state.bot = Chatbot(cargar_modelo())
+    st.session_state.mensajes = [{"rol": "assistant", "texto": "¡Hola! Soy el asistente de TecnoMIA. "
+                                  "Puedo ayudarte con envíos, pagos, devoluciones y más. ¿Qué necesitas?"}]
+    st.session_state.valoraciones = {}      # índice de mensaje -> 0 (pulgar abajo) / 1 (pulgar arriba)
+    st.session_state.enviada = False
+    st.session_state.version = st.session_state.get("version", 0) + 1   # reinicia los widgets de valoración
+
+
+if "bot" not in st.session_state:
+    nueva_conversacion()
+bot = st.session_state.bot
+
+
+def procesar(texto):
+    st.session_state.mensajes.append({"rol": "user", "texto": texto})
+    respuesta = bot.responder(texto)
+    t = bot.historial[-1]
+    st.session_state.mensajes.append({"rol": "assistant", "texto": respuesta,
+                                      "intencion": t.intencion, "confianza": t.confianza, "metodo": t.metodo})
+
+# ----------------------------- Conversación ------------------------------------
+st.title("Asistente virtual TecnoMIA")
+st.caption("Chatbot de atención al cliente: pregunta por envíos, pagos, devoluciones, garantía y más.")
+
+for i, m in enumerate(st.session_state.mensajes):
+    with st.chat_message(m["rol"]):
+        st.write(m["texto"])
+        if m["rol"] == "assistant" and i > 0:
+            st.caption(f"intención: {m['intencion']} · método: {m['metodo']} · confianza: {m['confianza']:.2f}")
+            v = st.feedback("thumbs", key=f"fb_{st.session_state.version}_{i}")
+            if v is not None:
+                st.session_state.valoraciones[i] = v
+
+consulta = st.chat_input("Escribe tu pregunta...")
+if consulta:
+    procesar(consulta)
+    st.rerun()
+
+# ----------------------------- Satisfacción --------------------------------------
+st.divider()
+with st.expander("Evaluar la conversación", expanded=len(bot.historial) >= 3 and not st.session_state.enviada):
+    if st.session_state.enviada:
+        st.success("¡Gracias por tu valoración!")
+    else:
+        estrellas = st.feedback("stars", key=f"estrellas_{st.session_state.version}")
+        comentario = st.text_area("Comentario (opcional)", key=f"coment_{st.session_state.version}")
+        if st.button("Enviar valoración", disabled=estrellas is None or not bot.historial):
+            os.makedirs(LOGS, exist_ok=True)
+            fila = pd.DataFrame([{
+                "fecha": datetime.now().isoformat(timespec="seconds"),
+                "estrellas": estrellas + 1,
+                "turnos": len(bot.historial),
+                "entendidas": sum(t.intencion != "fallback" for t in bot.historial),
+                "pulgares_arriba": sum(v == 1 for v in st.session_state.valoraciones.values()),
+                "pulgares_abajo": sum(v == 0 for v in st.session_state.valoraciones.values()),
+                "comentario": comentario}])
+            fila.to_csv(ARCHIVO_CSAT, mode="a", header=not os.path.exists(ARCHIVO_CSAT), index=False)
+            st.session_state.enviada = True
+            st.rerun()
+\end{codigo}
+
+El cuaderno interactivo con el motor del chatbot (\texttt{act17.py}) puede consultarse en Google Colab. La interfaz web se ejecuta localmente con Streamlit y no forma parte del cuaderno.
+
+\begin{center}
+    \url{https://colab.research.google.com/drive/1TwPazaLUSFZB7LRVl9OsYxANHgH6-rSb?usp=sharing}
+\end{center}
+
+\section{Resultados}
+
+\subsection{Comprensión de consultas}
+
+Para evaluar la comprensión se escribió un conjunto de prueba aparte de los ejemplos de diseño: 68 consultas, 56 dentro del dominio (4 paráfrasis por intención) y 12 fuera de dominio, que deben terminar en \textit{fallback} (Salida~\ref{out:eval}). Se compararon tres estrategias: sólo patrones, sólo TF-IDF y el método híbrido.
+
+\begin{consola}[label=out:eval]{Comparación de las estrategias de comprensión}
+Conjunto de prueba: 68 consultas (56 dentro del dominio, 12 fuera de dominio)
+
+Comparación de estrategias de comprensión (umbral TF-IDF = 0.45):
+               exactitud  dentro del dominio  rechazo fuera de dominio
+Solo patrones      0.838               0.804                     1.000
+Solo TF-IDF        0.824               0.821                     0.833
+Híbrido            0.912               0.929                     0.833
+\end{consola}
+
+\begin{table}[H]
+\centering
+\caption{Resultados sobre el conjunto de prueba (68 consultas).}
+\label{tab:estrategias}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Estrategia} & \textbf{Exactitud} & \textbf{Dentro del dominio} & \textbf{Rechazo fuera de dominio} \\
+\midrule
+Sólo patrones & 0.838 & 0.804 & 1.000 \\
+Sólo TF-IDF   & 0.824 & 0.821 & 0.833 \\
+Híbrido       & 0.912 & 0.929 & 0.833 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{act17/img/estrategias.png}
+\caption{Comparación de las estrategias de comprensión.}
+\label{fig:estrategias}
+\end{figure}
+
+Las dos estrategias son complementarias (Tabla~\ref{tab:estrategias}, Figura~\ref{fig:estrategias}). Los patrones nunca aceptan una consulta ajena al dominio (rechazo de 1.0), pero fallan ante paráfrasis que no anticiparon, como «¿Cuánto debo esperar para recibir mi pedido?». La similitud TF-IDF reconoce más paráfrasis, pero también acepta por error consultas fuera de dominio. El método híbrido combina ambas ventajas y logra la mejor exactitud (0.912), con 6 errores en 68 consultas.
+
+\begin{consola}[label=out:reporte]{Reporte por intención y errores del método híbrido}
+Reporte por intención (método híbrido):
+                precision    recall  f1-score   support
+
+agradecimiento       1.00      1.00      1.00         4
+      cancelar       1.00      1.00      1.00         4
+costo_generico       0.00      0.00      0.00         0
+        cuenta       1.00      1.00      1.00         4
+     despedida       1.00      0.50      0.67         4
+    devolucion       0.80      1.00      0.89         4
+   envio_costo       1.00      1.00      1.00         4
+  envio_tiempo       1.00      0.75      0.86         4
+      fallback       0.91      0.83      0.87        12
+      garantia       1.00      1.00      1.00         4
+       horario       1.00      1.00      1.00         4
+        humano       0.80      1.00      0.89         4
+          pago       1.00      1.00      1.00         4
+   promociones       1.00      1.00      1.00         4
+       rastreo       0.80      1.00      0.89         4
+        saludo       0.75      0.75      0.75         4
+
+      accuracy                           0.91        68
+     macro avg       0.88      0.86      0.86        68
+  weighted avg       0.93      0.91      0.91        68
+
+Consultas mal clasificadas por el método híbrido: 6 de 68
+                                       texto         real           pred
+                 Qué onda, ¿hay alguien ahí?       saludo         humano
+                            Bueno, me retiro    despedida         saludo
+                      Eso sería todo por hoy    despedida       fallback
+¿Cuánto debo esperar para recibir mi pedido? envio_tiempo        rastreo
+                        ¿Cuánto es 25 por 4?     fallback costo_generico
+                         Háblame de política     fallback     devolucion
+\end{consola}
+
+La Salida~\ref{out:reporte} muestra que casi todas las intenciones se reconocen sin error. Los puntos débiles son la despedida (exhaustividad de 0.50: «Bueno, me retiro» se confunde con un saludo y «Eso sería todo por hoy» no se reconoce) y el saludo coloquial («Qué onda, ¿hay alguien ahí?» se confunde con la petición de un agente). Dos consultas fuera de dominio se aceptaron por error: «¿Cuánto es 25 por 4?» (por la palabra «cuánto») y «Háblame de política», que se asoció con la «política de devoluciones». Son errores propios de un sistema basado en palabras: no entiende el significado, sólo coincide con el vocabulario.
+
+\subsection{Umbral de confianza}
+
+La Salida~\ref{out:umbral} y la Figura~\ref{fig:umbral} muestran el compromiso al fijar el umbral de similitud. Un umbral bajo acepta casi todo y casi no rechaza consultas ajenas; uno alto rechaza todas las ajenas, pero también descarta consultas válidas (con 0.60, el acierto dentro del dominio baja a 0.696). Se eligió 0.45 como punto intermedio. Dado que en el método híbrido la mayor parte de las consultas válidas las resuelven los patrones, el umbral sólo se aplica a las que éstos no reconocen.
+
+\begin{consola}[label=out:umbral]{Barrido del umbral de confianza (sólo TF-IDF)}
+Barrido del umbral de confianza (solo TF-IDF):
+ umbral  acierto dentro del dominio  rechazo fuera de dominio
+   0.00                       0.893                     0.000
+   0.05                       0.875                     0.750
+   0.10                       0.875                     0.750
+   0.15                       0.875                     0.750
+   0.20                       0.875                     0.750
+   0.25                       0.875                     0.750
+   0.30                       0.875                     0.750
+   0.35                       0.875                     0.750
+   0.40                       0.875                     0.750
+   0.45                       0.821                     0.833
+   0.50                       0.821                     0.917
+   0.55                       0.768                     0.917
+   0.60                       0.696                     1.000
+   0.65                       0.661                     1.000
+   0.70                       0.625                     1.000
+   0.75                       0.571                     1.000
+   0.80                       0.482                     1.000
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{act17/img/umbral.png}
+\caption{Acierto dentro del dominio y rechazo fuera de dominio según el umbral.}
+\label{fig:umbral}
+\end{figure}
+
+\subsection{Contexto, rastreo de pedidos y \textit{fallback}}
+
+La Salida~\ref{out:demo} reproduce tres conversaciones. En la A, el bot recuerda el nombre del usuario y resuelve «¿y cuánto cuesta?» como costo de envío, porque el tema anterior fue el envío (método \texttt{contexto}). En la B, el bot pide el número de pedido y lo recibe en el mensaje siguiente (método \texttt{slot}); después consulta otro pedido con sólo «¿y el pedido 1004?». En la C, ante tres consultas ajenas el \textit{fallback} escala de pedir reformular, a mostrar los temas disponibles, a ofrecer un agente humano, y un «sí» activa la transferencia.
+
+\begin{consola}[label=out:demo]{Conversaciones de demostración}
+A) Contexto: preguntas de seguimiento
+  Usuario: Hola, me llamo Ana
+  Bot    : ¡Hola, Ana! ¿En qué puedo ayudarte?
+           [intención=saludo, método=patrones, confianza=0.8]
+  Usuario: ¿Cuánto tarda el envío?
+  Bot    : El envío estándar tarda de 3 a 5 días hábiles y el envío express de 24 a 48 horas (zonas metropolitanas).
+           [intención=envio_tiempo, método=patrones, confianza=1.0]
+  Usuario: ¿y cuánto cuesta?
+  Bot    : El envío estándar cuesta $99 MXN y es gratis en compras mayores a $999 MXN. El envío express cuesta $199 MXN.
+           [intención=envio_costo, método=contexto, confianza=1.0]
+  Usuario: ¿y qué formas de pago hay?
+  Bot    : Aceptamos tarjetas de crédito y débito, PayPal, transferencia y pago en OXXO. Con tarjetas participantes ofrecemos 3, 6 y 12 meses sin intereses.
+           [intención=pago, método=patrones, confianza=0.8]
+
+B) Slot de pedido
+  Usuario: Quiero rastrear mi paquete
+  Bot    : Con gusto. ¿Cuál es tu número de pedido? (formato TM-1234)
+           [intención=rastreo, método=patrones, confianza=0.8]
+  Usuario: Es el TM-1001
+  Bot    : Pedido TM-1001. En camino: salió del almacén y llega mañana antes de las 18:00 h.
+           [intención=rastreo, método=slot, confianza=1.0]
+  Usuario: ¿y el pedido 1004?
+  Bot    : Pedido TM-1004. Con retraso por clima adverso; la nueva fecha estimada es en 2 días.
+           [intención=rastreo, método=tfidf, confianza=1.0]
+
+C) Fallback escalonado
+  Usuario: ¿Cuál es la capital de Francia?
+  Bot    : Lo siento, no estoy seguro de haber entendido. ¿Podrías decirlo con otras palabras?
+           [intención=fallback, método=fallback, confianza=0.0]
+  Usuario: Cuéntame un chiste
+  Bot    : Sigo sin entender tu consulta. Puedo ayudarte con: envíos, rastreo de pedidos, devoluciones, formas de pago, garantía, cancelaciones, tu cuenta, promociones y horarios.
+           [intención=fallback, método=fallback, confianza=0.0]
+  Usuario: ¿Cómo se hace una paella?
+  Bot    : Parece que no logro ayudarte con esto. ¿Quieres que te transfiera con un agente humano?
+           [intención=fallback, método=fallback, confianza=0.444]
+  Usuario: sí
+  Bot    : Te transfiero con un agente. Su tiempo de espera es de unos 5 minutos (lunes a viernes, 9:00 a 19:00 h). También puedes escribir a ayuda@tecnomia.example.
+           [intención=humano, método=confirmacion, confianza=1.0]
+\end{consola}
+
+\subsection{Interfaz web}
+
+La Figura~\ref{fig:ui} muestra la interfaz tras una conversación de seis mensajes. En el centro están el historial, con la intención detectada, el método y la confianza de cada respuesta, y los botones de pulgar por respuesta; abajo, el panel de evaluación con 4 estrellas y un comentario. En la barra lateral hay preguntas frecuentes, el estado del contexto (nombre, último tema, fallos seguidos) y el porcentaje de consultas entendidas (83\,\%: 5 de 6). Al enviar la valoración se guarda en el CSV y la barra lateral muestra la satisfacción promedio acumulada (Figura~\ref{fig:csat}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[height=0.62\textheight,keepaspectratio]{act17/img/ui_conversacion.png}
+\caption{Interfaz del chatbot con historial, valoración por respuesta y evaluación final.}
+\label{fig:ui}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.3\linewidth]{act17/img/ui_csat.png}
+\caption{Satisfacción promedio en la barra lateral tras enviar una valoración de 4 estrellas.}
+\label{fig:csat}
+\end{figure}
+
+\section{Conclusiones}
+
+El chatbot cumple las tres tareas: reconoce 15 intenciones con patrones y similitud TF-IDF, mantiene contexto (tema anterior, número de pedido, confirmaciones), responde con un \textit{fallback} escalonado cuando no entiende, y ofrece una interfaz web con historial y evaluación de satisfacción. El método híbrido alcanzó 0.912 de exactitud en las 68 consultas de prueba, por encima de cualquiera de sus dos componentes por separado.
+
+Los resultados deben leerse con cautela. El conjunto de prueba es pequeño (68 consultas, escritas por quien diseñó el sistema), y las paráfrasis están en el mismo estilo que los ejemplos. Además, al revisar las conversaciones de demostración se encontró que consultas fuera de dominio, como «¿Cuál es la capital de Francia?», se aceptaban por similitud con palabras interrogativas genéricas. Se retiraron esas palabras y se limitó el uso del contexto a los mensajes de seguimiento; ese ajuste se hizo después de una primera evaluación (exactitud de 0.882 y rechazo fuera de dominio de 0.75) y se midió sobre el mismo conjunto de prueba, por lo que la mejora puede estar algo inflada.
+
+Las limitaciones son las propias de un sistema basado en vocabulario: no entiende el significado, por lo que confunde «política» de gobierno con «política de devoluciones»; no maneja varias intenciones en un mismo mensaje; y los datos de pedidos son simulados. Para una versión de producción habría que probar con consultas reales de clientes, y reemplazar la similitud TF-IDF por representaciones que capten el significado, como los modelos de tipo \textit{transformer} que presenta el tema.
+
+\referencias
+
+\end{document}
