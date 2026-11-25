@@ -1,0 +1,653 @@
+%% =======================================================
+%% Actividad 24: "Detective de Datos: Descubriendo Patrones Ocultos"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  after={\par\normalcolor},
+  listing options={
+    basicstyle=\ttfamily\scriptsize, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.5. Minería de datos \\ Actividad 24 - Detective de Datos: \\ Descubriendo Patrones Ocultos}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+El analista responde preguntas que ya conoce; el minero de datos descubre preguntas que no sabía hacer, y lo hace con un proceso sistemático (KDD o CRISP-DM) y no sólo con algoritmos \parencite{iae_u4_t45}. Un supermercado es un caso natural: guarda miles de tickets de compra y quiere saber qué productos conviene acomodar juntos, qué clientes se parecen entre sí y qué transacciones no encajan.
+
+En este reporte se desarrolla la Actividad 1 del Tema 4.5, ``Detective de Datos: Descubriendo Patrones Ocultos''. Como consultor de un supermercado, se aplican tres técnicas del tema: reglas de asociación (análisis de canasta), \textit{clustering} (segmentación de clientes) y detección de anomalías (transacciones sospechosas). Como el código base del tema deja los datos por simular y pide descubrir tres patrones conocidos, se construyó un conjunto simulado donde se conoce la respuesta, lo que permite además medir qué tan bien funciona cada método, y no sólo mostrar resultados.
+
+\section{Marco conceptual}
+
+\subsection{Reglas de asociación}
+
+Una regla de asociación tiene la forma ``si A, entonces B'' (por ejemplo, $\{$Leche, Pan$\} \rightarrow \{$Mantequilla$\}$) y se mide con el \textbf{soporte} (fracción de tickets que contienen $A$ y $B$) y la \textbf{confianza} (de los tickets con $A$, qué fracción contiene también $B$) \parencite{iae_u4_t45}. Como la confianza se infla cuando $B$ es un producto muy popular, se usa además el \textbf{lift}, que es la confianza dividida entre la frecuencia de $B$: un lift de 1 significa que $A$ y $B$ son independientes y un valor mayor, que se compran juntos más de lo esperado por azar \parencite{han2011}. El algoritmo Apriori busca primero los conjuntos de productos frecuentes (con soporte mínimo) y de ahí obtiene las reglas.
+
+\subsection{\textit{Clustering}}
+
+El \textit{clustering} agrupa objetos de modo que los de un mismo grupo se parezcan entre sí y difieran de los de otros, sin saber de antemano qué grupos existen \parencite{iae_u4_t45}. El tema presenta K-Means (que requiere elegir el número de grupos) y DBSCAN (que se basa en densidad y marca como ruido los puntos aislados), y la silueta como medida de separación. Aquí se agregan la inercia (para el método del codo), un método jerárquico y una mezcla gaussiana.
+
+\subsection{Detección de anomalías}
+
+Las anomalías son las excepciones, que en muchos casos son lo más interesante \parencite{iae_u4_t45}. El tema usa tres algoritmos: Isolation Forest (aísla los puntos raros con árboles aleatorios), Local Outlier Factor (compara la densidad local de un punto con la de sus vecinos) y One-Class SVM (modela la región normal). Como las anomalías son pocas, la exactitud es una mala medida (si el 2~\% de los datos son anomalías, declarar todo normal ya da 98~\%); se usan la precisión y el recall de lo marcado, el área bajo la curva ROC (AUC) y la precisión promedio (AP, el área bajo la curva precisión-recall).
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} ser consultor en un supermercado que quiere optimizar la disposición de productos y las promociones cruzadas.
+
+\subsection*{Misión}
+
+\begin{description}
+    \item[Tarea 1: Análisis de canasta de compra.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Encontrar qué productos se compran juntos frecuentemente.
+    \end{enumerate}
+    \item[Tarea 2: Segmentación de clientes.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Identificar grupos de clientes con comportamientos similares.
+    \end{enumerate}
+    \item[Tarea 3: Detección de anomalías.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Encontrar transacciones sospechosas que podrían ser fraudes.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+El código base indica ``simular datos más realistas'', fija 5\,000 transacciones y tres patrones que se desean descubrir: Pan y Leche $\rightarrow$ Mantequilla, Cerveza y Papas $\rightarrow$ Dulces, y Carne y Verduras $\rightarrow$ Salsa. Los datos no se incluyen, por lo que se simularon con semilla fija, con los 20 productos del ejemplo del tema, y con la estructura siguiente:
+\begin{itemize}
+    \item \textbf{Clientes:} 600 clientes de 4 segmentos que el análisis no conoce (familias, jóvenes, saludables y compradores de abasto), cada uno con sus preferencias de producto, tamaño de ticket, frecuencia de visita y horario.
+    \item \textbf{Tickets:} 5\,000, con productos, cantidades, descuento, hora y monto (con precios por producto).
+    \item \textbf{Patrones plantados:} en una fracción de los tickets se incluyen los antecedentes de cada patrón y, cuando están todos, se agrega el consecuente con probabilidad de 0.75 a 0.85, además de su probabilidad normal de compra.
+    \item \textbf{Fraudes:} el 2~\% de los tickets (100) se transforma en uno de tres tipos: cantidades excesivas de uno o dos productos, compras de madrugada con cantidades altas, y descuentos fuera de lo normal (40 a 80~\%, contra 0 a 15~\% de los demás).
+\end{itemize}
+Es un conjunto \textbf{simulado}: no son tickets reales. Esto permite saber la respuesta correcta (los patrones, los segmentos y los fraudes) y así evaluar los métodos, pero también significa que los resultados indican qué tan bien funcionan los métodos en estas condiciones, no cuánto se encontraría en un supermercado real.
+
+\section{Desarrollo}
+
+\subsection{Código base y datos}
+
+El Código~\ref{cod:base} es la función base del tema sin cambios; sólo imprime los patrones objetivo, que es lo que se debe descubrir automáticamente. El código completo de la actividad se desarrolló en un único archivo; ahí se simulan los datos (\texttt{generar\_datos}) con la estructura descrita. El código también puede ejecutarse en Google Colab: \url{https://colab.research.google.com/drive/1L-wo3M3xBd1Mfz6HELkPrpWtlI00aCk_?usp=sharing}. Las tablas y figuras de este reporte provienen de la ejecución local; al ejecutar el cuaderno en Colab los resultados fueron idénticos, salvo los tiempos y dos cifras de One-Class SVM (precisión y recall de 0.56 contra 0.57 locales, y recall de 0.61 contra 0.64 en los descuentos anómalos), diferencia que no cambia ninguna conclusión.
+
+\begin{codigo}[label=cod:base]{Función base del tema}
+def proyecto_mineria_datos():
+    """Plantilla para el proyecto de minería de datos"""
+    print("Proyecto: Detective de Datos - Supermercado ABC")
+
+    # Simular datos más realistas
+    np.random.seed(42)
+    n_transacciones = 5000
+
+    # Patrones de compra predefinidos (reglas que queremos descubrir)
+    patrones_conocidos = [
+        {'antecedentes': ['Pan', 'Leche'], 'consecuentes': ['Mantequilla']},
+        {'antecedentes': ['Cerveza', 'Papas'], 'consecuentes': ['Dulces']},
+        {'antecedentes': ['Carne', 'Verduras'], 'consecuentes': ['Salsa']}
+    ]
+
+    print("\n Patrones que deberíamos descubrir:")
+    for i, patron in enumerate(patrones_conocidos):
+        print(f"{i+1}. {patron['antecedentes']} → {patron['consecuentes']}")
+
+    # Tu código aquí para descubrir estos patrones automáticamente
+    print("\n Tu tarea: Implementa el código para descubrir estos patrones")
+    return patrones_conocidos
+
+
+# Inicia tu proyecto aquí
+patrones_objetivo = proyecto_mineria_datos()
+\end{codigo}
+
+\begin{consola}[label=out:datos]{Resultado del código base y descripción de los datos simulados}
+Proyecto: Detective de Datos - Supermercado ABC
+ Patrones que deberíamos descubrir:
+1. ['Pan', 'Leche'] → ['Mantequilla']
+2. ['Cerveza', 'Papas'] → ['Dulces']
+3. ['Carne', 'Verduras'] → ['Salsa']
+ Tu tarea: Implementa el código para descubrir estos patrones
+Ejemplos de tickets:
+Ticket 0: cliente 231, día 13, 13.5 h, $70: Cerveza, Papas, Dulces
+Ticket 1: cliente 164, día 28, 19.2 h, $212: Mantequilla, Pasta, Refresco, Papas, Dulces
+Ticket 2: cliente 314, día 35, 19.3 h, $328: Pan, Huevos, Carne, Refresco, Dulces
+Ticket 3: cliente 192, día 65, 10.8 h, $376: Leche, Cereal, Fruta, Verduras, Refresco
+Ticket 4: cliente 340, día 24, 18.0 h, $390: Pan, Yogur, Fruta, Pescado, Arroz, Refresco, Café
+Tickets: 5000, clientes: 594, productos distintos: 20
+Productos por ticket: mínimo 1, mediana 5, máximo 20
+Monto por ticket: mediana $342, promedio $395, máximo $5414
+Tickets fraudulentos inyectados: 100 (2.0%)
+Popularidad de los productos (% de tickets que lo incluyen):
+Verduras       36.2
+Leche          33.4
+Cereal         32.7
+Fruta          32.2
+Pan            32.2
+Huevos         31.5
+Yogur          31.4
+Mantequilla    30.6
+Pasta          30.2
+Té             29.3
+Dulces         29.1
+Arroz          27.9
+Papas          27.6
+Salsa          27.3
+Refresco       26.9
+Queso          26.8
+Pescado        26.4
+Carne          24.3
+Cerveza        21.5
+Café           21.5
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act24/img/datos.png}
+\caption{Popularidad de los productos, tamaño de los tickets y monto por ticket.}
+\label{fig:datos}
+\end{figure}
+
+El ticket mediano tiene 5 productos y cuesta \$342; ningún producto está en más del 36~\% de los tickets y los plantados (Mantequilla, Salsa, Dulces) quedan entre 27~\% y 31~\%, por lo que ningún patrón se nota a simple vista en la popularidad.
+
+\subsection{Tarea 1: Análisis de canasta de compra}
+
+Los tickets se convierten a una matriz de ceros y unos (una columna por producto), se buscan los conjuntos frecuentes con Apriori y de ahí las reglas (Código~\ref{cod:reglas}). Se usan primero los valores por omisión del tema (soporte mínimo de 5~\% y confianza mínima de 20~\%).
+
+\begin{codigo}[label=cod:reglas]{Descubrimiento de reglas con Apriori}
+def codificar(listas):
+    """Transacciones -> matriz one-hot (una columna por producto)."""
+    te = TransactionEncoder()
+    return pd.DataFrame(te.fit(listas).transform(listas), columns=te.columns_)
+
+
+def descubrir_reglas(onehot, soporte_minimo=0.05, confianza_minima=0.5, algoritmo="apriori"):
+    """Itemsets frecuentes + reglas de asociación (soporte, confianza, lift, leverage y convicción)."""
+    f = apriori if algoritmo == "apriori" else fpgrowth
+    itemsets = f(onehot, min_support=soporte_minimo, use_colnames=True)
+    if len(itemsets) < 2:
+        return pd.DataFrame(), itemsets
+    reglas = association_rules(itemsets, num_itemsets=len(onehot), metric="confidence", min_threshold=confianza_minima)
+    return reglas, itemsets
+\end{codigo}
+
+\begin{consola}[label=out:reglas]{Reglas con los umbrales del tema, ordenadas por confianza y por lift}
+Con soporte >= 5% y confianza >= 20% (valores del tema): 429 conjuntos frecuentes y 1350 reglas
+Top 5 por confianza (como ordena el tema):
+1. Leche, Pan, Pasta → Mantequilla   confianza 92.5% | soporte 5.9% | lift 3.02
+2. Huevos, Leche, Pan → Mantequilla   confianza 90.5% | soporte 6.5% | lift 2.96
+3. Arroz, Leche, Pan → Mantequilla   confianza 90.1% | soporte 6.4% | lift 2.94
+4. Leche, Pan, Yogur → Mantequilla   confianza 89.6% | soporte 6.9% | lift 2.92
+5. Fruta, Leche, Pan → Mantequilla   confianza 88.8% | soporte 5.9% | lift 2.90
+Top 5 por lift:
+1. Leche, Pan → Mantequilla, Yogur   confianza 42.8% | soporte 6.9% | lift 3.54
+2. Mantequilla, Yogur → Leche, Pan   confianza 56.7% | soporte 6.9% | lift 3.54
+3. Leche, Pan → Arroz, Mantequilla   confianza 39.8% | soporte 6.4% | lift 3.52
+4. Arroz, Mantequilla → Leche, Pan   confianza 56.4% | soporte 6.4% | lift 3.52
+5. Cereal, Mantequilla → Leche, Pan   confianza 54.8% | soporte 7.0% | lift 3.42
+\end{consola}
+
+\textbf{Ordenar por confianza no basta.} Con esos umbrales hay 429 conjuntos frecuentes y 1\,350 reglas. Las cinco con mayor confianza (89~\% a 93~\%) son todas de la forma ``Leche, Pan y otro producto $\rightarrow$ Mantequilla'': el patrón plantado con un antecedente de más (Pasta, Huevos, Arroz, Yogur, Fruta) que no aporta nada, pues el lift es casi el mismo (2.9 a 3.0). Ordenar por lift tampoco da directamente los patrones pedidos: las de mayor lift (3.4 a 3.5) son variantes con un cuarto producto, como Leche y Pan $\rightarrow$ Mantequilla y Yogur. Esa asociación adicional es real y se explica por los segmentos: las familias compran leche, pan, yogur, arroz y cereal en los mismos tickets, y la mantequilla, ligada a la leche y el pan, queda asociada con ellos.
+
+\begin{consola}[label=out:objetivo]{Búsqueda de los tres patrones objetivo entre las reglas}
+--- ¿Se descubrieron los patrones objetivo? ---
+                  patrón encontrada  soporte  confianza  lift  rango por confianza  rango por lift
+Pan, Leche → Mantequilla         sí    0.141      0.883 2.883                    7              39
+ Cerveza, Papas → Dulces         sí    0.093      0.861 2.957                    9              24
+ Carne, Verduras → Salsa         sí    0.093      0.824 3.019                   15              20
+(de 1350 reglas en total)
+--- Las 12 reglas con mayor lift ---
+                           regla  soporte  confianza  lift ¿patrón plantado?
+ Leche, Pan → Mantequilla, Yogur    0.069      0.428 3.539                no
+ Mantequilla, Yogur → Leche, Pan    0.069      0.567 3.539                no
+ Leche, Pan → Arroz, Mantequilla    0.064      0.398 3.518                no
+ Arroz, Mantequilla → Leche, Pan    0.064      0.564 3.518                no
+Cereal, Mantequilla → Leche, Pan    0.070      0.548 3.418                no
+Leche, Pan → Cereal, Mantequilla    0.070      0.438 3.418                no
+Huevos, Mantequilla → Leche, Pan    0.065      0.528 3.294                no
+Leche, Pan → Huevos, Mantequilla    0.065      0.404 3.294                no
+ Leche, Pan → Mantequilla, Pasta    0.059      0.368 3.265                no
+ Mantequilla, Pasta → Leche, Pan    0.059      0.523 3.265                no
+ Leche, Pan → Fruta, Mantequilla    0.059      0.366 3.074                no
+ Fruta, Mantequilla → Leche, Pan    0.059      0.492 3.074                no
+Reglas que comparten el conjunto de cada patrón objetivo (el mismo conjunto genera varias reglas):
+  {Leche, Mantequilla, Pan}: 6 reglas
+  {Cerveza, Dulces, Papas}: 6 reglas
+  {Carne, Salsa, Verduras}: 6 reglas
+\end{consola}
+
+\textbf{Los tres patrones sí se descubren.} Aparecen con confianza de 82~\% a 88~\% y lift cercano a 3 (Salida~\ref{out:objetivo}); por confianza ocupan los lugares 7, 9 y 15 de 1\,350, y por lift los lugares 39, 24 y 20. Además, el mismo conjunto de tres productos produce seis reglas (las seis maneras de repartirlo en antecedente y consecuente), por lo que la dirección de la regla no está en los datos de forma única: la regla plantada sólo es la que se pidió, y las otras cinco de ese conjunto son igual de válidas desde el punto de vista estadístico. Para interpretar una regla conviene fijarse en el conjunto de productos y no sólo en una dirección.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act24/img/reglas.png}
+\caption{Reglas descubiertas (izquierda; los círculos rojos son las de los tres conjuntos objetivo) y reglas de mayor lift con los tres patrones objetivo (derecha).}
+\label{fig:reglas}
+\end{figure}
+
+\textbf{Sensibilidad a los umbrales.}
+
+\begin{consola}[label=out:sens]{Sensibilidad al soporte y a la confianza mínimos}
+--- Sensibilidad al soporte mínimo (confianza mínima 0.5; tiempos: Apriori y FP-Growth) ---
+ soporte mínimo  conjuntos  reglas objetivo encontrados Apriori = FP-Growth  Apriori (s)  FP-Growth (s)
+           0.03       1197    1401               3 de 3                  sí        0.028          0.131
+           0.05        429     305               3 de 3                  sí        0.009          0.103
+           0.10        100      14               1 de 3                  sí        0.003          0.032
+           0.15         25       5               0 de 3                  sí        0.002          0.078
+           0.20         20       0               0 de 3                  sí        0.001          0.026
+--- Sensibilidad a la confianza mínima (soporte mínimo 0.05) ---
+ confianza mínima  reglas objetivo encontrados  reglas con lift > 1.5
+              0.2    1350               3 de 3                    689
+              0.4     712               3 de 3                    462
+              0.5     305               3 de 3                    295
+              0.6      80               3 de 3                     80
+              0.7      27               3 de 3                     27
+              0.8      20               3 de 3                     20
+\end{consola}
+
+El soporte mínimo es el umbral que decide si se encuentra un patrón: los tres patrones tienen soporte de 9.3~\% a 14.1~\%, por lo que con un soporte mínimo de 10~\% sólo se encuentra uno de los tres y con 15~\% ninguno (Salida~\ref{out:sens}). Bajarlo a 3~\% encuentra los tres, pero con 1\,197 conjuntos y 1\,401 reglas, la mayoría sin interés. La confianza mínima, en cambio, casi no cambia qué patrones aparecen (los tres sobreviven incluso con 0.8) y sólo reduce el volumen de reglas, de 1\,350 a 20. Apriori y FP-Growth devuelven exactamente los mismos conjuntos; con sólo 20 productos ambos tardan milésimas de segundo y FP-Growth no resulta más rápido, ventaja que se esperaría con catálogos grandes.
+
+\textbf{Validación en datos no vistos.} Las reglas se minaron con el 70~\% de los tickets y se midieron en el 30~\% restante.
+
+\begin{consola}[label=out:val]{Validación de las reglas con el 30 \% de los tickets}
+--- Validación: reglas minadas con el 70 % de los tickets y medidas en el 30 % restante ---
+Reglas del 70 %: 311; reaparecen en el 30 %: 311
+Correlación de la confianza (70 % vs 30 %): 0.888; del lift: 0.934
+                  patrón  confianza (70 %)  confianza (30 %)  lift (70 %)  lift (30 %)
+Pan, Leche → Mantequilla             0.887             0.874        3.006        2.624
+ Cerveza, Papas → Dulces             0.860             0.862        2.965        2.938
+ Carne, Verduras → Salsa             0.829             0.811        3.065        2.912
+\end{consola}
+
+Las reglas son estables: la confianza de las reglas del 70~\% tiene una correlación de 0.89 con la del 30~\% y el lift de 0.93, y los tres patrones mantienen la confianza (por ejemplo, 0.887 y 0.874 para Pan y Leche $\rightarrow$ Mantequilla). El lift de ese primer patrón baja de 3.01 a 2.62, lo que muestra que estas medidas tienen un margen de variación aun con 1\,500 tickets de validación.
+
+\textbf{Qué hacer con las reglas.} La Salida~\ref{out:oport} cuenta los tickets que tienen los antecedentes pero no el consecuente, que son el público de una promoción cruzada.
+
+\begin{consola}[label=out:oport]{Oportunidad de promoción cruzada}
+--- Oportunidad de promoción cruzada ---
+                  patrón  tickets con los antecedentes  de ellos, sin el consecuente  % sin consecuente  ingreso por ticket si lo compran ($)
+Pan, Leche → Mantequilla                           801                            94               11.7                                    45
+ Cerveza, Papas → Dulces                           538                            75               13.9                                    18
+ Carne, Verduras → Salsa                           567                           100               17.6                                    25
+\end{consola}
+
+La oportunidad de venta es pequeña: de los tickets con Pan y Leche, el 88~\% ya incluye Mantequilla, y los que no la llevan son 94 de 5\,000. Aun si todos esos tickets compraran el producto faltante, el ingreso adicional sería de unos \$8\,000 en los 90 días de datos (menos del 0.5~\% de las ventas). El valor de las reglas está más en la \textbf{disposición de los productos} (acomodar mantequilla cerca del pan y la leche, y dulces junto a cervezas y papas) que en promociones, pues estos clientes ya tienen el hábito; las promociones cruzadas convendrían con reglas de mayor lift y menor confianza, donde el hábito aún no existe.
+
+\subsection{Tarea 2: Segmentación de clientes}
+
+Los tickets se integran en una tabla de un renglón por cliente (Código~\ref{cod:clientes}) con nueve variables: frecuencia de compra, gasto total, ticket mediano, unidades por ticket, días desde la última compra (recencia) y la proporción de unidades de cuatro categorías (frescos, lácteos, bebidas y botanas). Las variables sesgadas se transforman con logaritmo y todas se estandarizan, para que ninguna domine la distancia.
+
+\begin{codigo}[label=cod:clientes]{Características por cliente}
+def caracteristicas_clientes(tk):
+    """Un renglón por cliente: frecuencia, gasto, ticket, recencia y composición de lo que compra."""
+    ultimo = tk.dia.max()
+    filas = []
+    for c, g in tk.groupby("cliente"):
+        unidades = {k: 0 for k in CATEGORIAS}
+        for d in g.cantidades:
+            for p, q in d.items():
+                unidades[CATEGORIA_DE[p]] += q
+        total = sum(unidades.values())
+        filas.append({"cliente": c, "frecuencia": len(g), "gasto_total": g.monto.sum(), "ticket_mediano": g.monto.median(),
+                      "unidades_por_ticket": g.n_unidades.mean(), "recencia": ultimo - g.dia.max(),
+                      **{f"pct_{k}": v / total for k, v in unidades.items() if k != "abarrotes"}})
+    return pd.DataFrame(filas).set_index("cliente")
+\end{codigo}
+
+\begin{consola}[label=out:k]{Elección del número de grupos con K-Means}
+--- Elección del número de grupos con K-Means ---
+    inercia  silueta  Calinski-Harabasz  Davies-Bouldin  mejora de inercia (%)
+k
+2  3530.895    0.344            304.326           1.205                    NaN
+3  2789.359    0.331            270.846           1.235                 21.001
+4  2454.459    0.263            231.688           1.412                 12.006
+5  2308.743    0.244            193.714           1.499                  5.937
+6  2161.004    0.185            173.325           1.771                  6.399
+7  2043.870    0.166            158.062           1.727                  5.420
+8  1953.704    0.163            145.357           1.756                  4.412
+Mayor silueta: k = 2. Último k con mejora de inercia >= 10 % (codo): k = 4. Se usa k = 4.
+ARI contra los segmentos reales con K-Means: k=2: 0.400, k=3: 0.579, k=4: 0.679, k=5: 0.701, k=6: 0.559
+\end{consola}
+
+\textbf{Número de grupos.} Los criterios no coinciden (Salida~\ref{out:k}). La silueta, Calinski-Harabasz y Davies-Bouldin favorecen $k=2$, con una silueta de 0.344, que separa a los clientes de ticket pequeño (jóvenes) del resto; con más grupos la silueta baja (0.263 con $k=4$), porque los clientes forman una nube continua con zonas de traslape. La inercia, en cambio, sigue mejorando de forma apreciable hasta $k=4$ (mejoras de 21~\%, 12~\% y luego 6~\%). Se decidió usar el último $k$ con una mejora de la inercia de al menos 10~\%, es decir, $k=4$, que además da grupos que se pueden interpretar para el negocio. Como los segmentos reales se conocen, se comprobó la decisión: la concordancia con ellos (índice de Rand ajustado, ARI) es 0.40 con $k=2$, 0.68 con $k=4$ y 0.70 con $k=5$, de modo que $k=4$ es casi el mejor. En un caso real esa comprobación no existe y la elección dependería sólo del criterio y de la utilidad del resultado.
+
+\begin{consola}[label=out:algo]{Comparación de algoritmos de \textit{clustering} y de DBSCAN}
+--- Comparación de algoritmos (k = 4) ---
+          algoritmo  grupos  silueta  ARI contra segmentos reales
+            K-Means       4    0.263                        0.679
+Aglomerativo (Ward)       4    0.221                        0.718
+   Mezcla gaussiana       4    0.229                        0.454
+--- DBSCAN: efecto de eps (min_samples = 5; el tema usa eps = 0.5) ---
+ eps  grupos  ruido (%)  silueta (sin ruido)  ARI contra segmentos reales
+ 0.5       0    100.000                  NaN                        0.000
+ 0.8       7     90.404                0.284                       -0.000
+ 1.0       4     67.003                0.256                        0.153
+ 1.3       2     32.828                0.440                        0.295
+ 1.6       1     12.795                  NaN                        0.028
+ 2.0       1      5.219                  NaN                        0.008
+\end{consola}
+
+\textbf{Algoritmos.} K-Means y el método jerárquico de Ward dan resultados parecidos (ARI de 0.68 y 0.72; silueta de 0.26 y 0.22) y la mezcla gaussiana es peor (ARI de 0.45). DBSCAN con los parámetros del tema ($\varepsilon=0.5$) clasifica todos los clientes como ruido; con $\varepsilon=1.0$ encuentra 4 grupos pero deja 67~\% de los clientes como ruido, y con valores mayores los junta en uno o dos. Esto es de esperarse: DBSCAN busca regiones densas separadas por huecos y aquí los clientes forman una nube continua, por lo que K-Means es más apropiado.
+
+\begin{consola}[label=out:perfil]{Estabilidad y perfil de los grupos de K-Means}
+--- Estabilidad de K-Means: 10 inicializaciones y 10 submuestras del 80 % ---
+ARI entre inicializaciones: promedio 0.889 (mínimo 0.513); entre submuestras: promedio 0.953 (mínimo 0.906)
+--- Perfil de los grupos de K-Means (promedios en unidades originales) ---
+       clientes  frecuencia  gasto_total  ticket_mediano  unidades_por_ticket  recencia  pct_frescos  pct_lácteos  pct_bebidas  pct_snacks
+grupo
+0           190       12.29      5637.92          427.68                 9.73      6.04         0.22         0.30         0.12        0.07
+1           175        8.51      2011.37          201.20                 5.95     10.44         0.09         0.16         0.31        0.23
+2           145        6.56      2675.38          383.30                 7.50     13.45         0.32         0.28         0.15        0.03
+3            84        2.65      1942.61          721.25                15.13     28.39         0.18         0.28         0.17        0.08
+Grupos encontrados contra segmentos reales (número de clientes):
+segmento_real  Abasto  Familias  Jóvenes  Saludables
+grupo
+0                   1       149        2          38
+1                   0         1      173           1
+2                   2        21        4         118
+3                  71        10        1           2
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act24/img/clustering.png}
+\caption{Método del codo, coeficiente de silueta y clientes proyectados en dos dimensiones (PCA).}
+\label{fig:clustering}
+\end{figure}
+
+\textbf{Estabilidad y perfiles.} Los grupos son estables ante submuestras del 80~\% (ARI promedio de 0.95, mínimo de 0.91); con una sola inicialización de K-Means hay corridas que caen en una solución distinta (ARI mínimo de 0.51, promedio de 0.89), por lo que conviene usar varias inicializaciones. El perfil de los cuatro grupos (Figura~\ref{fig:perfil}) permite nombrarlos:
+\begin{itemize}
+    \item \textbf{Grupo 0 (190 clientes), compradores frecuentes y de alto gasto:} 12.3 visitas, \$5\,638 de gasto total, el 30~\% de sus compras son lácteos. Corresponde a las familias.
+    \item \textbf{Grupo 1 (175), tickets pequeños de bebidas y botanas:} ticket mediano de \$201 y 6 unidades; 31~\% bebidas y 23~\% botanas. Corresponde a los jóvenes.
+    \item \textbf{Grupo 2 (145), compradores de frescos:} 32~\% de frescos (fruta, verdura, carne y pescado) y 3~\% de botanas. Corresponde a los saludables.
+    \item \textbf{Grupo 3 (84), compras grandes y espaciadas:} 2.7 visitas, ticket mediano de \$721 con 15 unidades, y 28 días desde su última compra. Corresponde al abasto.
+\end{itemize}
+Contra los segmentos reales, 511 de 594 clientes (86~\%) quedan en el grupo que les corresponde; las confusiones se dan entre familias y saludables (38 saludables en el grupo de familias y 21 familias en el de saludables), que comparten lácteos y frescos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{act24/img/perfil_grupos.png}
+\caption{Perfil de cada grupo (promedios de las variables estandarizadas).}
+\label{fig:perfil}
+\end{figure}
+
+\textbf{Reglas por segmento.} Para integrar las dos primeras tareas se repitió el análisis de canasta dentro de cada grupo (Salida~\ref{out:porgrupo}).
+
+\begin{consola}[label=out:porgrupo]{Reglas de asociación dentro de cada grupo}
+--- Reglas de asociación dentro de cada grupo (soporte >= 0.08, confianza >= 0.5; 4 reglas simples de mayor lift) ---
+Grupo 0 (2336 tickets): 329 reglas en total, 268 con a lo más 2 antecedentes y 1 consecuente
+    Carne, Verduras → Salsa   confianza 82.8% | soporte 12.4% | lift 2.72
+    Salsa, Verduras → Carne   confianza 65.4% | soporte 12.4% | lift 2.31
+    Leche, Pan → Mantequilla   confianza 87.8% | soporte 22.0% | lift 2.23
+    Cereal, Salsa → Carne   confianza 55.9% | soporte 8.7% | lift 1.97
+Grupo 1 (1490 tickets): 29 reglas en total, 26 con a lo más 2 antecedentes y 1 consecuente
+    Cerveza, Papas → Dulces   confianza 85.7% | soporte 20.1% | lift 1.70
+    Dulces, Papas → Cerveza   confianza 69.6% | soporte 20.1% | lift 1.49
+    Cerveza, Dulces → Papas   confianza 68.0% | soporte 20.1% | lift 1.45
+    Dulces, Refresco → Papas   confianza 63.7% | soporte 12.0% | lift 1.36
+Grupo 2 (951 tickets): 138 reglas en total, 109 con a lo más 2 antecedentes y 1 consecuente
+    Mantequilla, Pescado → Fruta   confianza 68.0% | soporte 8.7% | lift 1.38
+    Fruta, Mantequilla → Pescado   confianza 66.9% | soporte 8.7% | lift 1.35
+    Queso, Yogur → Té   confianza 67.1% | soporte 10.1% | lift 1.32
+    Pescado, Yogur → Té   confianza 67.0% | soporte 12.6% | lift 1.32
+Grupo 3 (223 tickets): 241592 reglas en total, 2795 con a lo más 2 antecedentes y 1 consecuente
+    Cerveza, Papas → Dulces   confianza 98.1% | soporte 22.9% | lift 1.90
+    Dulces, Queso → Cerveza   confianza 81.6% | soporte 17.9% | lift 1.82
+    Leche, Pan → Mantequilla   confianza 91.4% | soporte 23.8% | lift 1.82
+    Dulces, Papas → Cerveza   confianza 78.5% | soporte 22.9% | lift 1.75
+\end{consola}
+
+Los tres patrones plantados se ven en los grupos donde se compran más (por ejemplo, Cerveza y Papas $\rightarrow$ Dulces en el de jóvenes, con confianza de 86~\%, y Carne y Verduras $\rightarrow$ Salsa en el de familias, con 83~\%), pero su lift dentro del grupo es menor que el global (1.70 contra 2.96 para Cerveza y Papas $\rightarrow$ Dulces): los jóvenes compran muchos dulces por sí mismos, de modo que la compra conjunta aporta menos de lo que parecía al mirar a todos los clientes. Parte de la asociación global se debe a que el segmento ya explica el comportamiento. También se ve un problema práctico: en el grupo de abasto, con sólo 223 tickets, pero muy grandes (15 unidades por ticket en promedio), hay 241\,592 reglas con los mismos umbrales, porque los tickets son tan grandes que casi cualquier combinación de productos es frecuente. Los umbrales deben ajustarse al segmento.
+
+\subsection{Tarea 3: Detección de anomalías}
+
+Se calculan siete características por ticket (Código~\ref{cod:anom}): el logaritmo del monto, el número de productos distintos, la cantidad máxima de un mismo producto, el descuento, la hora (como seno y coseno, para que las 23 y las 0 h queden cerca) y el monto relativo a la mediana de ese cliente.
+
+\begin{codigo}[label=cod:anom]{Características por ticket y puntajes de los tres algoritmos del tema}
+def caracteristicas_tickets(tk, con_cliente=True):
+    mediana_cliente = tk.groupby("cliente").monto.transform("median")
+    X = pd.DataFrame({"log_monto": np.log1p(tk.monto), "n_lineas": tk.n_lineas, "cantidad_max": tk.cantidad_max,
+                      "descuento_pct": tk.descuento_pct, "hora_sen": np.sin(2 * np.pi * tk.hora / 24),
+                      "hora_cos": np.cos(2 * np.pi * tk.hora / 24)})
+    if con_cliente:
+        X["monto_vs_cliente"] = np.log(tk.monto / mediana_cliente)
+    return X
+
+
+def puntajes(X, tasa, semilla=SEMILLA):
+    """Puntaje de anomalía (mayor = más raro) de los tres algoritmos del tema."""
+    Xs = StandardScaler().fit_transform(X)
+    isof = IsolationForest(contamination=tasa, random_state=semilla).fit(Xs)
+    lof = LocalOutlierFactor(n_neighbors=20, contamination=tasa).fit(Xs)
+    svm = OneClassSVM(nu=tasa, gamma="scale").fit(Xs)
+    return {"Isolation Forest": -isof.score_samples(Xs), "Local Outlier Factor": -lof.negative_outlier_factor_,
+            "One-Class SVM": -svm.decision_function(Xs)}
+\end{codigo}
+
+\begin{consola}[label=out:anom1]{Anomalías, características y comparación de algoritmos}
+Anomalías reales: 100 de 5000 (2.0%)
+Exactitud de marcar TODO como normal: 98.0% (por eso la exactitud engaña en este problema)
+Características por ticket: log_monto, n_lineas, cantidad_max, descuento_pct, hora_sen, hora_cos, monto_vs_cliente
+Promedios de las características, tickets normales contra fraudulentos:
+        log_monto  n_lineas  cantidad_max  descuento_pct  hora_sen  hora_cos  monto_vs_cliente
+normal       5.74      5.84          2.16           3.30     -0.56     -0.25             -0.06
+fraude       6.19      3.21         11.08          23.18     -0.15      0.12              0.33
+--- Comparación de algoritmos (se marcan los 100 tickets de mayor puntaje; cantidad de anomalías conocida) ---
+                      exactitud  precisión  recall    F1    AUC     AP
+algoritmo
+Isolation Forest          0.991       0.78    0.78  0.78  0.995  0.871
+Local Outlier Factor      0.962       0.06    0.06  0.06  0.343  0.042
+One-Class SVM             0.983       0.57    0.57  0.57  0.896  0.581
+Regla: monto alto         0.971       0.27    0.27  0.27  0.651  0.252
+\end{consola}
+
+\textbf{La exactitud engaña.} Marcar todo como normal da 98.0~\% de exactitud, una cifra comparable a las que reporta el tema para sus algoritmos (96.0~\% a 98.6~\%), de modo que esa métrica no distingue un buen detector de uno inútil. Se marcan los 100 tickets de mayor puntaje (tantos como anomalías hay) y se mide con precisión, recall, AUC y AP. Isolation Forest es el mejor de los tres algoritmos del tema: precisión y recall de 0.78, AUC de 0.995 y AP de 0.871. One-Class SVM llega a 0.57 de precisión y AP de 0.581. Local Outlier Factor con los parámetros del tema falla por completo (precisión de 0.06 y AUC de 0.343, peor que el azar). Una regla simple de monto alto, que es lo que haría una revisión manual, sólo acierta el 27~\%.
+
+\begin{consola}[label=out:lof]{Efecto del número de vecinos de LOF, recall por tipo de fraude y elección de cuántos tickets marcar}
+--- LOF: efecto del número de vecinos (el tema usa 20) ---
+ vecinos  precisión  recall   AUC    AP
+      20       0.06    0.06 0.343 0.042
+      50       0.93    0.93 1.000 0.977
+     100       0.99    0.99 1.000 1.000
+     200       1.00    1.00 1.000 1.000
+     400       0.99    0.99 1.000 1.000
+--- Recall por tipo de fraude (con los 100 tickets de mayor puntaje) ---
+                      cantidades excesivas  madrugada con monto alto  descuento anómalo
+algoritmo
+Isolation Forest                      0.79                      0.88               0.67
+Local Outlier Factor                  0.12                      0.03               0.03
+One-Class SVM                         0.82                      0.24               0.64
+Regla: monto alto                     0.44                      0.36               0.00
+--- ¿Qué tan bien se elige cuántos tickets marcar? (Isolation Forest, puntaje fijo) ---
+ tickets marcados  % de los tickets  precisión  recall    F1
+               25               0.5      1.000    0.25 0.400
+               50               1.0      1.000    0.50 0.667
+              100               2.0      0.780    0.78 0.780
+              150               3.0      0.593    0.89 0.712
+              250               5.0      0.384    0.96 0.549
+              500              10.0      0.200    1.00 0.333
+\end{consola}
+
+\textbf{LOF depende de un parámetro.} Con 50 vecinos, LOF pasa de una AP de 0.04 a 0.98, y con 100 o más alcanza 1.00 (Salida~\ref{out:lof}), es decir, supera a Isolation Forest. Una explicación probable, que no se verificó, es que los 100 fraudes forman tres grupos de unos 33 tickets cada uno; con 20 vecinos, los vecinos de un fraude son otros fraudes y su densidad local no resalta, mientras que con más vecinos que el tamaño del grupo la comparación incluye tickets normales. La comparación de algoritmos del tema, con parámetros por omisión, no dice cuál es mejor en general.
+
+\textbf{Qué tipo de fraude se detecta.} Isolation Forest detecta el 79~\% de las cantidades excesivas, el 88~\% de las compras de madrugada y el 67~\% de los descuentos anómalos; One-Class SVM detecta bien las cantidades excesivas (82~\%) pero sólo 24~\% de las de madrugada. La regla de monto alto no detecta ningún descuento anómalo (0~\%), pues el descuento reduce el monto y no lo aumenta.
+
+\textbf{¿Cuántos tickets revisar?} En un caso real no se sabe cuántas anomalías hay. Con Isolation Forest, revisar los 50 tickets de mayor puntaje (1~\% del total) da precisión de 100~\% y recall de 50~\%; con 100 son 78~\% y 78~\%; con 250 el recall sube a 96~\% pero la precisión baja a 38~\%. El umbral es una decisión de negocio, entre el costo de que una persona revise un ticket y el de dejar pasar un fraude.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act24/img/anomalias.png}
+\caption{Curvas precisión-recall, separación de los puntajes de Isolation Forest, y tickets marcados según hora y monto.}
+\label{fig:anom}
+\end{figure}
+
+\textbf{Característica relativa al cliente.} Se esperaba que comparar el monto con el historial del cliente evitara marcar como sospechosas las compras grandes de los clientes de abasto. Los resultados no lo confirman con claridad (Salida~\ref{out:cliente}): con esa característica hay 7 falsas alarmas de abasto en lugar de 12, pero aparecen 7 de familias y la precisión baja de 0.81 a 0.78 y la AP de 0.897 a 0.871. La diferencia es del orden de la variación entre simulaciones (desviación de la AP de 0.03), así que no hay evidencia de que mejore la detección.
+
+\begin{consola}[label=out:cliente,unbreakable]{Efecto de la característica relativa al cliente}
+--- Efecto de la característica relativa al cliente (monto_vs_cliente), Isolation Forest ---
+                      precisión  recall     AP  falsas alarmas  FP Familias  FP Jóvenes  FP Saludables  FP Abasto
+versión
+con monto_vs_cliente       0.78    0.78  0.871              22            7           1              7          7
+sin monto_vs_cliente       0.81    0.81  0.897              19            0           0              7         12
+\end{consola}
+
+\subsection{Robustez}
+
+Para ver si los resultados dependen de una simulación en particular, se repitió todo el proceso con 10 simulaciones distintas (Salida~\ref{out:rob}).
+
+\begin{consola}[label=out:rob]{Resultados con 10 simulaciones distintas}
+--- Robustez: 10 simulaciones con semillas distintas ---
+            patrones  lift_min  ARI_KMeans  AP_IForest
+simulación                                            
+0                  3     2.858       0.542       0.848
+1                  3     2.874       0.609       0.832
+2                  3     2.769       0.672       0.774
+3                  3     2.830       0.617       0.836
+4                  3     2.884       0.658       0.843
+5                  3     2.885       0.647       0.886
+6                  3     2.854       0.709       0.839
+7                  3     2.943       0.711       0.808
+8                  3     2.749       0.782       0.847
+9                  3     2.840       0.630       0.872
+
+Promedio y desviación estándar:
+            promedio  desv.
+patrones       3.000  0.000
+lift_min       2.849  0.057
+ARI_KMeans     0.658  0.066
+AP_IForest     0.839  0.031
+\end{consola}
+
+Los tres patrones se encontraron en las 10 simulaciones, con un lift mínimo de $2.85 \pm 0.06$. La concordancia de K-Means con los segmentos reales varía más ($\text{ARI}=0.66 \pm 0.07$, de 0.54 a 0.78), y la AP de Isolation Forest es de $0.84 \pm 0.03$. La conclusión sobre qué método es mejor para cada tarea se mantiene, pero el desempeño de la segmentación depende del conjunto de datos.
+
+\subsection{Limitaciones}
+
+Los datos son simulados y los patrones, segmentos y fraudes se diseñaron con una estructura clara, por lo que encontrarlos confirma que los métodos funcionan en esas condiciones, no que se encontrarían en un supermercado real, donde los patrones son más débiles y las etiquetas de fraude no existen. En particular, los tres tipos de fraude se diseñaron para distinguirse en las características elegidas; en la práctica un fraude no tiene por qué verse raro, ni un ticket raro es fraude (una anomalía es sólo una transacción inusual, y cada una requeriría revisión humana). El número de grupos se comprobó con los segmentos reales, algo que no estaría disponible. Los resultados de un solo experimento (el efecto de la característica relativa al cliente, la explicación de LOF) no se repitieron con varias simulaciones. Finalmente, no se consideró el tiempo (estacionalidad, promociones vigentes), que en un supermercado cambia mucho lo que se compra junto.
+
+\section{Conclusiones}
+
+Los tres métodos del tema se aplicaron a un supermercado simulado con 5\,000 tickets. Con reglas de asociación se descubrieron los tres patrones pedidos (confianza de 82~\% a 88~\%, lift cercano a 3), lo que requirió un soporte mínimo menor al de los patrones (9.3~\%), y se observó que ordenar sólo por confianza o por lift destaca variantes redundantes con productos de más y que el valor práctico está más en acomodar los productos que en promociones, porque el 88~\% de quienes compran los antecedentes ya compra el consecuente. Con \textit{clustering} se identificaron cuatro segmentos interpretables (familias, jóvenes, saludables y abasto) y 86~\% de los clientes quedó en el grupo correcto; la silueta favorece dos grupos y el codo cuatro, y DBSCAN no resultó adecuado para una nube continua de clientes. En detección de anomalías la exactitud no sirve (98~\% con marcar todo como normal), Isolation Forest fue el mejor de los tres algoritmos del tema (precisión y recall de 0.78) y LOF pasó de fallar a ser el mejor con sólo cambiar el número de vecinos.
+
+Para el supermercado, las recomendaciones son acomodar mantequilla junto a pan y leche, y dulces junto a cervezas y papas; diseñar acciones distintas por segmento (por ejemplo, el de abasto visita poco y compra mucho: lo valioso es aumentar su frecuencia); y revisar cada semana los tickets de mayor puntaje de Isolation Forest, empezando por 50 (precisión de 100~\% en la simulación) y ajustando según el costo de la revisión. Antes de usarlo con datos reales hay que repetir el análisis con tickets verdaderos, validar los fraudes marcados con una persona y ajustar los umbrales de cada segmento.
+
+\referencias
+
+\end{document}

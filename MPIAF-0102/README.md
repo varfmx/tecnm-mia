@@ -63,6 +63,46 @@ cd actividades/act21
 python act21.py
 ```
 
+Actividad 22 (reconocedor de dígitos MNIST con redes densas y convolucional; descarga ~11 MB; ~16 min en CPU):
+
+```bash
+cd actividades/act22
+python act22.py
+```
+
+Actividad 23 (clasificación de emociones en texto con redes recurrentes, conjunto dair-ai/emotion; descarga ~1.3 MB a
+`actividades/act23/datos/`, ignorada por git; guarda el modelo en `act23/modelo/`):
+
+```bash
+cd actividades/act23
+python act23.py
+streamlit run app.py             # interfaz web (requiere haber ejecutado antes act23.py)
+```
+
+Actividad 24 (minería de datos: reglas de asociación, segmentación y anomalías sobre un supermercado simulado; sin
+descargas, ~15 s):
+
+```bash
+cd actividades/act24
+python act24.py
+```
+
+Actividad 25 (recomendador de libros basado en reglas de asociación, Goodbooks-10k; descarga ~24 MB a
+`actividades/act25/datos/`, ignorada por git; ~1 min):
+
+```bash
+cd actividades/act25
+python act25.py
+```
+
+Actividad 26 (robot limpiador virtual: navegación con A*, batería y rutas de cobertura; habitaciones
+simuladas, sin descargas; ~1 min):
+
+```bash
+cd actividades/act26
+python act26.py
+```
+
 Compilar el reporte PDF (requiere `latexmk` y `biber`):
 
 ```bash

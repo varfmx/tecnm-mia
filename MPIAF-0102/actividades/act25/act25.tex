@@ -1,0 +1,525 @@
+%% =======================================================
+%% Actividad 25: "Sistema de Recomendación Basado en Reglas de Asociación"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.5. Minería de datos \\ Actividad 25 - Sistema de Recomendación \\ Basado en Reglas de Asociación}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Las reglas de asociación permiten descubrir relaciones frecuentes entre productos, por ejemplo qué se compra junto con qué \parencite{iae_u4_t45}. Esas mismas reglas se pueden usar al revés: si el carrito de un cliente contiene los antecedentes de una regla, se le sugiere el consecuente. Es el principio de un sistema de recomendación basado en reglas, como el que necesita una librería en línea.
+
+En este reporte se descubren reglas con Apriori sobre compras de libros, se construye un recomendador que sugiere libros a partir del carrito actual y se evalúa qué tan bien funciona, comparándolo con alternativas sencillas. La evaluación es la parte central: una recomendación que se ve razonable no es necesariamente efectiva, y por eso se mide con datos que el sistema no vio y contra referencias claras.
+
+\section{Marco conceptual}
+
+\subsection{Reglas de asociación}
+
+Una regla ``si A, entonces B'' se mide con el \textbf{soporte} (fracción de canastas que contienen $A$ y $B$) y la \textbf{confianza} (de las canastas con $A$, qué fracción contiene también $B$) \parencite{iae_u4_t45}. El \textbf{lift}, que es la confianza dividida entre la frecuencia de $B$, indica cuánto más se compran juntos de lo esperado por azar: 1 es independencia \parencite{han2011}. Apriori encuentra los conjuntos de productos que superan un soporte mínimo y de ahí obtiene las reglas.
+
+\subsection{Recomendación a partir de reglas}
+
+Dado un carrito, cada regla cuyo antecedente está completo en el carrito ``vota'' por su consecuente. Los libros candidatos se ordenan según un puntaje que puede ser la mayor confianza, el mayor lift o la suma de las confianzas de todas las reglas activas, y se recomiendan los primeros que no estén ya en el carrito.
+
+\subsection{Evaluación de un recomendador}
+
+Se oculta parte de lo que le gusta a cada usuario de prueba, se le da al sistema sólo un carrito y se mide si recomienda lo oculto. Con una lista de $k$ libros se calculan el \textbf{hit rate} (proporción de usuarios con al menos un acierto), la \textbf{precisión} (fracción de la lista que acierta), el \textbf{recall} (fracción de lo oculto que se recomendó) y el \textbf{NDCG}, que además premia poner los aciertos en los primeros lugares. También se mide la \textbf{cobertura} (qué fracción del catálogo se llega a recomendar) y la popularidad de lo recomendado, porque un sistema que sólo recomienda los libros más vendidos puede acertar mucho sin personalizar nada.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} desarrollar un sistema de recomendación para una librería en línea.
+
+\subsection*{Desafío}
+
+\begin{description}
+    \item[Tarea 1: Análisis de compras.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Descubrir qué libros se compran juntos.
+    \end{enumerate}
+    \item[Tarea 2: Sistema de recomendación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Implementar un sistema que sugiera libros con base en el carrito actual.
+    \end{enumerate}
+    \item[Tarea 3: Evaluación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Medir la efectividad de las recomendaciones.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+La actividad no incluye datos. Se usó \textbf{Goodbooks-10k}, un conjunto público de 5.98 millones de calificaciones de 1 a 5 estrellas que 53\,424 usuarios dieron a 10\,000 libros (\url{https://github.com/zygmuntz/goodbooks-10k}), que se descarga automáticamente. No son compras reales: se tomó como ``compra'' cada libro que el usuario calificó con 4 o 5 estrellas (el 69~\% de las calificaciones), de modo que la canasta de un usuario es el conjunto de libros que le gustaron. Para tener un catálogo manejable se trabajó con los 300 libros que más usuarios disfrutaron, que concentran el 32.5~\% de esas ``compras''. Los usuarios se dividieron al azar en 80~\% para descubrir reglas y 20~\% para evaluar.
+
+\section{Desarrollo}
+
+\subsection{Los datos}
+
+El código completo de la actividad también puede ejecutarse en Google Colab: \url{https://colab.research.google.com/drive/1fmYKdOhOqsT5NZlq96CgpM6KOqUnBMx1?usp=sharing}. Se ejecutó completo y reproduce los resultados locales: con listas de 5 libros, las métricas difieren en a lo más 0.002 (por ejemplo, el NDCG del recomendador por confianza es 0.4943 en Colab y 0.4941 en local), porque el sorteo de carritos no es idéntico entre entornos. La primera ejecución en Colab agotó la memoria del entorno con la implementación por defecto de \textit{Apriori}, por lo que el código usa \texttt{low\_memory=True}, que da los mismos conjuntos y reglas.
+
+\begin{consola}[label=out:datos]{Descripción de los datos}
+Calificaciones: 5976479, usuarios: 53424, libros: 10000
+Distribución de calificaciones (proporción): {1: 0.021, 2: 0.06, 3: 0.229, 4: 0.358, 5: 0.332}
+Libros que gustaron (calificación >= 4): 4122111 (69.0% de las calificaciones)
+Libros que gustaron por usuario: mínimo 1, mediana 76, máximo 194
+Popularidad: el libro más popular gustó a 18926 usuarios; el 50 % de las 'compras' corresponde al 8.2% de los libros
+Catálogo: los 300 libros más gustados, que concentran el 32.5% de las 'compras'
+Usuarios con al menos un libro del catálogo: 53057; libros por canasta: mediana 24, máximo 140
+Usuarios de entrenamiento: 42446, de prueba: 10611; densidad de la matriz: 8.4%
+Los 10 libros más populares del catálogo (% de las canastas de entrenamiento):
+  35.6%  The Hunger Games (Suzanne Collins)
+  34.6%  Harry Potter and the Sorcerer's Stone (J.K. Rowling, Mary GrandPré)
+  30.3%  To Kill a Mockingbird (Harper Lee)
+  26.0%  Harry Potter and the Prisoner of Azkaban (J.K. Rowling, Mary GrandPré, Rufus Beck)
+  26.1%  Harry Potter and the Deathly Hallows (J.K. Rowling, Mary GrandPré)
+  25.8%  Harry Potter and the Goblet of Fire (J.K. Rowling, Mary GrandPré)
+  25.2%  Harry Potter and the Half-Blood Prince (J.K. Rowling, Mary GrandPré)
+  24.5%  Catching Fire (Suzanne Collins)
+  24.5%  Harry Potter and the Order of the Phoenix (J.K. Rowling, Mary GrandPré)
+  23.5%  Harry Potter and the Chamber of Secrets (J.K. Rowling, Mary GrandPré)
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act25/img/datos.png}
+\caption{Calificaciones, tamaño de las canastas dentro del catálogo y cola larga de popularidad.}
+\label{fig:datos}
+\end{figure}
+
+La popularidad está muy concentrada (Salida~\ref{out:datos}): el 8.2~\% de los libros reúne la mitad de las ``compras'', y el libro más popular del catálogo, \textit{The Hunger Games}, está en el 35.6~\% de las canastas. Las canastas son grandes (mediana de 24 libros del catálogo), mucho más que un carrito real, lo cual se discute en las limitaciones.
+
+\subsection{Tarea 1: Análisis de compras}
+
+Se aplicó Apriori a las canastas de entrenamiento con un soporte mínimo de 3~\% y una confianza mínima de 30~\%, limitado a conjuntos de a lo más tres libros (es decir, reglas de uno o dos libros que predicen un tercero), y se conservaron las reglas con un solo libro como consecuente (Código~\ref{cod:reglas}). Los umbrales se fijaron antes de evaluar.
+
+\begin{codigo}[label=cod:reglas]{Descubrimiento de reglas con Apriori}
+def minar_reglas(matriz, soporte_minimo, confianza_minima, max_len=3):
+    """Apriori + reglas con un solo libro como consecuente. Devuelve (reglas, itemsets, segundos)."""
+    t0 = time.time()
+    df = pd.DataFrame(matriz, columns=range(matriz.shape[1]))
+    itemsets = apriori(df, min_support=soporte_minimo, use_colnames=True, max_len=max_len, low_memory=True)
+    reglas = association_rules(itemsets, num_itemsets=len(df), metric="confidence", min_threshold=confianza_minima)
+    reglas = reglas[reglas.consequents.map(len) == 1].reset_index(drop=True)
+    reglas["ants"] = reglas.antecedents.map(lambda s: tuple(sorted(s)))
+    reglas["cons"] = reglas.consequents.map(lambda s: next(iter(s)))
+    return reglas, itemsets, time.time() - t0
+\end{codigo}
+
+\begin{consola}[label=out:reglas]{Reglas descubiertas: mayor lift y mayor confianza}
+Apriori (soporte >= 3%, confianza >= 30%, a lo más 3 libros): 4082 conjuntos frecuentes, 6307 reglas con un libro de consecuente, 1.6 s
+Reglas con un libro de antecedente: 1494; con dos: 4813
+Lift: mediana 2.44, máximo 17.06; reglas con lift > 3: 2715
+Las 15 reglas con mayor lift:
+                                                                regla  soporte  confianza   lift
+The Battle of the Labyrinth + The Sea of Monsters → The Titan's Curse    0.037      0.916 17.059
+          The Last Olympian + The Sea of Monsters → The Titan's Curse    0.038      0.896 16.682
+        The Lightning Thief + The Titan's Curse → The Sea of Monsters    0.036      0.886 15.979
+                                The Amber Spyglass → The Subtle Knife    0.032      0.776 15.963
+                                The Subtle Knife → The Amber Spyglass    0.032      0.664 15.963
+The Battle of the Labyrinth + The Titan's Curse → The Sea of Monsters    0.037      0.875 15.776
+          The Last Olympian + The Titan's Curse → The Sea of Monsters    0.038      0.870 15.682
+  The Last Olympian + The Battle of the Labyrinth → The Titan's Curse    0.038      0.835 15.538
+        The Lightning Thief + The Sea of Monsters → The Titan's Curse    0.036      0.831 15.471
+                              The Sea of Monsters → The Titan's Curse    0.044      0.801 14.915
+                              The Titan's Curse → The Sea of Monsters    0.044      0.827 14.915
+  The Battle of the Labyrinth + The Titan's Curse → The Last Olympian    0.038      0.887 14.628
+  The Last Olympian + The Titan's Curse → The Battle of the Labyrinth    0.038      0.878 14.595
+The Battle of the Labyrinth + The Sea of Monsters → The Last Olympian    0.036      0.885 14.587
+The Lightning Thief + The Titan's Curse → The Battle of the Labyrinth    0.036      0.868 14.429
+Las 10 reglas con mayor confianza (con lift):
+                                                                                                                         regla  soporte  confianza  lift
+                                                                                      Mockingjay + Twilight → The Hunger Games    0.045      0.948 2.662
+                                                                                   Catching Fire + Twilight → The Hunger Games    0.056      0.946 2.657
+      Harry Potter and the Goblet of Fire + Harry Potter and the Chamber of Secrets → Harry Potter and the Prisoner of Azkaban    0.191      0.943 3.623
+   Harry Potter and the Half-Blood Prince + Harry Potter and the Chamber of Secrets → Harry Potter and the Prisoner of Azkaban    0.183      0.943 3.622
+     Harry Potter and the Deathly Hallows + Harry Potter and the Chamber of Secrets → Harry Potter and the Prisoner of Azkaban    0.179      0.942 3.622
+        Harry Potter and the Half-Blood Prince + Harry Potter and the Chamber of Secrets → Harry Potter and the Goblet of Fire    0.183      0.941 3.648
+       Harry Potter and the Deathly Hallows + Harry Potter and the Chamber of Secrets → Harry Potter and the Half-Blood Prince    0.178      0.939 3.730
+Harry Potter and the Order of the Phoenix + Harry Potter and the Chamber of Secrets → Harry Potter and the Prisoner of Azkaban    0.179      0.939 3.608
+     Harry Potter and the Deathly Hallows + Harry Potter and the Order of the Phoenix → Harry Potter and the Half-Blood Prince    0.195      0.939 3.728
+     Harry Potter and the Order of the Phoenix + Harry Potter and the Chamber of Secrets → Harry Potter and the Goblet of Fire    0.179      0.938 3.637
+Reglas cuyo consecuente es del mismo autor que algún antecedente, según el lift de la regla:
+            reglas  mismo_autor
+tramo_lift
+<=1.5          769        0.000
+1.5-2         1289        0.027
+2-3           1534        0.369
+3-5           2301        0.634
+>5             414        0.957
+Total: 38.9% de las reglas son del mismo autor (azar: 0.40% de los pares de libros)
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act25/img/reglas.png}
+\caption{Reglas descubiertas (soporte, confianza y lift) y las doce de mayor lift.}
+\label{fig:reglas}
+\end{figure}
+
+\textbf{Qué se compra junto.} Se obtuvieron 4\,082 conjuntos frecuentes y 6\,307 reglas (1\,494 con un libro de antecedente y 4\,813 con dos). Las de mayor lift (14 a 17 veces lo esperado por azar, con confianza de 66~\% a 92~\%) son sagas: los libros de \textit{Percy Jackson} (\textit{The Titan's Curse}, \textit{The Sea of Monsters}, \textit{The Battle of the Labyrinth}, \textit{The Last Olympian}) y los de \textit{His Dark Materials} (\textit{The Amber Spyglass} y \textit{The Subtle Knife}). Las de mayor confianza son otras: la saga de \textit{Harry Potter} (confianza de 94~\%, pero lift de sólo 3.6) y reglas como \textit{Mockingjay} y \textit{Twilight} $\rightarrow$ \textit{The Hunger Games} (95~\%, lift de 2.7), donde el consecuente es tan popular (35.6~\% de las canastas) que la confianza es alta casi por cualquier antecedente. Es la razón de usar el lift además de la confianza.
+
+\textbf{Autor.} Para verificar que las reglas reflejan algo más que popularidad, se midió cuántas tienen un consecuente del mismo autor que algún antecedente (Salida~\ref{out:reglas}). Con lift menor a 1.5 ninguna lo es (0~\%); con lift de 2 a 3, el 37~\%; de 3 a 5, el 63~\%; y con lift mayor a 5, el 96~\%. En conjunto, el 38.9~\% de las reglas son del mismo autor, contra 0.4~\% de los pares de libros del catálogo. Cuanto mayor es el lift, más se parecen las reglas a ``los otros libros de la misma serie o autor'', lo cual es verosímil.
+
+\begin{consola}[label=out:sens1]{Sensibilidad de la minería al soporte y la confianza mínimos}
+--- Sensibilidad a los umbrales (soporte, confianza) ---
+ soporte  confianza  max_libros  conjuntos  reglas  segundos
+    0.02        0.2           2       4479    5049       0.4
+    0.02        0.2           3      10725   21721       1.8
+    0.02        0.4           2       4479    1211       0.4
+    0.02        0.4           3      10725   12889       1.7
+    0.03        0.2           2       2058    2550       0.4
+    0.03        0.2           3       4082    8019       1.0
+    0.03        0.4           2       2058     781       0.4
+    0.03        0.4           3       4082    5044       1.0
+    0.05        0.2           2        677     824       0.3
+    0.05        0.2           3       1014    1835       0.5
+    0.05        0.4           2        677     324       0.4
+    0.05        0.4           3       1014    1134       0.5
+    0.10        0.2           2        121     104       0.1
+    0.10        0.2           3        173     260       0.1
+    0.10        0.4           2        121      86       0.1
+    0.10        0.4           3        173     242       0.1
+\end{consola}
+
+\textbf{Umbrales.} Bajar el soporte mínimo multiplica el número de reglas (de 1\,835 con 5~\% a 21\,721 con 2~\%, con confianza de 0.2 y hasta tres libros), pero el tiempo sigue siendo de segundos. Limitar los conjuntos a dos libros reduce las reglas a la mitad o menos. No se probó un soporte de 1~\%, porque la corrida se interrumpió por falta de recursos en esta computadora.
+
+\subsection{Tarea 2: Sistema de recomendación}
+
+El recomendador (Código~\ref{cod:recomendador}) recibe una matriz de carritos y devuelve los $k$ libros de mayor puntaje que no están en el carrito. Si ninguna regla aplica, los libros sin puntaje se ordenan por popularidad, de modo que siempre se entregan $k$ libros. Para cada recomendación individual indica la regla que la explica.
+
+\begin{codigo}[label=cod:recomendador]{Recomendador basado en reglas}
+class RecomendadorReglas:
+    """Recomienda libros a partir del carrito: cada regla cuyo antecedente está completo en el carrito vota por su consecuente.
+    puntaje: "confianza" (la mayor confianza), "lift" (el mayor lift) o "suma" (suma de las confianzas de todas las reglas activas).
+    Los libros sin ninguna regla activa se ordenan por popularidad (así siempre se entregan k libros)."""
+
+    def __init__(self, reglas, soporte_libro, puntaje="confianza"):
+        self.a0 = np.array([r[0] for r in reglas.ants])
+        self.a1 = np.array([r[1] if len(r) > 1 else r[0] for r in reglas.ants])
+        self.cons = reglas.cons.values
+        self.valor = {"confianza": reglas.confidence.values, "lift": reglas.lift.values, "suma": reglas.confidence.values}[puntaje]
+        self.suma = puntaje == "suma"
+        self.desempate = 1e-9 * soporte_libro / soporte_libro.max()
+
+    def puntajes(self, carritos):
+        """carritos: matriz booleana (usuarios x libros). Devuelve (puntajes, usuarios con alguna regla activa)."""
+        p = np.zeros(carritos.shape, dtype=float)
+        for a0, a1, c, v in zip(self.a0, self.a1, self.cons, self.valor):
+            activa = carritos[:, a0] & carritos[:, a1] & ~carritos[:, c]
+            if self.suma:
+                p[activa, c] += v
+            else:
+                p[activa, c] = np.maximum(p[activa, c], v)
+        return p, (p > 0).any(axis=1)
+
+    def recomendar_matriz(self, carritos, k=10):
+        p, cubiertos = self.puntajes(carritos)
+        p = p + self.desempate
+        p[carritos] = -1
+        return np.argsort(-p, axis=1)[:, :k], cubiertos
+
+    def recomendar(self, carrito_titulos, k=5):
+        """Interfaz para un carrito con títulos; devuelve el libro, el puntaje y la regla que lo explica."""
+        carrito = np.zeros((1, N_LIBROS), dtype=bool)
+        for t in carrito_titulos:
+            carrito[0, titulos.index(t)] = True
+        recs, _ = self.recomendar_matriz(carrito, k)
+        salida = []
+        for c in recs[0]:
+            activas = [i for i in range(len(self.cons)) if self.cons[i] == c and carrito[0, self.a0[i]] and carrito[0, self.a1[i]]]
+            if activas:
+                i = max(activas, key=lambda j: self.valor[j])
+                motivo = f"por {titulos[self.a0[i]]}" + (f" + {titulos[self.a1[i]]}" if self.a1[i] != self.a0[i] else "") + f" (confianza {reglas_conf[(self.a0[i], self.a1[i], c)]:.0%})"
+            else:
+                motivo = "popular (ninguna regla aplica)"
+            salida.append((titulos[c], motivo))
+        return salida
+\end{codigo}
+
+\begin{consola}[label=out:ejemplos]{Ejemplos de recomendación (mayor confianza)}
+Ejemplos de recomendación a partir del carrito:
+  Carrito: The Hunger Games, Catching Fire
+    - Mockingjay   [por The Hunger Games + Catching Fire (confianza 73%)]
+    - Harry Potter and the Sorcerer's Stone   [por The Hunger Games (confianza 52%)]
+    - Harry Potter and the Deathly Hallows   [por The Hunger Games + Catching Fire (confianza 46%)]
+    - Harry Potter and the Goblet of Fire   [por The Hunger Games + Catching Fire (confianza 45%)]
+    - Harry Potter and the Prisoner of Azkaban   [por The Hunger Games + Catching Fire (confianza 44%)]
+  Carrito: Harry Potter and the Sorcerer's Stone, Harry Potter and the Chamber of Secrets
+    - Harry Potter and the Prisoner of Azkaban   [por Harry Potter and the Sorcerer's Stone + Harry Potter and the Chamber of Secrets (confianza 92%)]
+    - Harry Potter and the Goblet of Fire   [por Harry Potter and the Sorcerer's Stone + Harry Potter and the Chamber of Secrets (confianza 89%)]
+    - Harry Potter and the Half-Blood Prince   [por Harry Potter and the Sorcerer's Stone + Harry Potter and the Chamber of Secrets (confianza 85%)]
+    - Harry Potter and the Deathly Hallows   [por Harry Potter and the Sorcerer's Stone + Harry Potter and the Chamber of Secrets (confianza 84%)]
+    - Harry Potter and the Order of the Phoenix   [por Harry Potter and the Sorcerer's Stone + Harry Potter and the Chamber of Secrets (confianza 84%)]
+  Carrito: The Fellowship of the Ring
+    - The Hobbit   [por The Fellowship of the Ring (confianza 68%)]
+    - Harry Potter and the Sorcerer's Stone   [por The Fellowship of the Ring (confianza 58%)]
+    - The Hunger Games   [por The Fellowship of the Ring (confianza 42%)]
+    - To Kill a Mockingbird   [por The Fellowship of the Ring (confianza 40%)]
+    - The Two Towers   [por The Fellowship of the Ring (confianza 40%)]
+  Carrito: Gone Girl
+    - The Hunger Games   [por Gone Girl (confianza 49%)]
+    - The Help   [por Gone Girl (confianza 39%)]
+    - The Girl with the Dragon Tattoo   [por Gone Girl (confianza 36%)]
+    - To Kill a Mockingbird   [por Gone Girl (confianza 35%)]
+    - Catching Fire   [por Gone Girl (confianza 34%)]
+  Carrito: Pride and Prejudice, Jane Eyre
+    - To Kill a Mockingbird   [por Pride and Prejudice + Jane Eyre (confianza 60%)]
+    - Harry Potter and the Sorcerer's Stone   [por Pride and Prejudice + Jane Eyre (confianza 51%)]
+    - Sense and Sensibility   [por Pride and Prejudice + Jane Eyre (confianza 51%)]
+    - Little Women   [por Pride and Prejudice + Jane Eyre (confianza 47%)]
+    - The Great Gatsby   [por Pride and Prejudice + Jane Eyre (confianza 45%)]
+\end{consola}
+
+Los ejemplos de la Salida~\ref{out:ejemplos} muestran el comportamiento. Con \textit{Harry Potter} 1 y 2, el sistema recomienda el resto de la saga con confianza de 84~\% a 92~\%; con \textit{The Fellowship of the Ring} recomienda \textit{The Hobbit} (68~\%) y \textit{The Two Towers} (40~\%). Pero también aparecen libros muy populares sin relación clara con el carrito: \textit{Harry Potter} 1 tras \textit{The Fellowship of the Ring} (58~\%), \textit{The Hunger Games} (42~\%) o \textit{To Kill a Mockingbird} (40~\%). Su confianza es alta porque están en una de cada tres canastas, no porque el carrito los pida. Con una sola obra sin saga, como \textit{Gone Girl}, sugiere sobre todo libros muy populares (\textit{The Hunger Games}, \textit{To Kill a Mockingbird}, \textit{Catching Fire}) junto con otros del género, como \textit{The Girl with the Dragon Tattoo}. Es el efecto de ordenar por confianza, que la evaluación cuantifica.
+
+\subsection{Tarea 3: Evaluación}
+
+\textbf{Protocolo.} Con los 20~\% de usuarios de prueba que tienen al menos 8 libros en el catálogo (9\,633 usuarios), se sortean 3 libros como carrito actual y el resto (24.5 libros en promedio) queda oculto; el sistema recomienda con el carrito y se mide cuántos libros ocultos acierta (Código~\ref{cod:eval}). El sorteo se repite 3 veces. Se compara con cuatro referencias: recomendar libros al azar, los más populares (sin los del carrito), los libros más parecidos por coseno entre columnas de la matriz usuario-libro (una alternativa que no usa reglas ni umbrales), y variantes de las reglas (puntaje por confianza, lift o suma, y reglas de sólo dos libros).
+
+\begin{codigo}[label=cod:eval]{Sorteo del carrito y métricas}
+def preparar_evaluacion(M_prueba, semilla, tam_carrito=CARRITO):
+    """Usuarios de prueba con al menos MIN_OCULTOS libros: se sortean tam_carrito para el carrito y el resto queda oculto."""
+    r = np.random.default_rng(semilla)
+    ok = M_prueba.sum(1) >= MIN_OCULTOS
+    X = M_prueba[ok]
+    claves = np.where(X, r.random(X.shape), np.inf)
+    elegidos = np.argsort(claves, axis=1)[:, :tam_carrito]
+    carrito = np.zeros_like(X)
+    np.put_along_axis(carrito, elegidos, True, axis=1)
+    return carrito, X & ~carrito
+
+
+def metricas(recs, ocultos, cubiertos=None):
+    """Hit rate, precisión, recall y NDCG de la lista (usuarios x k) frente a los libros ocultos."""
+    k = recs.shape[1]
+    acierto = np.take_along_axis(ocultos, recs, axis=1)
+    descuento = 1 / np.log2(np.arange(2, k + 2))
+    n_ocultos = ocultos.sum(1)
+    ideal = np.array([descuento[:min(n, k)].sum() for n in n_ocultos])
+    por_usuario = {"hit": acierto.any(1).astype(float), "precisión": acierto.mean(1), "recall": acierto.sum(1) / n_ocultos,
+                   "NDCG": (acierto * descuento).sum(1) / ideal}
+    res = {m: v.mean() for m, v in por_usuario.items()}
+    res["cobertura del catálogo"] = len(np.unique(recs)) / N_LIBROS
+    res["popularidad media"] = soporte_libro[recs].mean()
+    if cubiertos is not None:
+        res["carritos con regla"] = cubiertos.mean()
+    return res, por_usuario
+\end{codigo}
+
+\begin{consola}[label=out:eval]{Resultados con listas de 5 y de 10 libros (media de 3 sorteos de carritos)}
+Evaluación: 9633 usuarios de prueba con al menos 8 libros del catálogo; carrito de 3 libros sorteados y 24.5 libros ocultos en promedio (3 sorteos de carritos)
+--- Listas de 5 libros (media de 3 sorteos de carritos; 5 s) ---
+                              NDCG  carritos con regla  cobertura del catálogo     hit  popularidad media  precisión  recall  desv. hit
+Aleatorio                   0.0920                 NaN                  1.0000  0.3703             0.0842     0.0919  0.0198     0.0042
+Más populares               0.3242                 NaN                  0.0267  0.6885             0.3031     0.3128  0.0638     0.0011
+Libros similares (coseno)   0.5297                 NaN                  0.7556  0.8863             0.1940     0.5064  0.1244     0.0030
+Reglas: mayor confianza     0.4941              0.9846                  0.3311  0.8538             0.2422     0.4671  0.1104     0.0004
+Reglas: mayor lift          0.4465              0.9846                  0.3800  0.8323             0.1672     0.4329  0.1054     0.0030
+Reglas: suma de confianzas  0.4630              0.9846                  0.3189  0.8404             0.2603     0.4438  0.1027     0.0036
+Reglas de a pares (suma)    0.4545              0.9846                  0.3122  0.8384             0.2625     0.4369  0.1007     0.0034
+--- Listas de 10 libros (media de 3 sorteos de carritos; 5 s) ---
+                              NDCG  carritos con regla  cobertura del catálogo     hit  popularidad media  precisión  recall  desv. hit
+Aleatorio                   0.0930                 NaN                  1.0000  0.5859             0.0841     0.0919  0.0394     0.0053
+Más populares               0.2962                 NaN                  0.0433  0.7266             0.2741     0.2750  0.1113     0.0013
+Libros similares (coseno)   0.4730                 NaN                  0.8611  0.9474             0.1919     0.4260  0.2001     0.0023
+Reglas: mayor confianza     0.4301              0.9846                  0.3633  0.9082             0.2335     0.3804  0.1711     0.0013
+Reglas: mayor lift          0.4018              0.9846                  0.3800  0.9087             0.1955     0.3670  0.1681     0.0010
+Reglas: suma de confianzas  0.4115              0.9846                  0.3633  0.9041             0.2398     0.3720  0.1653     0.0008
+Reglas de a pares (suma)    0.4076              0.9846                  0.3633  0.9036             0.2403     0.3711  0.1647     0.0002
+\end{consola}
+
+\textbf{Las reglas sí recomiendan bien.} Con listas de 10 libros, las reglas con mayor confianza aciertan al menos un libro al 90.8~\% de los usuarios y tienen una precisión de 0.380 y NDCG de 0.430, contra 72.7~\%, 0.275 y 0.296 de recomendar los libros más populares, y 58.6~\%, 0.092 y 0.093 del azar. La ventaja sobre los populares es de +18.3 puntos de hit rate (intervalo de confianza de 95~\% de +17.5 a +19.1, calculado por \textit{bootstrap} sobre usuarios): el sistema gana en el 19~\% de los usuarios y pierde en sólo el 0.7~\%. El hit rate del azar ya es alto (58.6~\%) porque cada usuario tiene unos 25 libros ocultos entre 300; por eso la precisión y el NDCG discriminan mejor que el hit rate.
+
+\textbf{Pero no son lo mejor.} Recomendar los libros parecidos por coseno, sin reglas, resulta mejor: hit rate de 94.7~\%, precisión de 0.426 y NDCG de 0.473. La diferencia a favor del coseno sobre las reglas con mayor confianza es de +4.0 puntos de hit rate y +4.7 de precisión, y ambos intervalos excluyen el cero (Salida~\ref{out:boot}). Una explicación probable, que no se verificó, es que las reglas sólo consideran combinaciones con soporte de al menos 3~\% y descartan señales débiles, mientras el coseno usa todas las coocurrencias.
+
+\textbf{Variantes de las reglas.} Las cuatro variantes están a medio punto de hit rate entre sí (90.4~\% a 90.9~\%), pero difieren en lo que recomiendan: el puntaje por lift recomienda libros menos populares (popularidad media de 0.196 contra 0.234 de la confianza) y cubre más catálogo (38~\% contra 36~\%), con menor precisión (0.367 contra 0.380). Las reglas de sólo dos libros (un antecedente más el consecuente en total) rinden prácticamente igual que las de tres (hit rate de 90.36~\% contra 90.41~\% con la suma), así que las reglas con dos antecedentes no aportan una mejora medible. La cobertura de las reglas es de 36~\% del catálogo, frente a 4~\% de los populares y 86~\% del coseno.
+
+\begin{consola}[label=out:boot]{Intervalos de confianza y efecto del tamaño del carrito}
+--- ¿La diferencia contra "Más populares" es real? Hit rate@10, intervalo de confianza del 95 % (bootstrap sobre usuarios, primer sorteo) ---
+  Libros similares (coseno): diferencia +0.2233 (IC 95 %: +0.2147 a +0.2323); gana en 23.5% de los usuarios, pierde en 1.2%
+  Reglas: mayor confianza: diferencia +0.1832 (IC 95 %: +0.1751 a +0.1909); gana en 19.0% de los usuarios, pierde en 0.7%
+  Reglas: mayor lift: diferencia +0.1824 (IC 95 %: +0.1736 a +0.1911); gana en 20.2% de los usuarios, pierde en 2.0%
+  Reglas: suma de confianzas: diferencia +0.1780 (IC 95 %: +0.1704 a +0.1855); gana en 18.5% de los usuarios, pierde en 0.7%
+  Reglas de a pares (suma): diferencia +0.1782 (IC 95 %: +0.1706 a +0.1864); gana en 18.5% de los usuarios, pierde en 0.7%
+  Reglas (mayor confianza) contra Libros similares: hit -0.0401 (IC 95 %: -0.0452 a -0.0351); precisión@10 -0.0471 (IC 95 %: -0.0500 a -0.0442)
+--- Efecto del tamaño del carrito (hit rate@10 y precisión@10, un sorteo) ---
+                      hit Más populares  precisión Más populares  hit Libros similares  precisión Libros similares  hit Reglas (suma)  precisión Reglas (suma)  carritos con regla
+libros en el carrito
+1                                 0.743                    0.292                 0.904                       0.348              0.846                    0.338               0.782
+2                                 0.735                    0.284                 0.940                       0.407              0.888                    0.361               0.946
+3                                 0.725                    0.275                 0.949                       0.428              0.903                    0.371               0.984
+4                                 0.715                    0.266                 0.946                       0.431              0.904                    0.372               0.995
+5                                 0.704                    0.257                 0.938                       0.425              0.902                    0.366               0.999
+\end{consola}
+
+\textbf{Tamaño del carrito.} Con un solo libro, las reglas cubren al 78~\% de los carritos (hay al menos una regla activa) y alcanzan 84.6~\% de hit rate; con dos libros cubren al 94.6~\% y con tres o más al 98~\% o más, y el hit rate llega a 90~\% (Salida~\ref{out:boot} y Figura~\ref{fig:eval}). Los carritos sin ninguna regla activa son sólo el 1.6~\% con tres libros, y en ellos las reglas rinden igual que los populares (hit rate de 0.442, porque el sistema recurre a la popularidad); en los demás, 0.911 contra 0.730. Es la manera en que el recomendador responde ante el arranque en frío: sin información, recomienda lo popular.
+
+\begin{consola}[label=out:sens2]{Sensibilidad del desempeño a los umbrales (suma de confianzas; un sorteo)}
+--- Sensibilidad de las reglas a los umbrales (suma de confianzas, hit rate@10 y precisión@10, un sorteo) ---
+ soporte  confianza  reglas  hit@10  precisión@10  carritos con regla  cobertura
+    0.02        0.2   21721   0.917         0.385               1.000      0.520
+    0.02        0.3   17027   0.925         0.391               1.000      0.513
+    0.02        0.5    9416   0.858         0.342               0.951      0.370
+    0.03        0.2    8019   0.900         0.368               0.984      0.363
+    0.03        0.3    6307   0.903         0.371               0.984      0.363
+    0.03        0.5    3975   0.824         0.326               0.905      0.243
+    0.05        0.2    1835   0.837         0.333               0.833      0.203
+    0.05        0.3    1456   0.839         0.334               0.833      0.203
+    0.05        0.5     883   0.783         0.303               0.767      0.133
+    0.10        0.2     260   0.744         0.282               0.470      0.070
+    0.10        0.3     258   0.744         0.282               0.470      0.067
+    0.10        0.5     207   0.738         0.279               0.445      0.053
+--- ¿Qué recomienda cada método? ---
+Libros recomendados del mismo autor que algún libro del carrito: reglas 18.4%, populares 9.0%
+Hit rate@10 con regla activa: reglas 0.911, populares 0.730 (carritos cubiertos: 98.4%); sin regla activa: reglas 0.442, populares 0.442
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act25/img/evaluacion.png}
+\caption{Hit rate@10 de cada método, efecto del tamaño del carrito y efecto de los umbrales.}
+\label{fig:eval}
+\end{figure}
+
+\textbf{Umbrales.} Un soporte mínimo menor mejora el desempeño porque cubre más combinaciones: con soporte de 2~\% y confianza de 0.3 el hit rate@10 es de 92.5~\% (precisión de 0.391), con 3~\% de 90.3~\%, con 5~\% de 83.9~\% y con 10~\% de 74.4~\%, y en este último caso sólo el 47~\% de los carritos tiene alguna regla activa. Una confianza mínima de 0.5 empeora el resultado (por ejemplo, 85.8~\% con soporte de 2~\%). Es el compromiso habitual: umbrales altos dan pocas reglas fiables que cubren pocos carritos, y umbrales bajos más reglas que cubren más pero con mayor costo de cómputo. Estos valores se calcularon sobre los mismos usuarios de prueba, así que son descriptivos; elegir los umbrales con ellos y reportar el resultado sobre la misma prueba sería optimista.
+
+\textbf{Personalización.} Los libros recomendados por las reglas son del mismo autor que algún libro del carrito en el 18.4~\% de los casos, contra 9.0~\% en los populares, lo que indica que el sistema aprovecha el carrito y no sólo la popularidad. Aun así, las reglas siguen recomendando libros populares en una proporción considerable (popularidad media de 0.240 con la suma de confianzas, contra 0.274 de la lista de los populares y 0.192 del coseno).
+
+\subsection{Limitaciones}
+
+Las calificaciones de 4 y 5 estrellas no son compras: son libros que el usuario leyó y le gustaron, y no incluyen los que compró y no leyó, ni los que le regalaron. Las canastas del conjunto (mediana de 24 libros del catálogo) son mucho más grandes que un carrito real y el carrito de la evaluación se sortea al azar, de modo que no hay orden ni tiempo: una librería real tendría carritos de pocos libros y sesiones sucesivas. El catálogo se limitó a los 300 libros más gustados, donde las reglas son más fáciles de descubrir que en el catálogo completo de 10\,000. La evaluación es sin conexión: mide si se recomienda algo que el usuario ya calificó con 4 o 5, y esto no equivale a que lo habría comprado por la recomendación; sólo una prueba con clientes lo comprobaría. Los libros ocultos incluyen muchos populares, por lo que los métodos que recomiendan lo popular se ven mejor de lo que serían ante libros menos conocidos. Los umbrales de la tabla de sensibilidad se evaluaron sobre los mismos usuarios de prueba. Los títulos y autores están en inglés. Finalmente, los resultados de Colab pueden diferir ligeramente de los locales.
+
+\section{Conclusiones}
+
+Con Apriori sobre las canastas de 42\,446 usuarios se obtuvieron 6\,307 reglas, y las de mayor lift (de 14 a 17) corresponden a sagas y autores, lo cual indica que las reglas capturan relaciones reales entre libros; las de mayor confianza reflejan más la popularidad de los consecuentes, por lo que conviene usar el lift junto con la confianza. El recomendador basado en reglas, que sugiere a partir del carrito y explica cada recomendación con la regla que la origina, tuvo un hit rate@10 de 90.8~\% y una precisión de 0.380, mejor que recomendar los más populares (72.7~\% y 0.275) con una diferencia clara (+18.3 puntos de hit rate, intervalo de 95~\% de +17.5 a +19.1) y muy por encima del azar.
+
+Sin embargo, no fue la mejor opción: recomendar libros parecidos por coseno obtuvo un hit rate de 94.7~\% y una precisión de 0.426, con una ventaja de 4 a 5 puntos que la comparación estadística confirma. La ventaja de las reglas es su transparencia, porque cada recomendación se explica con un ``porque llevas A y B'', y su costo bajo en tiempo de cómputo. Su desempeño depende de los umbrales (soporte de 2~\% da 92.5~\% de hit rate y de 10~\% da 74.4~\%) y de que el carrito tenga al menos dos libros para cubrir casi todos los casos. Para la librería, la recomendación práctica sería usar las reglas cuando se requiera explicar y poder revisar la lógica (por ejemplo, ``los otros libros de la saga''), complementarlas con un método de similitud, bajar el soporte mínimo todo lo que permita el cómputo, y verificar con una prueba con clientes reales, porque esta evaluación con calificaciones no mide el efecto de la recomendación sobre las compras.
+
+\referencias
+
+\end{document}

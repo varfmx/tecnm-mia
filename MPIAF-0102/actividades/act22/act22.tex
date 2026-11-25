@@ -1,0 +1,575 @@
+%% =======================================================
+%% Actividad 22: "Crea tu Primer Reconocedor de Dígitos"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.4. Redes neuronales y aprendizaje profundo \\ Actividad 22 - Crea tu Primer \\ Reconocedor de Dígitos}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Una red neuronal es una composición de funciones simples que, apiladas en capas, puede aprender patrones complejos; el tema recomienda además elegir la arquitectura según el tipo de dato y recuerda que el entrenamiento es un proceso iterativo de prueba, error y ajuste \parencite{iae_u4_t44}. El reconocimiento de dígitos escritos a mano es el problema clásico para practicar estas ideas, y es también un caso de uso real: digitalizar formularios impresos.
+
+A partir de la función base del tema se comparan arquitecturas de redes densas, se ajustan hiperparámetros (tasa de aprendizaje, número de capas, tamaño de lote, optimizador y \textit{dropout}) y se analizan los errores del mejor modelo: qué dígitos se confunden y por qué. Como el tema advierte que minimizar el error de entrenamiento a toda costa pierde capacidad de generalización \parencite{iae_u4_t44}, todas las decisiones se toman con un conjunto de validación y el conjunto de prueba se usa sólo al final.
+
+\section{Marco conceptual}
+
+\subsection{La neurona y la red densa}
+
+Una neurona artificial calcula una suma ponderada de sus entradas y le aplica una función de activación; los pesos se ajustan durante el entrenamiento para minimizar el error \parencite{iae_u4_t44}. Una red densa (totalmente conectada) apila capas de estas neuronas: aquí se usa la activación ReLU en las capas ocultas y \textit{softmax} en la salida de 10 neuronas, una por dígito, de modo que la salida es una probabilidad por clase. La pérdida es la entropía cruzada categórica y el optimizador del código base es Adam.
+
+\subsection{Hiperparámetros}
+
+Los \textbf{hiperparámetros} no se aprenden, se eligen: el número de capas y de neuronas, la \textbf{tasa de aprendizaje} (qué tanto se mueven los pesos en cada paso), el \textbf{tamaño de lote} (cuántos ejemplos se usan por paso), el número de \textbf{épocas} (pasadas completas por los datos) y el \textbf{dropout} (apagar al azar una fracción de neuronas durante el entrenamiento para reducir el sobreajuste). Un modelo entrenado en exceso se especializa en los ejemplos de entrenamiento y generaliza peor \parencite{iae_u4_t44}.
+
+\subsection{Evaluación y errores}
+
+Para no engañarse, los datos se dividen en entrenamiento, validación (para elegir hiperparámetros) y prueba (para el número final). El análisis de errores usa la \textbf{matriz de confusión}, que cuenta cuántas veces cada dígito real se predijo como cada otro, y las métricas por clase: \textbf{precisión} (de lo que se predijo como un dígito, cuánto lo era) y \textbf{recall} (de los ejemplos de un dígito, cuántos se reconocieron).
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} trabajar en una \textit{startup} que digitaliza formularios impresos y necesita un sistema que reconozca números escritos a mano.
+
+\subsection*{Misión}
+
+\begin{description}
+    \item[Tarea 1: Experimentar con arquitecturas.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Probar diferentes configuraciones de redes.
+    \end{enumerate}
+    \item[Tarea 2: Optimizar hiperparámetros.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Ajustar la tasa de aprendizaje, el número de capas, etc.
+    \end{enumerate}
+    \item[Tarea 3: Analizar errores.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Determinar qué dígitos se confunden más y por qué.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+Se usa MNIST, el conjunto del tema: 60\,000 imágenes de entrenamiento y 10\,000 de prueba de 28$\times$28 píxeles en escala de grises, con los dígitos del 0 al 9. Los píxeles se normalizan de 0--255 a 0--1 y cada imagen se aplana a 784 valores, tal como en el código del tema. Del entrenamiento se aparta el 20~\% (12\,000 imágenes) como \textbf{validación}; el conjunto de prueba no interviene en ninguna decisión.
+
+\section{Desarrollo}
+
+\subsection{Los datos y el código base}
+
+El código base del tema es la función \texttt{experimentar\_con\_arquitecturas}, que entrena tres redes (pequeña, mediana y grande) durante 3 épocas y las evalúa en el conjunto de prueba. El Código~\ref{cod:base} la reproduce sin cambios. El código completo de la actividad también puede ejecutarse en Google Colab: \url{https://colab.research.google.com/drive/1Lkk7GWi82XCU_gA4-cnTI5GvMQPTwSRV?usp=sharing}. Las tablas y figuras de este reporte provienen de la ejecución local. El cuaderno de Colab se ejecutó completo sin errores y coincide en lo esencial: en la tabla de arquitecturas la exactitud de validación difiere en a lo más 0.002 y la mejor arquitectura es la misma (una capa de 1\,024 neuronas), la pérdida de validación de la red grande es mínima también en la época 8 y la CNN obtiene la misma exactitud de prueba (0.9910 con tres semillas). La diferencia está en la búsqueda aleatoria, que con una sola semilla eligió otra combinación (capas \texttt{[512, 256]}, tasa de 0.001 y lote de 64, en lugar de \texttt{[512, 256, 128]}, 0.003 y 256) con una diferencia de validación del orden de 0.001, que está dentro del ruido; por eso la ``mejor red densa'' obtiene en Colab 0.9793 de exactitud de prueba (contra 0.9762 local) y, en la semilla analizada, 210 errores contra 263 (la CNN, 95 contra 96). Las conclusiones no cambian, pero las cifras de la red densa óptima dependen de qué combinación gane una búsqueda con tan poca diferencia entre las mejores. El entrenamiento fue unas 6 a 7 veces más lento en Colab (por ejemplo, 14.6 s contra 2.2 s para la red sin capas ocultas).
+
+\begin{codigo}[label=cod:base]{Función base del tema}
+def experimentar_con_arquitecturas_base():
+    """Plantilla para experimentar con diferentes redes"""
+    arquitecturas = [
+        {"capas": [64], "nombre": "Red Pequeña"},
+        {"capas": [128, 64], "nombre": "Red Mediana"},
+        {"capas": [256, 128, 64], "nombre": "Red Grande"}
+    ]
+    resultados = []
+    for arq in arquitecturas:
+        modelo = models.Sequential()
+        modelo.add(layers.Dense(arq['capas'][0], activation='relu', input_shape=(784,)))
+        for neuronas in arq['capas'][1:]:
+            modelo.add(layers.Dense(neuronas, activation='relu'))
+        modelo.add(layers.Dense(10, activation='softmax'))
+        modelo.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        historia = modelo.fit(X_entrenamiento, y_entrenamiento, epochs=3, batch_size=128,
+                              validation_split=0.2, verbose=0)
+        pérdida, precisión = modelo.evaluate(X_prueba, y_prueba, verbose=0)
+        resultados.append({"arquitectura": arq['nombre'], "precisión": precisión})
+        print(f"Precisión: {precisión:.1%}")
+    return resultados
+\end{codigo}
+
+\begin{consola}[label=out:datos]{Descripción de los datos y resultado del código base}
+Cargando datos de dígitos escritos a mano...
+Datos de entrenamiento: 60000 imágenes
+Datos de prueba: 10000 imágenes
+Tamaño de cada imagen: 28x28 píxeles
+Dígitos por clase (entrenamiento): [5923, 6742, 5958, 6131, 5842, 5421, 5918, 6265, 5851, 5949]
+Dígitos por clase (prueba):        [980, 1135, 1032, 1010, 982, 892, 958, 1028, 974, 1009]
+Píxeles: mínimo 0.0, máximo 1.0, promedio 0.131; 80.9% de los píxeles es fondo (0)
+Función base del tema (3 épocas, una sola corrida, evaluada en prueba):
+ Probando: Red Pequeña
+Precisión: 95.2%
+ Probando: Red Mediana
+Precisión: 96.7%
+ Probando: Red Grande
+Precisión: 97.1%
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/muestras.png}
+\caption{Ejemplos de cada dígito en MNIST.}
+\label{fig:muestras}
+\end{figure}
+
+El código base entrega 95.2~\%, 96.7~\% y 97.1~\% para las redes pequeña, mediana y grande: una mejora de 1.5 puntos al pasar de la pequeña a la mediana y de sólo 0.4 al pasar a la grande. Como cada cifra viene de una sola corrida de 3 épocas, no se puede saber cuánto de esa diferencia es real; se verá más abajo que repetir el entrenamiento con otras semillas mueve el resultado de la red mediana en unas 3 décimas de punto. Además, MNIST está balanceado (de 5\,421 a 6\,742 imágenes por dígito) y el 80.9~\% de los píxeles es fondo.
+
+\subsection{Tarea 1: Experimentar con arquitecturas}
+
+La función base tiene tres limitaciones para comparar redes: cada una se entrena una sola vez y el entrenamiento es aleatorio (pesos iniciales y orden de los lotes), así que diferencias pequeñas pueden ser ruido; se evalúa en prueba, lo que contamina la elección; y sólo explora tres tamaños. La versión ampliada (Código~\ref{cod:arq}) construye la red a partir de una lista de capas, repite cada configuración con 3 semillas y compara con la exactitud de \textbf{validación}. Se probaron 13 arquitecturas que varían el ancho (con una capa), la profundidad (capas de 128 neuronas) y la forma, incluyendo una regresión softmax sin capas ocultas como referencia.
+
+\begin{codigo}[label=cod:arq]{Construcción de la red y repetición con varias semillas}
+def construir_mlp(capas, lr=1e-3, optimizador="adam", dropout=0.0, momentum=0.0):
+    modelo = models.Sequential()
+    modelo.add(layers.Input(shape=(784,)))
+    for neuronas in capas:
+        modelo.add(layers.Dense(neuronas, activation="relu"))
+        if dropout > 0:
+            modelo.add(layers.Dropout(dropout))
+    modelo.add(layers.Dense(10, activation="softmax"))
+    opt = {"adam": lambda: optimizers.Adam(lr),
+           "sgd": lambda: optimizers.SGD(lr, momentum=momentum),
+           "rmsprop": lambda: optimizers.RMSprop(lr)}[optimizador]()
+    modelo.compile(optimizer=opt, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return modelo
+
+
+def correr(nombre, n_epocas=10, batch_size=128, **hp):
+    val, ent, tiempos, params = [], [], [], 0
+    for s in SEMILLAS:
+        tf.keras.utils.set_random_seed(s)
+        modelo = construir_mlp(**hp)
+        t0 = time.time()
+        h = entrenar(modelo, n_epocas, batch_size)
+        tiempos.append(time.time() - t0)
+        val.append(h.history["val_accuracy"][-1])
+        ent.append(h.history["accuracy"][-1])
+        params = modelo.count_params()
+    return {"configuración": nombre, "parámetros": params, "entrenamiento": np.mean(ent),
+            "validación": np.mean(val), "desv.": np.std(val), "tiempo (s)": np.mean(tiempos)}
+\end{codigo}
+
+\begin{consola}[label=out:arq]{Comparación de arquitecturas (media de 3 semillas, 10 épocas)}
+Arquitecturas (media de 3 semillas, 10 épocas, Adam 1e-3, lotes de 128; solo validación):
+                             parámetros  entrenamiento  validación   desv.  tiempo (s)
+configuración
+Sin capas ocultas (softmax)        7850         0.9244      0.9267  0.0006         2.2
+Red Pequeña [64]                  50890         0.9817      0.9674  0.0014         2.9
+Red Mediana [128, 64]            109386         0.9949      0.9721  0.0024         4.3
+Red Grande [256, 128, 64]        242762         0.9949      0.9729  0.0009         6.6
+Ancha 1 capa [16]                 12730         0.9444      0.9439  0.0024         2.3
+Ancha 1 capa [32]                 25450         0.9654      0.9573  0.0003         2.5
+Ancha 1 capa [256]               203530         0.9969      0.9761  0.0010         5.1
+Ancha 1 capa [1024]              814090         0.9989      0.9789  0.0007        12.1
+2 capas [128, 128]               118282         0.9941      0.9739  0.0007         5.1
+3 capas [128, 128, 128]          134794         0.9932      0.9725  0.0011         5.5
+4 capas [128] x 4                151306         0.9915      0.9713  0.0015         6.6
+6 capas [128] x 6                184330         0.9900      0.9712  0.0023         8.2
+Embudo [512, 256, 128, 64]       575050         0.9936      0.9756  0.0006        11.4
+Mejor arquitectura por exactitud de validación: Ancha 1 capa [1024]
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/arquitecturas.png}
+\caption{Exactitud en validación por arquitectura y relación con el número de parámetros.}
+\label{fig:arq}
+\end{figure}
+
+\textbf{Piso y primer salto.} La regresión softmax sin capas ocultas alcanza 92.67~\% (un modelo lineal); una sola capa oculta de 64 neuronas la lleva a 96.74~\%, 4 puntos más. Es el mayor beneficio de toda la tabla y es lo que aporta la no linealidad.
+
+\textbf{Ancho.} Con una capa oculta, la exactitud crece con el número de neuronas, pero con rendimientos decrecientes: 94.39~\% con 16, 96.74~\% con 64, 97.61~\% con 256 y 97.89~\% con 1\,024. Cada vez que se cuadruplican las neuronas la ganancia se reduce (+2.4, +0.9 y +0.3 puntos), mientras los parámetros se cuadruplican y el tiempo de entrenamiento pasa de 2.9 a 12.1~s.
+
+\textbf{Profundidad.} Con 128 neuronas por capa, agregar capas no ayuda: 97.39~\% con 2, 97.25~\% con 3, 97.13~\% con 4 y 97.12~\% con 6, aunque la exactitud de entrenamiento se mantiene cerca de 99~\%. Para esta tarea y con datos aplanados, una red densa ancha y poco profunda rinde igual o mejor que una profunda; la jerarquía de características que el tema asocia a la profundidad \parencite{iae_u4_t44} necesita otro tipo de capas.
+
+\textbf{Mejor arquitectura.} La mejor en validación es la de una capa de 1\,024 neuronas (97.89~\%, desviación de 0.07 puntos), por encima de la de 256 (97.61~\%) en más que la desviación entre semillas, pero con 4 veces los parámetros. Entre las tres redes del tema, la mediana y la grande (97.21~\% y 97.29~\%) son indistinguibles dentro del ruido (desviaciones de 0.24 y 0.09 puntos). Todas las redes con capas ocultas muestran una brecha de unos 2 puntos entre entrenamiento y validación (por ejemplo, 99.49~\% contra 97.21~\% en la mediana), una señal de sobreajuste que se atiende en la sección siguiente.
+
+\subsection{Tarea 2: Optimizar hiperparámetros}
+
+Se parte de la Red Mediana del tema y se mueve un hiperparámetro a la vez, con 3 semillas y 10 épocas cada uno, evaluando en validación: tasa de aprendizaje (de $10^{-4}$ a $10^{-1}$), optimizador (SGD, SGD con \textit{momentum}, RMSprop y Adam), tamaño de lote (32 a 512) y \textit{dropout} (0 a 0.5).
+
+\begin{consola}[label=out:hp]{Efecto de cada hiperparámetro en validación}
+--- Tasa de aprendizaje (Adam) ---
+               parámetros  entrenamiento  validación   desv.  tiempo (s)
+configuración
+lr = 0.0001        109386         0.9555      0.9548  0.0013         4.5
+lr = 0.0003        109386         0.9809      0.9688  0.0007         4.4
+lr = 0.001         109386         0.9949      0.9721  0.0024         4.3
+lr = 0.003         109386         0.9911      0.9696  0.0022         4.4
+lr = 0.01          109386         0.9832      0.9639  0.0020         4.5
+lr = 0.03          109386         0.9594      0.9504  0.0050         4.6
+lr = 0.1           109386         0.5486      0.5518  0.1232         4.3
+--- Optimizador ---
+                            parámetros  entrenamiento  validación   desv.  tiempo (s)
+configuración
+SGD lr=0.01                     109386         0.9247      0.9293  0.0012         3.2
+SGD lr=0.1                      109386         0.9826      0.9709  0.0009         3.3
+SGD lr=0.01 + momentum 0.9      109386         0.9822      0.9707  0.0010         3.5
+RMSprop lr=0.001                109386         0.9954      0.9724  0.0012         3.8
+Adam lr=0.001                   109386         0.9949      0.9721  0.0024         4.3
+--- Tamaño de lote ---
+               parámetros  entrenamiento  validación   desv.  tiempo (s)
+configuración
+lote = 32          109386         0.9934      0.9734  0.0014        11.7
+lote = 64          109386         0.9945      0.9725  0.0008         6.9
+lote = 128         109386         0.9949      0.9721  0.0024         4.4
+lote = 256         109386         0.9913      0.9702  0.0027         3.1
+lote = 512         109386         0.9857      0.9703  0.0005         2.5
+--- Dropout (con 256, 128 neuronas para que haya capacidad que regularizar) ---
+               parámetros  entrenamiento  validación   desv.  tiempo (s)
+configuración
+dropout = 0.0      235146         0.9955      0.9758  0.0006         6.1
+dropout = 0.1      235146         0.9918      0.9782  0.0007         6.7
+dropout = 0.2      235146         0.9881      0.9779  0.0014         6.6
+dropout = 0.3      235146         0.9830      0.9781  0.0008         6.8
+dropout = 0.5      235146         0.9675      0.9760  0.0004         6.7
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/hiperparametros.png}
+\caption{Efecto de la tasa de aprendizaje, el optimizador, el tamaño de lote y el \textit{dropout}.}
+\label{fig:hp}
+\end{figure}
+
+\textbf{Tasa de aprendizaje.} La mejor es $10^{-3}$ (97.21~\%). Con $10^{-4}$ la red aprende demasiado despacio y a las 10 épocas aún no converge (95.48~\% en validación, 95.55~\% en entrenamiento: no hay sobreajuste sino falta de entrenamiento); con valores altos el entrenamiento se vuelve inestable (96.39~\% con 0.01 y 95.04~\% con 0.03) y con 0.1 se rompe: 55.18~\% con una desviación enorme (12 puntos) entre semillas. La curva es asimétrica: equivocarse hacia arriba cuesta mucho más que hacia abajo. En la figura la escala la domina el valor 0.1; los demás difieren entre sí por alrededor de 2 puntos.
+
+\textbf{Optimizador.} Adam (97.21~\%) y RMSprop (97.24~\%) son equivalentes. SGD con tasa 0.1 (97.09~\%) y SGD con \textit{momentum} (97.07~\%) quedan 0.1 puntos por debajo, una diferencia pequeña, y cada época les cuesta menos (3.3~s contra 4.3~s). SGD simple con 0.01 sólo llega a 92.93~\%: es el mismo problema de la tasa baja, pues no alcanza a converger en 10 épocas. Un optimizador adaptativo evita tener que afinar tanto la tasa.
+
+\textbf{Tamaño de lote.} Con un número fijo de épocas, los lotes pequeños dan más actualizaciones de pesos y resultan un poco mejores: 97.34~\% con 32, 97.21~\% con 128 y 97.03~\% con 512, a costa de tiempo (11.7~s contra 2.5~s). Las diferencias son de 3 décimas de punto, del orden de la variación entre semillas, así que el lote se elige sobre todo por velocidad.
+
+\textbf{Dropout.} Se probó con una red de 256 y 128 neuronas para tener capacidad que regularizar. Sin \textit{dropout} la validación es 97.58~\%; con 0.1 a 0.3 sube a 97.78--97.82~\% mientras la exactitud de entrenamiento baja de 99.55~\% a 98.30~\%, es decir, se reduce la brecha. Con 0.5 se regulariza de más (entrenamiento de 96.75~\%, validación de 97.60~\%). La ganancia es modesta, de unas 2 décimas de punto, pero consistente entre los tres valores intermedios.
+
+\textbf{Número de épocas.} Para ver el sobreajuste se entrenó una red grande sin regularizar durante 30 épocas (Figura~\ref{fig:curvas}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{act22/img/curvas.png}
+\caption{Curvas de entrenamiento y validación de una red de cuatro capas sin regularizar, 30 épocas.}
+\label{fig:curvas}
+\end{figure}
+
+La pérdida de validación es mínima en la época 8 (0.0926) y después sube hasta 0.1267 al final de las 30 épocas, mientras la exactitud de entrenamiento llega a 99.75~\% y la de validación se queda en 97.87~\%. La exactitud de validación casi no cambia, pero la pérdida sí: la red se vuelve más segura de sus respuestas, incluidas las equivocadas. Es el efecto que describe el tema, donde minimizar el error de entrenamiento a cuotas ínfimas pierde generalización \parencite{iae_u4_t44}, y justifica detener el entrenamiento cuando la pérdida de validación deja de mejorar.
+
+\textbf{Búsqueda combinada.} Los efectos anteriores no son independientes, por lo que se hizo una búsqueda aleatoria de 14 combinaciones de número de capas, ancho, tasa de aprendizaje, lote y \textit{dropout}, con una semilla, hasta 25 épocas y parada temprana (se detiene si la pérdida de validación no mejora en 3 épocas y se conservan los mejores pesos).
+
+\begin{codigo}[label=cod:busqueda]{Búsqueda aleatoria con parada temprana}
+rng = np.random.default_rng(SEMILLA)
+for i in range(N_PRUEBAS):
+    n_capas = int(rng.integers(1, 5))
+    ancho = int(rng.choice([64, 128, 256, 512]))
+    capas = [max(32, ancho // (2 ** j)) for j in range(n_capas)]   # cada capa mide la mitad de la anterior
+    lr = float(rng.choice([3e-4, 1e-3, 3e-3]))
+    lote = int(rng.choice([64, 128, 256]))
+    dropout = float(rng.choice([0.0, 0.1, 0.2, 0.3]))
+    tf.keras.utils.set_random_seed(SEMILLA)
+    m = construir_mlp(capas, lr=lr, dropout=dropout)
+    h = entrenar(m, 25, lote, paciencia=3).history
+    mejor = int(np.argmin(h["val_loss"]))
+    # se guarda la exactitud de validación de la mejor época
+\end{codigo}
+
+\begin{consola}[label=out:busqueda]{Resultados de la búsqueda aleatoria}
+Resultados de la búsqueda (ordenados por exactitud de validación):
+                 capas      lr  lote  dropout  parámetros  época  val_exactitud  val_pérdida  tiempo (s)
+0      [512, 256, 128]  0.0030   256      0.2      567434      9         0.9793       0.0860        10.7
+1                [512]  0.0010   128      0.1      407050      9         0.9792       0.0749         9.4
+2           [512, 256]  0.0010    64      0.1      535818      7         0.9783       0.0879        20.1
+3   [256, 128, 64, 32]  0.0003   256      0.1      244522     18         0.9777       0.0815        12.0
+4   [256, 128, 64, 32]  0.0010   256      0.1      244522      8         0.9768       0.0854         7.0
+5                [512]  0.0030    64      0.2      407050      4         0.9763       0.0891         9.3
+6                [256]  0.0003   256      0.2      203530     25         0.9760       0.0783        10.7
+7        [128, 64, 32]  0.0003   256      0.3      111146     25         0.9744       0.1007         8.5
+8        [128, 64, 32]  0.0030   128      0.1      111146      7         0.9743       0.1010         4.9
+9                [512]  0.0030   128      0.0      407050      3         0.9742       0.0876         5.5
+10   [128, 64, 32, 32]  0.0030   256      0.3      112202     10         0.9703       0.1268         5.8
+11    [64, 32, 32, 32]  0.0010   128      0.1       54762     11         0.9701       0.1081         6.0
+12            [64, 32]  0.0003   128      0.3       52650     25         0.9682       0.1169         8.3
+13    [64, 32, 32, 32]  0.0030    64      0.0       54762      4         0.9623       0.1340         4.3
+Mejor combinación: capas=[512, 256, 128], lr=0.003, lote=256, dropout=0.2
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/busqueda.png}
+\caption{Resultados de la búsqueda aleatoria.}
+\label{fig:busqueda}
+\end{figure}
+
+Las 14 combinaciones van de 96.23~\% a 97.93~\% en validación. Hay un patrón claro: las seis mejores tienen al menos 256 neuronas en la primera capa y \textit{dropout} de 0.1 a 0.2, y las tres peores empiezan con sólo 64 neuronas. Las tres mejores quedan a una décima de punto entre sí, así que la elección de la ganadora (capas de 512, 256 y 128; tasa de 0.003; lote de 256; \textit{dropout} de 0.2) es poco más que un desempate. Con tasa de $3\times10^{-4}$, varias corridas llegaron al límite de 25 épocas sin que la parada temprana actuara, por lo que esa zona podría rendir más con más épocas. Como el máximo de 14 pruebas está sesgado hacia arriba en validación (se eligió precisamente por ser el mejor), se reevalúa con otras semillas y, sobre todo, en el conjunto de prueba: la misma configuración da 97.75~\% en validación promediando tres semillas, por debajo del 97.93~\% de la búsqueda.
+
+\textbf{Evaluación final.} La mejor combinación se reentrena con 3 semillas y se evalúa una sola vez en el conjunto de prueba, junto con la Red Mediana del tema (3 épocas) y la red convolucional del tema (Código~\ref{cod:cnn}), que conserva la estructura 2D de la imagen en lugar de aplanarla.
+
+\begin{codigo}[label=cod:cnn]{Red convolucional del tema}
+def crear_cnn_para_imagenes():
+    modelo = models.Sequential([
+        layers.Input(shape=(28, 28, 1)),
+        layers.Conv2D(32, (3, 3), activation="relu"),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation="relu"),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation="relu"),
+        layers.Flatten(),
+        layers.Dense(64, activation="relu"),
+        layers.Dense(10, activation="softmax")
+    ])
+    modelo.compile(optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return modelo
+\end{codigo}
+
+\begin{consola}[label=out:final]{Exactitud final en el conjunto de prueba}
+Evaluación final en el conjunto de prueba (3 semillas, parada temprana en validación):
+                                 parámetros  validación  prueba   desv.  mínimo  máximo
+modelo
+Red Mediana del tema (3 épocas)      109386         NaN  0.9686  0.0033  0.9639  0.9713
+Mejor red densa de la búsqueda       567434      0.9775  0.9762  0.0024  0.9737  0.9794
+CNN del tema                          93322      0.9898  0.9910  0.0004  0.9904  0.9914
+Modelos analizados (semilla 0): red densa 0.9737, CNN 0.9904
+\end{consola}
+
+La búsqueda de hiperparámetros mejora la red mediana del tema de 96.86~\% a 97.62~\% en prueba (0.76 puntos): el error baja de 3.14~\% a 2.38~\%, un 24~\% menos de errores. La red convolucional del tema, sin ajuste alguno, llega a 99.10~\% con una desviación de sólo 0.04 puntos y con 93\,322 parámetros, unas seis veces menos que la mejor red densa (567\,434). Su error de 0.90~\% es 62~\% menor que el de la mejor red densa y 71~\% menor que el de la mediana del tema. La conclusión es que, para imágenes, elegir la arquitectura adecuada (el tema recomienda redes convolucionales para imágenes \parencite{iae_u4_t44}) aportó mucho más que optimizar los hiperparámetros de una red densa. Ajustar la CNN (tasa, \textit{dropout}, filtros) probablemente ganaría algo más, pero no se hizo. Los 99.10~\% concuerdan con el 99.0~\% que el tema reporta para su CNN de 5 épocas.
+
+\subsection{Tarea 3: Analizar errores}
+
+Se analizan los errores en el conjunto de prueba de la mejor red densa (y se compara con la CNN) en cuatro pasos: métricas por dígito, matriz de confusión, un análisis de por qué ocurren y una discusión del impacto en el caso de uso.
+
+\begin{consola}[label=out:clases]{Métricas por dígito (red densa óptima)}
+--- Métricas por dígito (red densa óptima, conjunto de prueba) ---
+              precision    recall  f1-score   support
+           0     0.9778    0.9888    0.9833       980
+           1     0.9859    0.9868    0.9863      1135
+           2     0.9738    0.9738    0.9738      1032
+           3     0.9674    0.9703    0.9689      1010
+           4     0.9853    0.9562    0.9705       982
+           5     0.9741    0.9697    0.9719       892
+           6     0.9741    0.9833    0.9787       958
+           7     0.9831    0.9601    0.9715      1028
+           8     0.9656    0.9784    0.9720       974
+           9     0.9495    0.9683    0.9588      1009
+    accuracy                         0.9737     10000
+   macro avg     0.9737    0.9736    0.9736     10000
+weighted avg     0.9738    0.9737    0.9737     10000
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/matriz_confusion.png}
+\caption{Matrices de confusión de la red densa óptima y de la CNN en el conjunto de prueba.}
+\label{fig:cm}
+\end{figure}
+
+\begin{consola}[label=out:pares]{Confusiones más frecuentes y comparación con la CNN}
+--- Confusiones más frecuentes (real -> predicho) ---
+ real  predicho  errores
+    4         9       28
+    7         9       13
+    3         8       12
+    5         3       11
+    7         2       11
+    7         1        9
+    9         3        8
+    9         5        8
+    2         0        7
+    2         3        7
+--- Lo mismo con la CNN ---
+ real  predicho  errores
+    4         9       10
+    5         3        6
+    7         2        6
+    2         0        4
+    3         5        4
+    6         5        4
+Errores: red densa 263, CNN 96; en común 57; la CNN corrige 206 de los 263 errores de la red densa y comete 39 nuevos
+dígito real         0   1   2   3   4   5   6   7   8   9
+errores red densa  11  15  27  30  43  27  16  41  21  32
+errores CNN         2   4  10   6  11  10  11  16  14  12
+\end{consola}
+
+\textbf{Dígitos y pares.} La confusión dominante de la red densa es 4 con 9: 28 de los 43 errores del dígito 4 (65~\%) lo toman por 9, y por eso el 4 tiene el recall más bajo (95.6~\%). Le siguen 7 con 9 (13), 3 con 8 (12), 5 con 3 (11) y 7 con 2 (11); el 7 es el segundo dígito con más errores (41, recall de 96.0~\%). El 9 tiene la precisión más baja (94.95~\%) porque funciona como imán de los 4 y los 7 mal clasificados. Los dígitos más fáciles son el 1 y el 0 (F1 de 0.986 y 0.983).
+
+\textbf{Comparación con la CNN.} La CNN reduce los errores de 263 a 96, corrige 206 de los 263 errores de la red densa (78~\%) y comete 39 nuevos; mejora en todos los dígitos (por ejemplo, el 3 pasa de 30 errores a 6 y el 4 de 43 a 11). La confusión 4 con 9 sigue siendo la principal (10 errores), junto con 5 con 3 y 7 con 2, es decir, los mismos pares aparecen en ambas redes, con mucha menor frecuencia. Los errores que no cambian de modelo parecen ser los casos genuinamente difíciles.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/errores.png}
+\caption{Ejemplos de las cuatro confusiones más frecuentes de la red densa, con la probabilidad asignada a la clase predicha.}
+\label{fig:errores}
+\end{figure}
+
+Una hipótesis natural es que se confunden los dígitos que se parecen. Para ponerla a prueba se calculó el parecido entre cada par de dígitos como el coseno entre sus imágenes promedio del entrenamiento y se comparó con el número de errores de cada par (45 pares) mediante la correlación de Spearman.
+
+\begin{consola}[label=out:similitud]{Parecido entre dígitos y errores por par}
+Parecido entre dígitos (coseno de las imágenes promedio) contra errores por par (45 pares):
+  red densa: rho de Spearman = 0.47 (p = 1.3e-03);  CNN: rho = 0.29 (p = 5.0e-02)
+  Pares más parecidos: 4-9 (0.926, 33 errores), 5-8 (0.912, 4 errores), 3-5 (0.898, 14 errores), 7-9 (0.893, 15 errores), 3-8 (0.876, 14 errores), 2-8 (0.860, 8 errores)
+  Pares con más errores: 4-9 (33), 2-7 (15), 7-9 (15), 3-5 (14), 3-8 (14), 5-6 (12)
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/similitud.png}
+\caption{Parecido entre dígitos contra errores entre ellos.}
+\label{fig:sim}
+\end{figure}
+
+La correlación es moderada (rho de 0.47 con $p=0.001$ para la red densa): los dígitos más parecidos se confunden más, pero el parecido de las imágenes promedio explica sólo una parte. El par más parecido, 4 con 9 (coseno de 0.926), es también el que más errores acumula (33), lo que confirma la hipótesis para ese caso. Pero 5 con 8 es el segundo par más parecido (0.912) y casi no se confunde (4 errores), mientras que 2 con 7 acumula 15 errores sin estar entre los más parecidos. Esto es de esperarse: la imagen promedio sólo mide cuánto se traslapan los trazos en promedio, y no la variación de cada ejemplo. Con la CNN la correlación baja a 0.29 ($p=0.05$): como comete pocos errores (96), los conteos por par son pequeños y ruidosos.
+
+Lo que muestran las imágenes (Figuras~\ref{fig:errores} y~\ref{fig:comunes}) completa la explicación. En 4 con 9, los 4 mal clasificados tienen el trazo superior cerrado, por lo que parecen 9 con un palito largo, y la red los clasifica con probabilidad de 0.99 a 1.00. En 3 con 8, varios 3 tienen el lado izquierdo cerrado o encimado, y el segundo ejemplo se parece más a un 8 que a un 3. En 5 con 3 la confianza es menor (0.63 a 0.85), y los ejemplos son trazos poco claros, como uno que apenas parece un 5. En las imágenes que fallan las dos redes hay formas deformadas o muy delgadas, y a simple vista varias son ambiguas incluso para una persona. En resumen, los errores se concentran en dígitos con topología similar (un lazo cerrado o abierto) y en escrituras atípicas.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act22/img/errores_comunes.png}
+\caption{Imágenes que fallan tanto la red densa como la CNN.}
+\label{fig:comunes}
+\end{figure}
+
+\textbf{Confianza de los errores e impacto en el caso de uso.} Un sistema de digitalización de formularios no necesita que cada dígito sea correcto de forma automática si puede detectar cuáles dudar y mandarlos a revisión humana. Se midió la confianza (probabilidad máxima) de los errores, la exactitud top-2 y el efecto de un umbral de confianza; además se calculó la probabilidad de que un campo de $n$ dígitos tenga algún error, suponiendo errores independientes.
+
+\begin{consola}[label=out:confianza]{Confianza, revisión humana e impacto por campo}
+Confianza (probabilidad máxima) de la red densa: aciertos 0.987, errores 0.706 (mediana 0.711)
+Errores con confianza > 0.9: 24.0%; exactitud top-2: 0.9921 (top-1: 0.9737)
+Revisión humana de los casos poco seguros (red densa):
+ umbral  automático  exactitud de lo automático  errores que pasan  a revisión humana
+   0.00      1.0000                      0.9737                263             0.0000
+   0.50      0.9924                      0.9782                216             0.0076
+   0.80      0.9600                      0.9899                 97             0.0400
+   0.90      0.9433                      0.9933                 63             0.0567
+   0.95      0.9255                      0.9956                 41             0.0745
+   0.99      0.8751                      0.9976                 21             0.1249
+Probabilidad de que un campo de n dígitos tenga al menos un error (independencia):
+  n=4: 10.1%, n=8: 19.2%, n=10: 23.4%, n=16: 34.7%
+\end{consola}
+
+Los errores son menos confiados que los aciertos (probabilidad media de 0.71 contra 0.99), y eso permite usar la confianza para enviar los casos dudosos a una persona. Con un umbral de 0.90 se automatiza el 94.3~\% de los dígitos con una exactitud de 99.33~\%, y 5.7~\% va a revisión humana; en esos 567 dígitos revisados están 200 de los 263 errores, es decir, uno de cada tres es error (35~\%, contra 2.6~\% en general), por lo que revisar los dudosos es unas 13 veces más eficiente que revisar al azar. Con 0.99 la exactitud de lo automático sube a 99.76~\% pero la revisión humana sube a 12.5~\%. Sin revisión, un campo de 10 dígitos tendría algún error en el 23.4~\% de los casos con esta red (la CNN, con 0.9~\% de error por dígito, daría alrededor de 9~\%, según la misma fórmula); con revisión de lo que está por debajo de 0.90, los 63 errores restantes (0.63~\% de los dígitos) bajarían esa cifra a cerca de 6~\%. Además, la exactitud top-2 es 99.21~\%: casi siempre el dígito correcto es una de las dos primeras opciones de la red, lo que permitiría mostrar a quien revisa sólo dos alternativas.
+
+\subsection{Limitaciones}
+
+MNIST es un conjunto limpio: dígitos centrados, recortados y normalizados, con fondo uniforme; los formularios reales traen ruido, rayas de campo, tachaduras y estilos de escritura distintos, y es de esperarse un desempeño menor. Los experimentos de un factor a la vez usan 3 semillas y una sola partición de validación, y varias diferencias (lote, dropout, optimizadores, redes mediana y grande) son del orden de la variación entre semillas. La búsqueda aleatoria usó una sola semilla y 14 combinaciones. La red convolucional no se ajustó. El cálculo de la probabilidad de error por campo supone que los errores de los dígitos son independientes, lo cual es una aproximación. Y el análisis de similitud usa la imagen promedio de cada dígito, una medida burda. Finalmente, los resultados dependen de la ejecución: en Colab pueden variar ligeramente.
+
+\section{Conclusiones}
+
+Se construyó y evaluó un reconocedor de dígitos escritos a mano con MNIST, tomando como punto de partida la función base del tema. Entre las arquitecturas densas, una capa oculta ancha (1\,024 neuronas) fue la mejor en validación (97.89~\%), la profundidad no ayudó y las ganancias por ancho tienen rendimientos decrecientes. De los hiperparámetros, la tasa de aprendizaje fue el que más importó (la mejor fue $10^{-3}$ con Adam; con 0.1 el entrenamiento se rompe), seguida del \textit{dropout}, que reduce el sobreajuste con una ganancia modesta; el lote y el optimizador (con tasa adecuada) tuvieron poco efecto. La mejor red densa llegó a 97.62~\% en prueba, 0.76 puntos sobre la red mediana del tema (96.86~\%), y la red convolucional del tema obtuvo 99.10~\% sin ajustes y con menos parámetros: para imágenes, la arquitectura importó más que los hiperparámetros.
+
+Los errores se concentran en 4 con 9, 7 con 9, 3 con 8, 5 con 3 y 7 con 2. Se confunden dígitos de forma parecida (la correlación entre el parecido de los dígitos y los errores fue de 0.47) y, sobre todo, escrituras atípicas o ambiguas, que fallan en las dos redes. Para la \textit{startup}, la recomendación es usar la red convolucional y aprovechar que los errores tienen menor confianza que los aciertos: con un umbral de 0.90 sobre la red densa se envía a revisión humana alrededor del 6~\% de los dígitos y se captura la mayor parte de los errores.
+
+\referencias
+
+\end{document}

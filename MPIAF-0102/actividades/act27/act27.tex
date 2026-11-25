@@ -1,0 +1,355 @@
+%% =======================================================
+%% Actividad 27: "Ejercicio de Comparación y Aplicación de Marcos Éticos"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 5.1. Principios éticos en la inteligencia artificial \\ Actividad 27 - Comparación y Aplicación \\ de Marcos Éticos}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Los sistemas de inteligencia artificial (IA) ya participan en decisiones sobre empleo, crédito, salud y justicia, y por eso diversas organizaciones han propuesto principios éticos para orientarlos. El tema 5.1 reconoce un conjunto de principios universales (no maleficencia, beneficencia, justicia, autonomía, transparencia y responsabilidad) y menciona que la OCDE, el IEEE y la UNESCO han formulado marcos propios \parencite{iae_u5_t51}. Comparar esos marcos permite ver qué tienen en común y en qué difieren.
+
+En este reporte se desarrolla la Actividad 1 del Tema 5.1, ``Ejercicio de Comparación y Aplicación de Marcos Éticos''. Primero se compara el contenido de los tres marcos con base en sus documentos originales, en una tabla que identifica ocho principios comunes y las prioridades distintivas de cada organización. Después se analiza la charla de Kate Crawford sobre el sesgo y se responde, en un párrafo de 150 palabras como máximo, cómo ese sesgo viola los principios de no maleficencia y justicia.
+
+\section{Marco conceptual}
+
+\subsection{Principios éticos universales}
+
+El tema 5.1 define seis principios que diversos marcos comparten \parencite{iae_u5_t51}. La \textbf{no maleficencia} implica evitar que los sistemas de IA causen daño físico, psicológico, social o económico. La \textbf{beneficencia} es la obligación de promover el bienestar individual y colectivo. La \textbf{justicia} busca un trato equitativo, evitando la discriminación y los sesgos algorítmicos que puedan afectar a grupos vulnerables. La \textbf{autonomía} respeta la capacidad de las personas de decidir con información, sin manipulación ni sustitución indebida de su juicio. La \textbf{transparencia} exige que los sistemas sean comprensibles y explicables. La \textbf{responsabilidad} establece que los efectos del uso de la IA deben atribuirse a actores humanos identificables.
+
+Los términos ``no maleficencia'' y ``justicia'' vienen de la bioética. AI4People \parencite{floridi2018} analizó seis conjuntos de principios para la IA y propuso cinco: los cuatro de la bioética (beneficencia, no maleficencia, autonomía y justicia) más la \textit{explicabilidad}. Para ese marco, la no maleficencia se refiere sobre todo a la privacidad, la seguridad y la precaución ante las capacidades de la IA, y la justicia se relaciona con la distribución de recursos y beneficios, con declaraciones citadas sobre eliminar la discriminación.
+
+\subsection{Sesgo algorítmico}
+
+El tema 5.2 define el sesgo algorítmico como la producción sistemática de resultados desfavorables para ciertos grupos, que puede originarse en los datos, en el diseño del modelo o en la interpretación de los resultados \parencite{iae_u5_t51}. Es un problema social y ético, además de técnico. La charla de Crawford \parencite{crawford2017} desarrolla esa idea con ejemplos concretos.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} analizar y sintetizar los principios clave de diferentes marcos éticos internacionales y reflexionar sobre la problemática del sesgo en la IA.
+
+\subsection*{Instrucciones}
+
+\begin{description}
+    \item[Análisis comparativo de documentos (individual).]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Revisar los principios éticos de la UNESCO, la OCDE y el marco del IEEE.
+        \item Crear una tabla comparativa que identifique al menos tres principios comunes (por ejemplo, transparencia, responsabilidad, justicia) y las prioridades distintivas de cada organización.
+    \end{enumerate}
+    \item[Análisis de sesgo y reflexión.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Analizar la charla de Kate Crawford sobre el sesgo humano en la IA.
+        \item Responder en un párrafo (máximo 150 palabras): ¿cómo el sesgo humano, tal como lo describe Kate Crawford, viola los principios de no maleficencia y justicia establecidos por los marcos internacionales?
+    \end{enumerate}
+    \item[Entrega.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item La tabla comparativa y el párrafo de análisis.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Documentos analizados}
+
+Se leyeron los documentos que indica la actividad, y no resúmenes de terceros:
+\begin{itemize}
+    \item \textbf{UNESCO:} Recomendación sobre la ética de la inteligencia artificial, adoptada en noviembre de 2021 \parencite{unesco2021}. Los nombres y descripciones de los valores y principios provienen de la página oficial de la UNESCO sobre la Recomendación; no se pudo consultar el texto completo del documento, de modo que no se citan números de párrafo.
+    \item \textbf{OCDE:} Recomendación del Consejo sobre Inteligencia Artificial (OECD/LEGAL/0449), adoptada el 22 de mayo de 2019 y modificada el 3 de mayo de 2024 \parencite{oecd2019}. Se leyó el texto completo del instrumento.
+    \item \textbf{IEEE:} \textit{Ethically Aligned Design}, primera edición \parencite{ieee2019}. Se leyó el capítulo de principios generales y las secciones citadas.
+    \item \textbf{AI4People:} \parencite{floridi2018}, que la actividad lista como material de apoyo y que se usa aquí para el origen de los términos.
+    \item \textbf{Charla de Kate Crawford:} \textit{The Trouble with Bias}, conferencia magistral de NIPS 2017 (49 minutos) \parencite{crawford2017}, analizada a partir de su transcripción.
+\end{itemize}
+
+\textbf{Nota sobre la charla.} El enlace de TED que da la actividad (\texttt{ted.com/talks/kate\_crawford\_the\_trouble\_with\_bias}) no existe (devuelve ``no encontrado''), y en TED la charla titulada ``How to keep human bias out of AI'' es de Kriti Sharma, de 11:57 minutos, no de Kate Crawford. La pregunta de la actividad se refiere a lo que Crawford describe, así que se analizó su charla \textit{The Trouble with Bias} (NIPS 2017), que coincide con el título del enlace.
+
+\section{Desarrollo}
+
+\subsection{Análisis comparativo de los marcos}
+
+La Tabla~\ref{tab:comparativa} compara los tres marcos en ocho principios. Los tres marcos tratan siete de ellos, aunque no siempre como un principio independiente (por ejemplo, en el IEEE la supervisión humana aparece en las recomendaciones de otros principios); las celdas indican cómo los nombra y qué exige cada uno. La justicia, la equidad y la no discriminación son las que más difieren: la UNESCO y la OCDE las nombran de forma explícita, mientras que el IEEE no las incluye entre sus ocho principios generales y las trata dentro de los derechos humanos.
+
+{\scriptsize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\setlength{\anchocol}{\dimexpr(\linewidth-1.9cm-8\tabcolsep)/3\relax}
+\begin{longtable}{@{} >{\raggedright\arraybackslash}p{1.9cm} >{\raggedright\arraybackslash}p{\anchocol} >{\raggedright\arraybackslash}p{\anchocol} >{\raggedright\arraybackslash}p{\anchocol} @{}}
+\caption{Comparación de los principios de la UNESCO, la OCDE y el IEEE. Fuente: \cite{unesco2021,oecd2019,ieee2019}. Las traducciones al español son propias.}\label{tab:comparativa}\\
+\toprule
+\textbf{Principio común} & \textbf{UNESCO} & \textbf{OCDE} & \textbf{IEEE} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Principio común} & \textbf{UNESCO} & \textbf{OCDE} & \textbf{IEEE} \\
+\midrule
+\endhead
+\textbf{Transparencia y explicabilidad} &
+``Transparencia y explicabilidad'': el despliegue ético depende de ella; su nivel debe ser adecuado al contexto, pues puede entrar en tensión con la privacidad o la seguridad. &
+1.3 ``Transparencia y explicabilidad'': divulgación responsable; informar capacidades y límites, avisar que se interactúa con IA, explicar los factores o la lógica de una decisión y permitir impugnarla. &
+Principio 5 ``Transparencia'': la base de una decisión siempre debe poder descubrirse (incluye trazabilidad, explicabilidad e interpretabilidad); el nivel varía según el actor (usuarios, creadores, investigadores de accidentes, sistema legal, público). \\
+\addlinespace
+\textbf{Responsabilidad y rendición de cuentas} &
+``Responsabilidad y rendición de cuentas'': sistemas auditables y trazables, con mecanismos de supervisión, evaluación de impacto, auditoría y debida diligencia. &
+1.5 ``Rendición de cuentas'': los actores responden del buen funcionamiento y del respeto de los principios según su papel; trazabilidad de datos, procesos y decisiones; gestión sistemática de riesgos, incluido el sesgo dañino. &
+Principio 6 ``Rendición de cuentas'': operar de modo que se dé una justificación inequívoca de las decisiones; legisladores y tribunales deben aclarar responsabilidades antes del desarrollo y el despliegue. \\
+\addlinespace
+\textbf{Justicia, equidad y no discriminación} &
+``Equidad y no discriminación'' (principio 10): promover justicia social, equidad y no discriminación con un enfoque inclusivo, para que los beneficios lleguen a todas las personas. &
+1.2 ``Respeto al Estado de derecho, los derechos humanos y los valores democráticos, incluidas la equidad y la privacidad'': incluye no discriminación e igualdad, diversidad, equidad y justicia social; 1.1 busca reducir desigualdades. &
+No hay un principio específico. La no discriminación se trata dentro de ``Derechos humanos'' (cita convenciones contra la discriminación racial y contra la mujer), y se reconoce que la tecnología no es neutral: los sistemas incorporan valores y sesgos. \\
+\addlinespace
+\textbf{Derechos humanos y dignidad} &
+Primer valor fundamental (``respetar y promover la dignidad humana y los derechos humanos''); los principios se presentan como un enfoque basado en derechos humanos. &
+1.2: respeto a los derechos humanos, la dignidad, la autonomía y los valores democráticos durante todo el ciclo de vida del sistema. &
+Principio 1 ``Derechos humanos'': los sistemas deben crearse y operarse para respetar, promover y proteger los derechos humanos reconocidos internacionalmente. \\
+\addlinespace
+\textbf{Seguridad y evitar el daño} &
+``Proporcionalidad y no hacer daño'': el uso de la IA no debe ir más allá de lo necesario para un fin legítimo, con evaluación de riesgos; ``Seguridad'': evitar riesgos de seguridad y vulnerabilidades a ataques. &
+1.4 ``Solidez, seguridad y protección'': funcionar adecuadamente en uso normal, previsible o de mal uso, y poder anular, reparar o retirar el sistema si causa un daño indebido. &
+Principio 7 ``Conciencia del mal uso'': los creadores deben prevenir usos indebidos y riesgos; en derechos humanos se pide asegurar la seguridad de los sistemas. \\
+\addlinespace
+\textbf{Supervisión humana} &
+``Supervisión y decisión humanas'': la IA no debe desplazar la responsabilidad última de las personas. &
+1.2 y 1.4: capacidad de agencia y supervisión humanas, y mecanismos de anulación. &
+Los sistemas deben estar siempre subordinados al juicio y control humanos, y los creadores deben prever que los operadores puedan anularlos. \\
+\addlinespace
+\textbf{Privacidad y datos personales} &
+``Derecho a la privacidad y protección de datos'': proteger la privacidad durante todo el ciclo de vida y establecer marcos de protección de datos. &
+Incluida en 1.2 (``privacidad y protección de datos'') y en la gestión de riesgos de 1.5. &
+Principio 3 ``Agencia sobre los datos'': las personas deben poder acceder a sus datos, compartirlos con seguridad y controlar su identidad. \\
+\addlinespace
+\textbf{Bienestar y sostenibilidad} &
+``Sostenibilidad'' (evaluar el impacto frente a los Objetivos de Desarrollo Sostenible) y el cuarto valor, que apoya el florecimiento del ambiente y los ecosistemas. &
+1.1 ``Crecimiento inclusivo, desarrollo sostenible y bienestar'': resultados benéficos para las personas y el planeta; incluye la sostenibilidad ambiental. &
+Principio 2 ``Bienestar'': el aumento del bienestar humano debe ser un criterio primario de éxito del desarrollo. \\
+\bottomrule
+\end{longtable}
+}
+
+\subsubsection*{Prioridades distintivas de cada organización}
+
+Además de lo que comparten, cada marco tiene un énfasis propio, que se resume en la Tabla~\ref{tab:distintivas}.
+
+\begin{table}[H]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+\toprule
+ & \textbf{UNESCO} & \textbf{OCDE} & \textbf{IEEE} \\
+\midrule
+\textbf{Naturaleza} &
+Recomendación adoptada en noviembre de 2021 por los 193 Estados Miembros; se presenta como el primer estándar global sobre ética de la IA. &
+Recomendación del Consejo (OECD/LEGAL/0449), adoptada en 2019 y modificada en 2023 y 2024; se presenta como el primer estándar intergubernamental sobre IA, con la adhesión de países miembros y no miembros y de la Unión Europea. &
+Documento elaborado por una iniciativa global de la comunidad profesional (cientos de personas expertas, con la ingeniería como guía), no por gobiernos. \\
+\addlinespace
+\textbf{Enfoque central} &
+Derechos humanos y dignidad humana; se habla de ``un enfoque de derechos humanos'' y de sociedades justas, pacíficas e interconectadas. &
+Una gestión responsable de una IA confiable, con una mirada de política pública: principios para los actores y recomendaciones para los gobiernos. &
+Priorizar el bienestar humano en el diseño de sistemas autónomos e inteligentes, desde la perspectiva de quienes los construyen y operan. \\
+\addlinespace
+\textbf{Prioridades distintivas} &
+Diversidad e inclusión, ambiente y ecosistemas, sostenibilidad, gobernanza con múltiples partes interesadas, y alfabetización en IA; incluye áreas de acción política (de género a datos y cooperación internacional) y un Observatorio global. &
+Cinco recomendaciones a gobiernos (investigación y desarrollo, ecosistema inclusivo, gobernanza interoperable, capacidades humanas y transición laboral, cooperación internacional); definiciones comunes de sistema, ciclo de vida y actores de IA; en 2024 añadió integridad de la información, uso indebido, anulación segura y conducta empresarial responsable. &
+Principios dirigidos a creadores y operadores que otros marcos no separan: efectividad (evidencia de que el sistema sirve para su fin), competencia (conocimientos para operarlo) y agencia sobre los datos; bienestar como criterio de éxito. \\
+\addlinespace
+\textbf{De los principios a la práctica} &
+Políticas nacionales y seguimiento mediante el Observatorio. &
+Informes periódicos al Consejo, un observatorio de políticas de IA y guías de implementación. &
+Dio origen a proyectos de normalización (serie IEEE P7000), un programa de certificación y cursos de ética. \\
+\bottomrule
+\end{tabularx}
+\caption{Prioridades distintivas de cada marco. Fuente: \cite{unesco2021,oecd2019,ieee2019}.}
+\label{tab:distintivas}
+\end{table}
+
+\subsection{Cómo se relacionan con los principios del tema}
+
+Los principios del tema 5.1 aparecen en los tres marcos con otros nombres. La Tabla~\ref{tab:tema} muestra dónde se tratan la no maleficencia y la justicia, que son las que pide la pregunta de reflexión.
+
+\begin{table}[H]
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{@{} >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+\toprule
+ & \textbf{No maleficencia} & \textbf{Justicia} \\
+\midrule
+\textbf{Tema 5.1} & Evitar daño físico, psicológico, social o económico. & Trato equitativo; evitar la discriminación y los sesgos que afecten a grupos vulnerables. \\
+\addlinespace
+\textbf{UNESCO} & Proporcionalidad y no hacer daño; seguridad. & Equidad y no discriminación. \\
+\addlinespace
+\textbf{OCDE} & 1.4 Solidez, seguridad y protección; riesgos de sesgo dañino y de derechos humanos en 1.5. & 1.2 No discriminación, igualdad y equidad; 1.1 reducción de desigualdades. \\
+\addlinespace
+\textbf{IEEE} & Derechos humanos, conciencia del mal uso y bienestar. & Dentro de derechos humanos; reconoce el sesgo de los sistemas. \\
+\addlinespace
+\textbf{AI4People} & Privacidad, seguridad y precaución ante las capacidades de la IA. & Distribución de recursos y beneficios; cita declaraciones sobre eliminar la discriminación. \\
+\bottomrule
+\end{tabularx}
+\caption{Dónde tratan los marcos la no maleficencia y la justicia. Fuente: \cite{iae_u5_t51,unesco2021,oecd2019,ieee2019,floridi2018}.}
+\label{tab:tema}
+\end{table}
+
+\subsection{Análisis de sesgo: la charla de Kate Crawford}
+
+La charla \textit{The Trouble with Bias} \parencite{crawford2017} parte de que el aprendizaje automático llegó a la salud, la educación y la justicia penal, y de que el sesgo aparece por todas partes. Estas son sus ideas principales, con los minutos aproximados de la transcripción automática.
+
+\begin{itemize}
+    \item \textbf{Ejemplos de sesgo (minutos 1 a 5).} Menciona que el análisis de sentimiento de la interfaz de lenguaje natural de Google calificaba de forma negativa términos como ``negro'', ``gay'' y ``judío'' y de forma positiva ``soy heterosexual'' o ``poder blanco''; que el reparto el mismo día de Amazon dejaba fuera códigos postales con mucha población afroamericana, en un mapa ``inquietantemente familiar'' que se parece a los de segregación de los años treinta; y el estudio de ProPublica sobre los puntajes COMPAS en Florida, que encontró sesgo racial.
+    \item \textbf{El sesgo es social antes que técnico (minuto 7).} Los datos de entrenamiento reflejan una historia de discriminación, así que la tendencia por omisión de los sistemas es reflejarla. Afirma que el sesgo estructural es un asunto social primero y técnico después, y que no hay una solución mágica.
+    \item \textbf{Dos tipos de daño (minutos 13 a 21).} Los \emph{daños de asignación} ocurren cuando un sistema concede o niega a un grupo una oportunidad o un recurso (hipotecas, créditos, seguros). Los \emph{daños de representación} ocurren cuando los sistemas refuerzan la subordinación de grupos por identidad (raza, clase, género), aunque no negaran ningún recurso. Para estos últimos da cinco tipos: estereotipos (por ejemplo, el traductor que cambia el género de ``enfermera'' y ``médico''), falta de reconocimiento (sistemas de visión que no reconocen rostros de piel oscura), denigración (Google Fotos etiquetó a una mujer afroamericana como gorila) y subrepresentación (las imágenes de ``director ejecutivo'').
+    \item \textbf{Las soluciones técnicas no bastan (minutos 22 a 24).} ``Limpiar hacia lo neutral'' plantea quién decide qué es neutral; ajustar los resultados a la distribución actual (por ejemplo, menos de 8~\% de mujeres directivas) reproduce una desigualdad que ya fue producto de discriminación. Las soluciones técnicas son necesarias, pero no suficientes.
+    \item \textbf{La clasificación nunca es neutral (minutos 24 a 38).} Las categorías reflejan su época y su poder: recorre la historia de la clasificación, el conjunto de rostros \textit{Labeled Faces in the Wild} (77.5~\% hombres y con George W. Bush como el rostro más repetido), la clasificación de la homosexualidad como trastorno durante décadas, el sistema de clasificación racial del apartheid y los estudios que dicen detectar orientación sexual o criminalidad por el rostro, de los que dice que no están libres de sesgo, sino que lo ``codifican''.
+    \item \textbf{Propuestas (minutos 38 a 42).} Tres: hacer ``forenses de equidad'' (probar los sistemas en distintas poblaciones antes de lanzarlos y registrar el origen de los conjuntos de datos); tomar en serio la interdisciplina; y pensar en la ética de la clasificación, incluida la pregunta de si hay cosas que no deben construirse. Termina preguntando quién se beneficia del sistema y a quién puede dañar.
+\end{itemize}
+
+\subsection{Respuesta a la pregunta de reflexión}
+
+\textbf{Pregunta:} ¿cómo el sesgo humano, tal como lo describe Kate Crawford, viola los principios de no maleficencia y justicia establecidos por los marcos internacionales?
+
+\begin{quote}
+Para Crawford~\parencite{crawford2017}, el sesgo es un problema social antes que técnico: los datos de entrenamiento heredan siglos de discriminación y los sistemas la reproducen, como el reparto de Amazon que dejaba fuera códigos postales con población afroamericana, un mapa parecido a los de segregación de 1930. Esto viola la justicia, que exige trato equitativo y no discriminación~\parencite{unesco2021,oecd2019}, de dos formas: daños de asignación, cuando se niegan hipotecas, seguros o libertad bajo fianza, y daños de representación, cuando se refuerzan estereotipos o se denigra a un grupo, como al etiquetar a una mujer afroamericana como gorila. Viola la no maleficencia porque causa daños concretos y desiguales (exclusión de servicios, detención, estigma) que, según la UNESCO, deben prevenirse con evaluación de riesgos. Declarar neutral un sistema así, como el ``detector de criminalidad'', sólo codifica el sesgo.
+\end{quote}
+
+La respuesta usa de Crawford la idea de que el sesgo nace de los datos y de la historia, y la distinción entre daños de asignación y de representación; de la UNESCO y la OCDE, los principios de equidad y no discriminación (Tabla~\ref{tab:comparativa}) y la exigencia de evaluar riesgos para prevenir daños; y del tema 5.1, las definiciones de no maleficencia y justicia \parencite{iae_u5_t51}.
+
+\subsection{Limitaciones}
+
+La charla de Crawford es de 2017 y sus ejemplos (el servicio de Amazon, la interfaz de Google, la clasificación de Google Fotos) son casos de ese año o anteriores; no se verificó cuáles siguen vigentes. Se analizó a partir de la transcripción automática en inglés, que tiene errores de reconocimiento, y no del video; los minutos son aproximados. De la UNESCO se usó el resumen oficial de principios y no el texto completo de la Recomendación. La comparación es cualitativa y las celdas de las tablas son resúmenes propios en español; una lectura distinta de los documentos podría matizar algunos de ellos. Las normas de la serie IEEE 7000, que derivan del documento del IEEE, no se revisaron; de la OCDE se usó la versión vigente, modificada en 2024.
+
+\section{Conclusiones}
+
+Los tres marcos coinciden en que la IA debe respetar los derechos humanos, ser transparente, rendir cuentas, ser segura, estar bajo supervisión humana, proteger la privacidad y buscar el bienestar. Donde más difieren es en la justicia y la no discriminación: la UNESCO y la OCDE las nombran de forma explícita, mientras que el IEEE las trata dentro de los derechos humanos. También difieren en su naturaleza y prioridades: la UNESCO pone el acento en los derechos humanos, la inclusión y el ambiente; la OCDE, en la política pública y las recomendaciones a los gobiernos; y el IEEE, en el bienestar y en la responsabilidad de quienes diseñan y operan los sistemas, con normas y certificación como camino a la práctica.
+
+La charla de Crawford muestra por qué la justicia y la no maleficencia no son equivalentes a ``tener buenos datos'': el sesgo viene de la historia social, produce daños de asignación y de representación, y no se elimina con una solución técnica, aunque estas sean necesarias. Por eso los marcos piden además evaluación de riesgos, trazabilidad, supervisión humana y rendición de cuentas.
+
+\referencias
+
+\end{document}

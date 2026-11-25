@@ -1,0 +1,496 @@
+%% =======================================================
+%% Actividad 23: "Sistema de Clasificación de Emociones en Texto"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.4. Redes neuronales y aprendizaje profundo \\ Actividad 23 - Sistema de Clasificación \\ de Emociones en Texto}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Algunos datos tienen un orden que importa: las palabras de una oración, los precios de una acción, las notas de una canción. Para esos casos el tema propone las redes recurrentes (RNN) \parencite{iae_u4_t44}, y recomienda elegir la arquitectura según el dato: redes convolucionales para imágenes y recurrentes para texto o series de tiempo. Una aplicación directa es analizar automáticamente los comentarios de los clientes de una empresa para saber qué emoción expresan.
+
+En este reporte se convierten las palabras a números (preprocesamiento), se entrenan y comparan redes recurrentes con una línea base sin recurrencia y con un modelo clásico, y se despliega el mejor modelo en una interfaz web sencilla. El código base del tema para texto usa una función \texttt{crear\_rn\_para\_texto} que no define, de modo que se escribió una versión propia que permite comparar varios tipos de capa recurrente.
+
+\section{Marco conceptual}
+
+\subsection{De palabras a números}
+
+Una red sólo procesa números. El texto se convierte en una secuencia de enteros: se separa en palabras (\textit{tokenización}), se construye un \textbf{vocabulario} con las más frecuentes (en el ejemplo del tema, 10\,000) y cada palabra se reemplaza por su índice; las palabras fuera del vocabulario comparten un índice especial. Como la red necesita entradas de longitud fija, las secuencias se rellenan con ceros o se truncan a una longitud máxima \parencite{iae_u4_t44}. Después, una capa de \textit{embedding} asigna a cada índice un vector que se aprende durante el entrenamiento.
+
+\subsection{Redes recurrentes}
+
+Una red recurrente lee la secuencia palabra por palabra y mantiene un estado interno que resume lo leído hasta ese punto, por lo que el orden y el contexto influyen en el resultado \parencite{iae_u4_t44}. La RNN simple tiene dificultad para recordar información lejana; las variantes LSTM y GRU agregan compuertas que controlan qué se conserva y qué se olvida. Una red \textbf{bidireccional} lee la secuencia en los dos sentidos y combina ambas lecturas.
+
+\subsection{Evaluación}
+
+Las seis emociones no están balanceadas, por lo que además de la exactitud se usa el \textbf{F1 macro}: el promedio de los F1 de cada emoción, que da el mismo peso a las emociones raras que a las frecuentes. También se usan la matriz de confusión y las métricas por clase \parencite{iae_u4_t44}.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} desarrollar un sistema para que las empresas analicen automáticamente la retroalimentación de sus clientes.
+
+\subsection*{Desafío}
+
+\begin{description}
+    \item[Tarea 1: Preprocesar texto.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Convertir palabras a números que la red pueda entender.
+    \end{enumerate}
+    \item[Tarea 2: Entrenar RNN.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Usar redes recurrentes para entender el contexto.
+    \end{enumerate}
+    \item[Tarea 3: Desplegar el modelo.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Crear una interfaz simple para probar el sistema.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+La actividad no incluye datos. Se usó el conjunto público \texttt{dair-ai/emotion}, de mensajes cortos en inglés etiquetados con seis emociones (tristeza, alegría, amor, enojo, miedo y sorpresa) y ya dividido en 16\,000 textos de entrenamiento, 2\,000 de validación y 2\,000 de prueba; se descarga automáticamente. Los textos están en minúsculas y casi todos tienen la forma ``I feel \ldots'' (el 97~\% contiene feel, feeling o felt), lo cual condiciona lo que el modelo aprende, como se discute más adelante. El idioma es inglés porque es un conjunto público y listo para usar (no se evaluó uno en español); es una limitación para una empresa que reciba comentarios en español.
+
+\section{Desarrollo}
+
+\subsection{Datos y modelo}
+
+El código completo de la actividad también puede ejecutarse en Google Colab: \url{https://colab.research.google.com/drive/1sKVEkT_q1PnIHPwdIERB3kdT8pf4KcW2?usp=sharing}. Se ejecutó completo en Colab y reproduce los resultados locales: el informe de clasificación de la prueba y las confusiones más frecuentes coinciden, y las únicas diferencias son de milésimas en la confianza media de los errores (0.635 contra 0.634) y en la confianza de una de las frases de clientes (0.53 contra 0.54). El Código~\ref{cod:modelo} es la función que construye las redes: una capa de \textit{embedding}, una capa recurrente (RNN, LSTM o GRU, opcionalmente bidireccional), \textit{dropout} y una capa softmax de seis salidas. El tipo \texttt{"bolsa"} omite la recurrencia y promedia los \textit{embeddings}, y sirve para saber qué aporta el orden de las palabras.
+
+\begin{codigo}[label=cod:modelo]{Función para construir redes de texto}
+def crear_rn_para_texto(tipo="lstm", max_features=MAX_FEATURES, embedding=64, unidades=64, dropout=0.3,
+                        bidireccional=False, lr=1e-3, clases=6):
+    """Red para clasificar texto: Embedding -> capa recurrente -> Dropout -> softmax.
+    tipo: "bolsa" (sin recurrencia: promedio de los embeddings), "rnn", "lstm" o "gru"."""
+    modelo = models.Sequential()
+    modelo.add(layers.Input(shape=(None,), dtype="int32"))
+    modelo.add(layers.Embedding(max_features, embedding, mask_zero=True))
+    if tipo == "bolsa":
+        modelo.add(layers.GlobalAveragePooling1D())
+    else:
+        celda = {"rnn": layers.SimpleRNN, "lstm": layers.LSTM, "gru": layers.GRU}[tipo](unidades)
+        modelo.add(layers.Bidirectional(celda) if bidireccional else celda)
+    modelo.add(layers.Dropout(dropout))
+    modelo.add(layers.Dense(clases, activation="softmax"))
+    modelo.compile(optimizer=optimizers.Adam(lr), loss="sparse_categorical_crossentropy", metrics=["accuracy"])
+    return modelo
+\end{codigo}
+
+\begin{consola}[label=out:datos]{Descripción de los datos}
+Textos: entrenamiento 16000, validación 2000, prueba 2000
+ emoción  entrenamiento  validación  prueba  % entrenamiento
+tristeza           4666         550     581             29.2
+ alegría           5362         704     695             33.5
+    amor           1304         178     159              8.2
+   enojo           2159         275     275             13.5
+   miedo           1937         212     224             12.1
+sorpresa            572          81      66              3.6
+Longitud en palabras: mínimo 2, mediana 17, promedio 19.2, percentil 95 41, máximo 66
+Ejemplos de entrenamiento:
+  [tristeza] i didnt feel humiliated
+  [alegría] i have been with petronas for years i feel that petronas has performed well and made a huge profit
+  [amor] i am ever feeling nostalgic about the fireplace i will know that it is still on the property
+  [enojo] im grabbing a minute to post i feel greedy wrong
+  [miedo] i feel as confused about life as a teenager or as jaded as a year old man
+  [sorpresa] ive been taking or milligrams or times recommended amount and ive fallen asleep a lot faster but i also feel like so funny
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/datos.png}
+\caption{Textos por emoción y longitud de los textos.}
+\label{fig:datos}
+\end{figure}
+
+Las emociones están muy desbalanceadas (Salida~\ref{out:datos}): la alegría es el 33.5~\% de los textos y la sorpresa sólo el 3.6~\%. Un clasificador que siempre diga ``alegría'' acertaría el 33~\% pero tendría F1 de cero en cinco emociones; por eso se usa el F1 macro. Los textos son cortos (mediana de 17 palabras, percentil 95 de 41).
+
+\subsection{Tarea 1: Preprocesar texto}
+
+El Código~\ref{cod:prep} convierte los textos en matrices de enteros. La Salida~\ref{out:prep} muestra la conversión de un ejemplo, la cobertura del vocabulario y el efecto de dos decisiones: el tamaño del vocabulario y la longitud de las secuencias.
+
+\begin{codigo}[label=cod:prep]{Tokenización, vocabulario y conversión a índices}
+def tokenizar(texto):
+    """Minúsculas y palabras (letras y apóstrofos); se descarta puntuación y dígitos."""
+    return re.findall(r"[a-z']+", texto.lower())
+
+
+def construir_vocabulario(textos, max_features=MAX_FEATURES):
+    """Palabra -> índice. 0 se reserva para el relleno y 1 para las palabras desconocidas (OOV)."""
+    frecuencias = Counter(p for t in textos for p in tokenizar(t))
+    return {p: i + 2 for i, (p, _) in enumerate(frecuencias.most_common(max_features - 2))}
+
+
+def texto_a_indices(textos, vocab, maxlen=MAXLEN):
+    """Convierte textos en una matriz de enteros de ancho fijo (relleno y truncado al inicio, como en el tema)."""
+    secuencias = [[vocab.get(p, 1) for p in tokenizar(t)] for t in textos]
+    return pad_sequences(secuencias, maxlen=maxlen)
+\end{codigo}
+
+\begin{consola}[label=out:prep]{Vocabulario, ejemplo de conversión y efecto del preprocesamiento}
+Vocabulario completo: 15212 palabras distintas en 306661 palabras de entrenamiento
+Cobertura según el tamaño del vocabulario (proporción de palabras de validación que sí están en él):
+ vocabulario  cobertura en validación
+         500                   0.7741
+        1000                   0.8484
+        2500                   0.9179
+        5000                   0.9477
+       10000                   0.9640
+Vocabulario usado: 9998 entradas (0 = relleno, 1 = desconocida). Matrices: (16000, 40), (2000, 40), (2000, 40)
+Ejemplo de conversión:
+  texto:    "i didnt feel humiliated"
+  palabras: ['i', 'didnt', 'feel', 'humiliated']
+  índices:  [2, 139, 3, 679]
+  relleno a 40: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 139, 3, 679]
+--- Efecto del preprocesamiento (LSTM de 64 unidades, media de las semillas, validación) ---
+                     parámetros  exactitud  F1 macro  desv. F1  época  tiempo (s)
+configuración
+vocabulario = 1000        97414     0.8640    0.8345    0.0024    4.7        20.5
+vocabulario = 3000       225414     0.9135    0.8831    0.0032    6.3        26.5
+vocabulario = 10000      673414     0.9055    0.8681    0.0071    3.7        19.2
+longitud = 10            673414     0.7052    0.6479    0.0007    2.0         5.2
+longitud = 20            673414     0.8367    0.7958    0.0244    2.7         8.8
+longitud = 66            673414     0.9127    0.8799    0.0083    6.0        41.0
+\end{consola}
+
+\textbf{Vocabulario.} El conjunto tiene 15\,212 palabras distintas. Un vocabulario de 10\,000 cubre el 96.4~\% de las palabras de validación, y uno de 2\,500 el 91.8~\%. Pero más cobertura no significó mejor resultado: con una LSTM, el F1 macro en validación fue de 0.835 con 1\,000 palabras, 0.883 con 3\,000 y 0.868 con 10\,000, donde la diferencia entre 3\,000 y 10\,000 (1.5 puntos) es de dos desviaciones estándar. Un vocabulario grande agrega palabras raras que la red puede memorizar sin generalizar. Se mantuvieron las 10\,000 del tema; con 3\,000 probablemente se habría ganado un poco.
+
+\textbf{Longitud.} Con 10 palabras el F1 cae a 0.648 (se pierde parte del mensaje en la mayoría de los textos) y con 20 a 0.796; con 40 es de 0.868 y con 66 (el texto más largo) de 0.880. Se usó 40, que cubre casi el 95~\% de los textos: pasar a 66 no mejora de forma clara (la diferencia es de 1.4 desviaciones) y duplica el tiempo de entrenamiento (de 19 a 41~s). El relleno se pone al inicio y, si el texto es más largo, se recorta el inicio, de modo que la red lee las palabras finales justo antes de decidir.
+
+\subsection{Tarea 2: Entrenar redes recurrentes}
+
+Cada configuración se entrenó con 3 semillas, hasta 15 épocas y con parada temprana (se detiene cuando la pérdida de validación no mejora en 2 épocas y se conservan los mejores pesos), y se comparó con el F1 macro en validación. Como referencia sin redes recurrentes se agregó una regresión logística con TF-IDF de palabras y pares de palabras.
+
+\begin{consola}[label=out:arq]{Comparación de arquitecturas (media de 3 semillas)}
+--- Línea base sin redes: TF-IDF (unigramas y bigramas) + regresión logística ---
+validación: exactitud 0.8755, F1 macro 0.8383
+--- Arquitecturas (media de 3 semillas, hasta 15 épocas, parada temprana; validación) ---
+                                       parámetros  exactitud  F1 macro  desv. F1  época  tiempo (s)
+configuración
+Bolsa de embeddings (sin recurrencia)      640390     0.8798    0.8406    0.0005   15.0         6.5
+SimpleRNN                                  648646     0.8092    0.7224    0.0093    3.0         8.0
+LSTM                                       673414     0.9055    0.8681    0.0071    3.7        18.9
+GRU                                        665350     0.9145    0.8839    0.0057    3.7        17.8
+LSTM bidireccional                         706822     0.9005    0.8671    0.0051    3.0        30.3
+GRU bidireccional                          690694     0.9120    0.8842    0.0071    2.7        27.4
+Mejor por F1 macro en validación: GRU bidireccional
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/arquitecturas.png}
+\caption{F1 macro en validación por arquitectura (izquierda) y por hiperparámetro (derecha).}
+\label{fig:arq}
+\end{figure}
+
+\textbf{Arquitecturas.} La RNN simple es la peor (F1 de 0.722) y se detiene en la época 3; las que tienen compuertas son mucho mejores: LSTM 0.868 y GRU 0.884. Es consistente con la dificultad de la RNN simple para retener información de pasos lejanos, aunque aquí no se verificó la causa. Entre LSTM, GRU y sus versiones bidireccionales las diferencias (hasta 1.7 puntos) son del orden de las desviaciones (0.005 a 0.007), por lo que no se puede decir que una sea mejor: la GRU bidireccional tuvo el mayor F1 (0.8842) por un margen mínimo sobre la GRU (0.8839), y la lectura en los dos sentidos no aportó una mejora medible. La bolsa de embeddings, sin recurrencia, llegó a 0.841 en validación pero alcanzó el límite de 15 épocas sin que la parada temprana actuara, es decir, seguía mejorando; por eso su comparación en validación es poco concluyente, y se vuelve a comparar en prueba más abajo.
+
+\begin{consola}[label=out:hp]{Efecto de los hiperparámetros sobre la GRU bidireccional (media de 3 semillas)}
+--- Hiperparámetros: un factor a la vez sobre GRU bidireccional ---
+                                                         parámetros  exactitud  F1 macro  desv. F1  época  tiempo (s)
+configuración
+base (embedding 64, unidades 64, dropout 0.3, lr 0.001)      690694     0.9120    0.8842    0.0071    2.7        29.2
+embedding = 32                                               358406     0.9102    0.8772    0.0047    3.0        26.4
+embedding = 128                                             1355270     0.9138    0.8852    0.0040    2.0        30.0
+unidades = 32                                                659206     0.9075    0.8777    0.0061    3.7        21.3
+unidades = 128                                               790534     0.9173    0.8862    0.0081    3.0        58.9
+dropout = 0.0                                                690694     0.9082    0.8733    0.0067    2.3        27.0
+dropout = 0.5                                                690694     0.9132    0.8861    0.0019    3.0        33.1
+lr = 0.0003                                                  690694     0.8857    0.8512    0.0034    7.7        60.9
+lr = 0.003                                                   690694     0.9248    0.9000    0.0020    2.0        27.4
+pesos por clase                                              690694     0.9035    0.8798    0.0079    3.0        29.6
+Configuración elegida (mayor F1 macro en validación): lr = 0.003
+\end{consola}
+
+\textbf{Hiperparámetros.} Sólo la tasa de aprendizaje de 0.003 mejora de forma clara (F1 de 0.900 contra 0.884 de la configuración base, con desviaciones de 0.002 y 0.007): con 0.0003 la red aprende lento (7.7 épocas y el doble de tiempo) y queda en 0.851. Ni el tamaño del \textit{embedding} (32 o 128), ni las unidades (32 o 128), ni el \textit{dropout} (0 o 0.5) cambian el resultado más allá del ruido. Los pesos por clase, que se esperaba que ayudaran a las emociones raras, no mejoraron el F1 macro (0.880). La configuración elegida es la GRU bidireccional con tasa de 0.003. Como se eligió entre 10 configuraciones con el mismo conjunto de validación, su F1 de 0.900 es optimista, y por eso la prueba se usa una sola vez y con otras corridas.
+
+\begin{consola}[label=out:final]{Resultados finales en el conjunto de prueba (3 semillas)}
+--- Evaluación final en prueba (3 semillas) ---
+                              exactitud  F1 macro  desv. F1
+modelo
+TF-IDF + regresión logística     0.8665    0.8023    0.0000
+Bolsa de embeddings                 NaN    0.8132    0.0018
+GRU bidireccional (elegido)      0.9133    0.8687    0.0045
+Modelo analizado y guardado (semilla 0): exactitud 0.9160, F1 macro 0.8706
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\linewidth]{act23/img/curvas.png}
+\caption{Pérdida y exactitud por época del modelo guardado (entrenamiento con parada temprana).}
+\label{fig:curvas}
+\end{figure}
+
+\textbf{Resultado en prueba.} El modelo elegido obtiene una exactitud de 91.3~\% y un F1 macro de 0.869 (desviación de 0.005). Comparado con la bolsa de embeddings (F1 de 0.813), la lectura secuencial aporta 5.5 puntos de F1 con el mismo tamaño de \textit{embedding}, aunque la bolsa quizá mejoraría con más épocas. La regresión logística con TF-IDF, que no es una red, es una línea base fuerte: 86.7~\% de exactitud y F1 de 0.802, por lo que la red recurrente gana 4.7 puntos de exactitud y 6.6 de F1 macro. Las curvas muestran que el modelo llega a su mejor pérdida de validación en pocas épocas y que seguir entrenando lo sobreajustaría.
+
+\subsection{Tarea 3: Desplegar el modelo}
+
+El modelo y el vocabulario se guardan en disco (\texttt{modelo/}), y la clase \texttt{ClasificadorEmociones} (Código~\ref{cod:clasif}) los carga y clasifica textos nuevos aplicando exactamente el mismo preprocesamiento. Sobre ella se construyó una interfaz web con Streamlit (\texttt{app.py}) con dos pestañas: una para un solo comentario y otra para un lote, que acepta un archivo CSV con una columna \texttt{texto} o comentarios pegados uno por línea y permite descargar los resultados.
+
+\begin{codigo}[label=cod:clasif]{Clasificador que usa la interfaz}
+class ClasificadorEmociones:
+    """Carga el modelo y el vocabulario guardados por este script y clasifica textos nuevos."""
+
+    def __init__(self, carpeta=MODELO):
+        self.modelo = models.load_model(os.path.join(carpeta, "emociones.keras"))
+        with open(os.path.join(carpeta, "vocabulario.json"), encoding="utf-8") as f:
+            cfg = json.load(f)
+        self.vocab, self.maxlen = cfg["vocab"], cfg["maxlen"]
+
+    def probabilidades(self, textos):
+        return self.modelo.predict(texto_a_indices(textos, self.vocab, self.maxlen), verbose=0)
+
+    def clasificar(self, texto):
+        """Devuelve (emoción, confianza, {emoción: probabilidad}, palabras desconocidas)."""
+        p = self.probabilidades([texto])[0]
+        i = int(p.argmax())
+        desconocidas = [w for w in tokenizar(texto) if w not in self.vocab]
+        return EMOCIONES[i], float(p[i]), {e: float(x) for e, x in zip(EMOCIONES, p)}, desconocidas
+\end{codigo}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/ui_inicio.png}
+\caption{Pantalla inicial de la interfaz, con comentarios de ejemplo.}
+\label{fig:ui1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/ui_resultado.png}
+\caption{Resultado de un comentario: emoción, confianza y probabilidad de cada emoción.}
+\label{fig:ui2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/ui_lote.png}
+\caption{Clasificación de un lote de comentarios; los de baja confianza quedan marcados para revisión.}
+\label{fig:ui3}
+\end{figure}
+
+La interfaz muestra, además de la emoción, la confianza, las palabras que el modelo no conoce y una marca de revisión humana cuando la confianza es menor a 60~\%. Clasificar 200 textos toma 0.22~s. En la Figura~\ref{fig:ui3} el comentario ``i really love how easy the app is to use'' se clasifica como tristeza con confianza de 0.41 y queda marcado: el sistema se equivoca, pero avisa. Es el comportamiento esperado de un modelo entrenado con textos del tipo ``i feel \ldots'' ante un comentario de cliente con otra estructura, como se detalla en el análisis de errores.
+
+\subsection{Análisis de errores}
+
+\begin{consola}[label=out:clases]{Métricas por emoción en el conjunto de prueba (modelo guardado)}
+--- Métricas por emoción (prueba) ---
+              precision    recall  f1-score   support
+    tristeza     0.9541    0.9656    0.9598       581
+     alegría     0.9298    0.9338    0.9318       695
+        amor     0.8367    0.7736    0.8039       159
+       enojo     0.9101    0.9200    0.9150       275
+       miedo     0.8879    0.8839    0.8859       224
+    sorpresa     0.7273    0.7273    0.7273        66
+    accuracy                         0.9160      2000
+   macro avg     0.8743    0.8674    0.8706      2000
+weighted avg     0.9154    0.9160    0.9156      2000
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act23/img/matriz_confusion.png}
+\caption{Matriz de confusión del modelo guardado en el conjunto de prueba.}
+\label{fig:cm}
+\end{figure}
+
+\begin{consola}[label=out:errores]{Confusiones, confianza y errores más seguros}
+Confusiones más frecuentes (real -> predicha):
+    real predicha  errores
+    amor  alegría       34
+ alegría     amor       22
+   enojo tristeza       14
+   miedo sorpresa       11
+sorpresa    miedo       11
+tristeza  alegría        8
+   miedo    enojo        8
+ alegría    enojo        7
+Confianza media: aciertos 0.962, errores 0.634
+Exactitud top-2: 0.9840
+Exactitud según la longitud del texto: < 10 palabras 0.930 (n=426), 10 a 24 0.929 (n=1006), >= 25 0.882 (n=568)
+Proporción de palabras desconocidas: en aciertos 0.033, en errores 0.034
+Errores con mayor confianza:
+  real tristeza  pred miedo     (p=0.98): i feel unprotected a class post count link href http reprogramming in process
+  real miedo     pred tristeza  (p=0.97): i feel inside cause life is like a game sometimes but then you came around me the walls just disappeared nothing to surround me and keep me from my fears im unprotected see how ive opened up youve made me trust
+  real tristeza  pred miedo     (p=0.96): i have not conducted a survey but it is quite likely that many of them feel as assaulted by onel s demons and other creators as i would have felt had the walls been covered only with eminent figures patriotic heroes and epic deeds
+  real miedo     pred enojo     (p=0.96): i that it feels like she is being tortured
+  real miedo     pred enojo     (p=0.96): i seek out pain to feel tortured just to feel something
+  real tristeza  pred enojo     (p=0.95): i didn t mean to get angry with you bommie i just can t control my feelings hellip i just hated myself why i am like this the dara who can t get over with that b
+  real miedo     pred enojo     (p=0.94): i decide that picking the easy route would get me nowhere and i feel like other people want me tortured so i follow the blue path
+\end{consola}
+
+\textbf{Qué emociones se confunden.} Las emociones frecuentes se reconocen bien (F1 de 0.96 para tristeza, 0.93 para alegría y 0.92 para enojo) y las raras peor: 0.80 para amor y 0.73 para sorpresa, justamente las de menos textos (159 y 66 en prueba). La confusión principal es amor con alegría, en los dos sentidos (34 y 22 errores): son dos emociones positivas cuya frontera es difusa. Le siguen enojo con tristeza (14), y miedo con sorpresa (11 en cada sentido).
+
+\textbf{Confianza y longitud.} Los errores tienen menos confianza que los aciertos (0.63 contra 0.96), y la respuesta correcta está entre las dos primeras opciones en el 98.4~\% de los casos, lo que sustenta la revisión humana de los casos dudosos. Los textos largos fallan más (exactitud de 88.2~\% con 25 palabras o más, contra 93~\% en los cortos). La proporción de palabras desconocidas es la misma en aciertos y errores (3.3~\% y 3.4~\%), así que el vocabulario no es la causa.
+
+\textbf{Errores seguros.} Los errores con mayor confianza (hasta 0.98) son sobre todo casos donde la etiqueta es discutible: ``i feel tortured'' etiquetado como miedo y predicho como enojo, o ``i feel unprotected'' etiquetado como tristeza y predicho como miedo. Una persona dudaría igual; parte del error es ruido de las etiquetas.
+
+\begin{consola}[label=out:sondas]{Frases de contraste: emoción predicha (confianza) por tres modelos}
+Frases de contraste (cualitativo): emoción predicha (confianza)
+                      frase             RNN           bolsa          TF-IDF
+               i feel happy  alegría (1.00)  alegría (1.00)  alegría (1.00)
+        i do not feel happy  alegría (1.00)  alegría (1.00)  alegría (0.98)
+    i am not afraid anymore    miedo (0.89)    miedo (1.00)    miedo (0.93)
+                i am afraid    miedo (0.92)    miedo (1.00)    miedo (0.98)
+   i feel loved by everyone     amor (0.98)     amor (1.00)     amor (0.98)
+     i feel so angry at him    enojo (1.00)    enojo (1.00)    enojo (0.99)
+i was surprised by the gift sorpresa (0.95) sorpresa (1.00) sorpresa (0.98)
+       i feel sad and alone tristeza (1.00) tristeza (1.00) tristeza (1.00)
+     i dont feel sad at all tristeza (1.00) tristeza (1.00) tristeza (0.94)
+     i feel nothing but joy  alegría (0.79)  alegría (0.95)  alegría (0.51)
+\end{consola}
+
+\textbf{¿Entiende el contexto?} Se probaron frases con y sin negación en la Salida~\ref{out:sondas}. Las tres frases con negación (``i do not feel happy'', ``i dont feel sad at all'', ``i am not afraid anymore'') se clasifican con la emoción nombrada, con confianza alta, y los tres modelos (RNN, bolsa y TF-IDF) fallan igual. En el conjunto de prueba, los textos con negación (23~\%) tienen exactitud de 89.3~\%, contra 92.3~\% en los demás, una diferencia de 3 puntos. No hay evidencia de que la red recurrente maneje la negación mejor que los modelos que ignoran el orden. Una explicación plausible, que no se verificó, es que la etiqueta del conjunto depende sobre todo de la palabra emocional que sigue a ``i feel'', de modo que aprender esa palabra basta, y que hay pocas negaciones (22~\% de los textos). Las frases de contraste son pocas y hechas a mano, por lo que son sólo indicativas.
+
+\begin{consola}[label=out:extra]{Estructura de los textos y comentarios de clientes sin ``i feel''}
+Textos que contienen feel/feeling/felt: entrenamiento 97.3%, prueba 98.0%
+Textos con negación: entrenamiento 22.4%, prueba 23.0%
+Exactitud en prueba con negación: 0.893 (n=460); sin negación: 0.923 (n=1540)
+Frases de clientes sin la estructura "i feel ..." (lo que probablemente llegaría en producción):
+  "i really love how easy the app is to use" -> tristeza (0.41)  [confianza baja]
+  "the package arrived and it was fine" -> alegría (0.87)
+  "the delivery was two weeks late" -> miedo (0.41)  [confianza baja]
+  "customer support never answered my emails" -> tristeza (0.49)  [confianza baja]
+  "great product, fast shipping" -> tristeza (0.54)  [confianza baja]
+  "i feel disappointed with the quality" -> tristeza (1.00)
+\end{consola}
+
+\textbf{Del conjunto a los clientes reales.} Casi todos los textos de entrenamiento tienen la forma ``i feel \ldots'' (97.3~\%), mientras que un cliente escribe ``great product, fast shipping''. Al probar comentarios sin esa estructura (Salida~\ref{out:extra}), el modelo se equivoca y duda: ``great product, fast shipping'' se clasifica como tristeza (0.54), ``the delivery was two weeks late'' como miedo (0.41) y ``customer support never answered my emails'' como tristeza (0.49); la mayoría queda por debajo del umbral de 0.60 y se marcaría para revisión. Además, el modelo no tiene una clase neutral: ``the package arrived and it was fine'' se clasifica como alegría con 0.87. Los 91.3~\% de exactitud en prueba son para textos como los de entrenamiento y no se deben esperar con comentarios de clientes reales.
+
+\subsection{Limitaciones}
+
+El conjunto está en inglés y casi todos sus textos siguen un mismo molde (``i feel \ldots''), por lo que el desempeño con comentarios reales de clientes, en español o con otra estructura, será menor, como lo mostraron los ejemplos de la interfaz; para uso real habría que reentrenar con comentarios etiquetados de la propia empresa y, probablemente, incluir una clase neutral. Las etiquetas tienen ruido y las emociones raras tienen pocos ejemplos. Cada configuración se probó con 3 semillas y una sola partición de validación, y varias diferencias entre arquitecturas están dentro del ruido. La bolsa de embeddings no terminó de converger en 15 épocas. Las frases de contraste son pocas y hechas a mano. Los resultados de Colab pueden diferir ligeramente de los locales.
+
+\section{Conclusiones}
+
+Se construyó un sistema que clasifica seis emociones en texto en inglés: las palabras se convierten en índices con un vocabulario de 10\,000 palabras y secuencias de 40, se compararon redes recurrentes con una línea base sin recurrencia y con TF-IDF, y el modelo elegido (GRU bidireccional con tasa de aprendizaje de 0.003) se desplegó en una interfaz web con clasificación individual y por lotes. En prueba alcanza una exactitud de 91.3~\% y un F1 macro de 0.869, 5.5 puntos de F1 sobre la bolsa de embeddings y 6.6 sobre TF-IDF. Entre las celdas recurrentes, las de compuertas (LSTM y GRU) superan por mucho a la RNN simple, y entre ellas, y entre las versiones unidireccional y bidireccional, no hubo diferencias medibles.
+
+Las limitaciones importan más que la cifra: el modelo no mostró manejar mejor la negación que los modelos sin orden, las emociones raras y las positivas parecidas (amor y alegría) se confunden, y con comentarios que no empiezan con ``i feel'' el modelo se equivoca o duda. Por eso la interfaz muestra la confianza y marca para revisión humana los casos dudosos. Para llevarlo a un uso real, la recomendación es reunir comentarios de los clientes de la empresa en su idioma, etiquetarlos (con una clase neutral) y reentrenar, y medir el desempeño con ese conjunto.
+
+\referencias
+
+\end{document}

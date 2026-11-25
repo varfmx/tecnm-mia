@@ -176,6 +176,7 @@ Se aparta una parte de las calificaciones de cada usuario (conjunto de prueba) y
 
 El tema no incluye un conjunto de datos para esta actividad. Se utilizó \textbf{MovieLens} \texttt{ml-latest-small}, un conjunto público de calificaciones de películas del grupo de investigación GroupLens, que se descarga automáticamente (\url{https://files.grouplens.org/datasets/movielens/ml-latest-small.zip}): 100\,836 calificaciones de 0.5 a 5 estrellas, hechas por 610 usuarios a 9\,724 películas. Cada usuario calificó al menos 20 películas. El propio conjunto indica que es un conjunto de desarrollo, no apropiado para publicar resultados de investigación; aquí se usa sólo con fines de aprendizaje. No incluye datos demográficos: los gustos se infieren únicamente de las calificaciones.
 
+\newpage
 \section{Desarrollo}
 
 \subsection{Los datos}
@@ -274,7 +275,7 @@ def agrupar(Z, k):
 \begin{consola}[label=out:k]{Método del codo y silueta}
 Elección del número de grupos:
     inercia  silueta
-k                   
+k
 2   436.375    0.117
 3   404.164    0.085
 4   386.192    0.070
@@ -291,7 +292,7 @@ k
 \begin{consola}[label=out:val]{Elección de $k$ por validación}
 Elección de k por validación (otro 20 % del entrenamiento, 3 particiones; la prueba no se usa):
     precisión@10  NDCG@10
-k                        
+k
 2         0.0833   0.1151
 3         0.0890   0.1201
 4         0.0904   0.1222
@@ -320,7 +321,7 @@ k elegido (mayor NDCG@10 en validación): 6
 \begin{consola}[label=out:perfil]{Perfil de los grupos}
 Perfil de los grupos (entrenamiento):
        usuarios  calif./usuario  promedio          géneros que sobresalen
-grupo                                                                    
+grupo
 0            93          194.68      3.30       Sci-Fi, Action, Adventure
 1           173          122.75      3.58       Mystery, Crime, Animation
 2            69          127.68      3.39    Animation, Children, Romance
@@ -408,26 +409,26 @@ Las recomendaciones para tres usuarios de ejemplo (puntaje ``más gustadas'', $k
 \begin{consola}[label=out:recs]{Recomendaciones para tres usuarios}
 Usuario 1 (grupo 5, 186 calificaciones en entrenamiento)
   Mejor calificadas por el usuario: All Quiet on the Western Front (1930) (5.0); Full Metal Jacket (1987) (5.0); Thin Red Line, The (1998) (5.0); Rushmore (1998) (5.0)
-  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4] 
-  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4] 
-  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4] 
-  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4]
+  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4]
+  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4]
+  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4]
   -> Star Wars: Episode IV - A New Hope (1977)  [31 de 98 usuarios del grupo la calificaron >= 4] ACIERTO (el usuario la calificó >= 4 en prueba)
 
 Usuario 101 (grupo 5, 49 calificaciones en entrenamiento)
   Mejor calificadas por el usuario: Eyes Wide Shut (1999) (5.0); Sweet Hereafter, The (1997) (5.0); Election (1999) (5.0); Fight Club (1999) (5.0)
-  -> Fargo (1996)  [43 de 98 usuarios del grupo la calificaron >= 4] 
-  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4] 
-  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4] 
-  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4] 
-  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4] 
+  -> Fargo (1996)  [43 de 98 usuarios del grupo la calificaron >= 4]
+  -> Godfather, The (1972)  [40 de 98 usuarios del grupo la calificaron >= 4]
+  -> Pulp Fiction (1994)  [38 de 98 usuarios del grupo la calificaron >= 4]
+  -> Taxi Driver (1976)  [33 de 98 usuarios del grupo la calificaron >= 4]
+  -> One Flew Over the Cuckoo's Nest (1975)  [31 de 98 usuarios del grupo la calificaron >= 4]
 
 Usuario 301 (grupo 1, 91 calificaciones en entrenamiento)
   Mejor calificadas por el usuario: American History X (1998) (4.5); Pulp Fiction (1994) (4.5); Amadeus (1984) (4.5); One Flew Over the Cuckoo's Nest (1975) (4.5)
-  -> Shawshank Redemption, The (1994)  [91 de 173 usuarios del grupo la calificaron >= 4] 
-  -> Fight Club (1999)  [78 de 173 usuarios del grupo la calificaron >= 4] 
-  -> Matrix, The (1999)  [65 de 173 usuarios del grupo la calificaron >= 4] 
-  -> Silence of the Lambs, The (1991)  [62 de 173 usuarios del grupo la calificaron >= 4] 
+  -> Shawshank Redemption, The (1994)  [91 de 173 usuarios del grupo la calificaron >= 4]
+  -> Fight Club (1999)  [78 de 173 usuarios del grupo la calificaron >= 4]
+  -> Matrix, The (1999)  [65 de 173 usuarios del grupo la calificaron >= 4]
+  -> Silence of the Lambs, The (1991)  [62 de 173 usuarios del grupo la calificaron >= 4]
   -> Forrest Gump (1994)  [59 de 173 usuarios del grupo la calificaron >= 4] ACIERTO (el usuario la calificó >= 4 en prueba)
 \end{consola}
 
@@ -529,7 +530,7 @@ La Figura~\ref{fig:sens} muestra, con las mismas 5 particiones, el efecto de $k$
 \begin{consola}[label=out:sens]{Sensibilidad al número de grupos}
 Sensibilidad al número de grupos (promedio de 5 particiones; NO se usó para elegir k):
     precisión@10  NDCG@10  cobertura
-k                                   
+k
 1         0.1254   0.1658     0.0051
 2         0.1290   0.1684     0.0071
 3         0.1342   0.1750     0.0091

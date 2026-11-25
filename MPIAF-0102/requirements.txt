@@ -42,11 +42,12 @@ MarkupSafe==3.0.4
 matplotlib==3.11.2
 mdurl==0.1.2
 ml_dtypes==0.7.0
+mlxtend==0.25.0
 murmurhash==1.0.16
 namex==0.1.0
 narwhals==2.29.0
 nltk==3.10.4
-numpy==2.2.6
+numpy==2.5.5
 opencv-python==4.12.0.88
 opt_einsum==3.4.0
 optree==0.20.0

@@ -1,0 +1,650 @@
+%% =======================================================
+%% Actividad 26: "Diseña tu Primer Robot Virtual"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.6. Robótica \\ Actividad 26 - Diseña tu Primer \\ Robot Virtual}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Un robot es un sistema que percibe su entorno con sensores, decide con un procesador y actúa con actuadores \parencite{iae_u4_t46}. En esta actividad no hay hardware: el robot es un programa que se mueve por una habitación simulada, y por eso el reto es de diseño de software, de modelar una batería y de elegir bien los algoritmos.
+
+En este reporte se completa la clase \texttt{RobotLimpiador} de la plantilla del tema para que limpie una habitación con muebles de forma eficiente. Primero se mide qué hace la plantilla tal como viene, después se diseña el comportamiento del robot (batería, depósito de basura y recarga), se implementa una navegación que evita obstáculos y se comparan cuatro formas de recorrer la habitación para elegir la ruta más corta. Todo se evalúa sobre 180 habitaciones generadas al azar, con medidas de dispersión e intervalos de confianza.
+
+\section{Marco conceptual}
+
+\subsection{El robot como sistema}
+
+El tema describe tres elementos de un robot: sensores (sus ``sentidos''), procesador (su ``cerebro'') y actuadores (sus ``músculos'') \parencite{iae_u4_t46}. Las clases del tema forman una jerarquía: \texttt{RobotMovil} sabe avanzar y girar en el plano, \texttt{RobotAutonomo} añade obstáculos y navegación, y \texttt{RobotLimpiador} añade la tarea de limpiar, la batería y el depósito de basura. El tema también insiste en que ``la seguridad es primordial'' y en que los robots deben ser predecibles \parencite{iae_u4_t46}, idea que aquí se traduce en no dejar al robot sin batería lejos de su base.
+
+\subsection{Navegación: reactiva y planificada}
+
+La navegación del tema es \textbf{reactiva}: si hay un obstáculo cerca, el robot gira 45 grados y avanza una unidad; si no, apunta al destino \parencite{iae_u4_t46}. No usa un mapa ni recuerda dónde estuvo, de modo que puede quedar atrapado. La alternativa es la navegación \textbf{planificada}: con un mapa de la habitación se busca de antemano el camino. El algoritmo $A^*$ expande primero las celdas con menor $f = g + h$, donde $g$ es el costo recorrido y $h$ una estimación del costo restante; si $h$ nunca sobreestima (la distancia de Manhattan en una cuadrícula con movimientos en cuatro direcciones cumple esto), el camino encontrado es el más corto.
+
+\subsection{Cobertura de un área}
+
+Limpiar una habitación es un problema de \textbf{cobertura}: la ruta debe pasar por todas las celdas libres. Con $n$ celdas, una ruta necesita al menos $n - 1$ pasos, y sólo la alcanza si puede recorrerlas sin repetir ninguna. Se compararon cuatro rutas: (1) \textbf{raster}, que es lo que hace la plantilla (fila por fila, siempre de izquierda a derecha); (2) \textbf{serpentina}, que alterna el sentido de cada fila; (3) \textbf{vecino más cercano}, una estrategia voraz que va siempre a la celda sucia más cercana; y (4) \textbf{vecino más cercano con 2-opt}, que parte de la ruta voraz e invierte tramos mientras eso la acorte. Encontrar la ruta más corta que visita todas las celdas es un problema de la familia del agente viajero, difícil en general, así que se usan heurísticas y no se garantiza el óptimo.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} un ingeniero en una startup que desarrolla robots de servicio para hogares.
+
+\subsection*{Desafío}
+
+\begin{description}
+    \item[Tarea 1: Diseñar el comportamiento.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Programar un robot que pueda limpiar una habitación eficientemente.
+    \end{enumerate}
+    \item[Tarea 2: Implementar navegación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Desarrollar algoritmos para evitar obstáculos.
+    \end{enumerate}
+    \item[Tarea 3: Optimizar rutas.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Encontrar la ruta más eficiente para cubrir toda el área.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Código base}
+
+La plantilla define \texttt{RobotLimpiador(RobotAutonomo)} con un conjunto de áreas limpias, una batería de 100, un depósito de basura de 100, el método \texttt{limpiar\_area} (que cuesta una unidad de batería), y \texttt{planificar\_ruta\_limpieza}, que recorre la habitación fila por fila navegando a cada celda y regresa cuando la batería es de 20 o menos. Deja el resto como ``tu código aquí''. La plantilla usa las clases \texttt{RobotMovil} y \texttt{RobotAutonomo} que el tema presenta antes; en el código de este reporte se copiaron sin las pausas (\texttt{time.sleep}) ni los mensajes de pantalla, para poder ejecutar miles de simulaciones.
+
+\subsection*{Datos utilizados}
+
+La actividad no incluye datos. Las habitaciones se generaron al azar con una semilla fija: cuadrículas de 12$\times$10 (120 celdas) y de 20$\times$15 (300 celdas), con muebles rectangulares de 1$\times$1 a 3$\times$3 celdas hasta ocupar aproximadamente 0, 10 o 20~\% del área, y una base de carga en la esquina $(0, 0)$. Se generaron 30 habitaciones por condición, 180 en total.
+
+\newpage
+
+\section{Desarrollo}
+
+\subsection{El entorno simulado}
+
+El código completo de la actividad también puede ejecutarse en Google Colab: \url{https://colab.research.google.com/drive/1XH40AC_Uu15yy_1KgLQRJMT75do4bRUu?usp=sharing}. Se ejecutó completo y reproduce exactamente los resultados locales, porque las habitaciones se generan con semilla fija; lo único que cambia son los tiempos, que en Colab son de dos a tres veces mayores (la corrida completa tarda unos 6 minutos contra menos de uno localmente). El Código~\ref{cod:entorno} define la habitación y la búsqueda $A^*$. La habitación calcula, con una búsqueda en anchura desde la base, la distancia en pasos de cada celda a la base y qué celdas son alcanzables. Las celdas rodeadas por muebles quedan aisladas y no cuentan como limpiables.
+
+\begin{codigo}[label=cod:entorno]{Habitación en cuadrícula y búsqueda A*}
+class Habitacion:
+    """Cuadrícula ancho x alto con muebles (celdas ocupadas) y una base de carga en (0, 0)."""
+
+    def __init__(self, ancho, alto, obstaculos=(), base=(0, 0)):
+        self.ancho, self.alto, self.base = ancho, alto, base
+        self.obstaculos = frozenset(obstaculos)
+        self.dist_base = self.bfs(base)
+        self.limpiables = sorted((c for c in self.celdas() if self.dist_base[c[1], c[0]] >= 0), key=lambda c: (c[1], c[0]))
+
+    def celdas(self):
+        return [(x, y) for y in range(self.alto) for x in range(self.ancho) if (x, y) not in self.obstaculos]
+
+    def libre(self, c):
+        return 0 <= c[0] < self.ancho and 0 <= c[1] < self.alto and c not in self.obstaculos
+
+    def vecinos(self, c):
+        return [(c[0] + dx, c[1] + dy) for dx, dy in DIRS if self.libre((c[0] + dx, c[1] + dy))]
+
+    def bfs(self, origen):
+        """Distancia (en pasos) desde el origen a cada celda; -1 si es inalcanzable."""
+        d = np.full((self.alto, self.ancho), -1, dtype=int)
+        d[origen[1], origen[0]] = 0
+        cola = deque([origen])
+        while cola:
+            c = cola.popleft()
+            for v in self.vecinos(c):
+                if d[v[1], v[0]] < 0:
+                    d[v[1], v[0]] = d[c[1], c[0]] + 1
+                    cola.append(v)
+        return d
+
+    @classmethod
+    def aleatoria(cls, ancho, alto, densidad, rng):
+        """Coloca muebles rectangulares de 1x1 a 3x3 celdas hasta alcanzar (aprox.) la densidad pedida."""
+        obst, objetivo, intentos = set(), round(densidad * ancho * alto), 0
+        while len(obst) < objetivo and intentos < 2000:
+            intentos += 1
+            w, h = int(rng.integers(1, 4)), int(rng.integers(1, 4))
+            x, y = int(rng.integers(0, ancho - w + 1)), int(rng.integers(0, alto - h + 1))
+            celdas = {(x + i, y + j) for i in range(w) for j in range(h)}
+            if celdas & {(0, 0), (1, 0), (0, 1)} or len(obst | celdas) > objetivo + 2:
+                continue
+            obst |= celdas
+        return cls(ancho, alto, obst)
+
+
+def astar(hab, a, b):
+    """Camino más corto de a a b (lista de celdas) y número de celdas expandidas; (None, n) si no hay camino."""
+    if a == b:
+        return [a], 1
+    h = lambda c: abs(c[0] - b[0]) + abs(c[1] - b[1])
+    abierto, g, padre, cerrado, expandidas = [(h(a), h(a), a)], {a: 0}, {}, set(), 0
+    while abierto:
+        _, _, c = heapq.heappop(abierto)
+        if c in cerrado:
+            continue
+        cerrado.add(c)
+        expandidas += 1
+        if c == b:
+            camino = [c]
+            while camino[-1] != a:
+                camino.append(padre[camino[-1]])
+            return camino[::-1], expandidas
+        for v in hab.vecinos(c):
+            if g[c] + 1 < g.get(v, 1e9):
+                g[v], padre[v] = g[c] + 1, c
+                heapq.heappush(abierto, (g[v] + h(v), h(v), v))
+    return None, expandidas
+\end{codigo}
+
+El modelo de energía es simple y se fijó antes de los experimentos: avanzar una celda cuesta una unidad de batería, limpiar una celda sucia cuesta una más (como en \texttt{limpiar\_area} de la plantilla) y gasta una unidad del depósito, y recargar en la base llena la batería y vacía el depósito. Como en una aspiradora real, el robot limpia las celdas por las que pasa (con el cepillo encendido) y regresa a la base con el cepillo apagado, así que el regreso cuesta una unidad por celda.
+
+\begin{consola}[label=out:hab]{Habitaciones generadas}
+Habitaciones generadas (30 por condición):
+tamaño  densidad pedida  densidad real  celdas limpiables  con celdas aisladas
+ 12x10              0.0          0.000            120.000                0.000
+ 12x10              0.1          0.107            107.133                0.000
+ 12x10              0.2          0.207             94.433                0.167
+ 20x15              0.0          0.000            300.000                0.000
+ 20x15              0.1          0.103            269.033                0.000
+ 20x15              0.2          0.203            230.767                0.267
+\end{consola}
+
+Con 20~\% de muebles, en el 17~\% de las habitaciones de 12$\times$10 y en el 27~\% de las de 20$\times$15 queda al menos una celda libre inalcanzable; esas celdas se excluyen del denominador de la cobertura.
+
+\subsection{Punto de partida: la plantilla del tema}
+
+Antes de diseñar nada se midió qué hace el código del tema. Primero se reprodujo su ejemplo de navegación (obstáculos en $(3, 2)$ con radio 1.5 y en $(1, 4)$ con radio 1, destino $(8, 6)$): el robot no llega, agota los 50 pasos y los pasa dando vueltas en un ciclo entre los dos obstáculos (14 posiciones distintas en 50 pasos). Después se ejecutó la plantilla sin modificar en 20 habitaciones de 12$\times$10 por densidad, tomando cada mueble como un obstáculo circular de radio 0.5 y contando como ``choque'' cada movimiento cuyo segmento pasa a menos de 0.5 de un mueble.
+
+\begin{consola}[label=out:tema]{Ejemplo del tema y plantilla sin modificar}
+--- Reproducción del ejemplo de navegación del tema (obstáculos (3, 2) r = 1.5 y (1, 4) r = 1.0; destino (8, 6)) ---
+¿Llegó? False. Pasos dados: 50. Posición final: (-0.10, 4.60). Posiciones distintas visitadas: 14 de 50
+--- Plantilla del tema sin modificar (RobotLimpiadorTema) en habitaciones de 12x10 ---
+ densidad  cobertura real  marcadas en muebles  choques  salidas del cuarto  batería final
+      0.0           0.667                 0.00     0.00                0.00           20.0
+      0.1           0.129                 1.45  1617.45              165.30           84.7
+      0.2           0.090                 1.50  1755.75              571.75           90.0
+\end{consola}
+
+La plantilla tiene tres problemas. (1) En una habitación vacía cubre sólo el 66.7~\% (80 de 120 celdas) porque se detiene al llegar a una batería de 20 y no regresa a la base ni recarga. (2) Con muebles, su navegación reactiva falla: la cobertura real baja a 12.9~\% con 10~\% de muebles y a 9.0~\% con 20~\%, el robot cruza muebles (en promedio 1\,617 y 1\,756 movimientos por habitación) y sale del cuarto (165 y 572 movimientos), y se queda casi sin gastar batería (final de 84.7 y 90) porque no avanza. (3) Intenta ir a todas las celdas, también a las ocupadas por muebles, y en promedio marca como limpias 1.5 celdas que en realidad son muebles. Las tres tareas de la actividad atacan estos problemas.
+
+\subsection{Tarea 1: Diseñar el comportamiento}
+
+El Código~\ref{cod:robot} completa la clase. Conserva la interfaz de la plantilla (\texttt{limpiar\_area}, \texttt{navegar\_a\_destino} y \texttt{planificar\_ruta\_limpieza}) y añade lo que faltaba: la navegación con $A^*$ sobre el mapa, la recarga y una política de batería. La política \textbf{segura} sólo deja avanzar a una celda $c$ si después de entrar quedan al menos \texttt{dist\_base[c]} unidades para volver; cuando no es así, el robot regresa a la base por el camino más corto, recarga y continúa desde donde se quedó. Si ni siquiera con la batería llena puede llegar a una celda y volver, lo detecta (\texttt{Inalcanzable}) en lugar de repetirse sin fin. La política \textbf{ingenua} es la de la plantilla: regresar cuando la batería es de 20 o menos.
+
+\begin{codigo}[label=cod:robot]{RobotLimpiador completo}
+class Varado(Exception):
+    """El robot se quedó sin batería lejos de la base."""
+
+
+class Inalcanzable(Exception):
+    """Una celda no se puede limpiar ni siquiera saliendo de la base con la batería llena."""
+
+
+def proyecto_robot_limpiador():
+    """Completa la plantilla del tema: navegación con A*, batería segura, recarga y rutas de cobertura."""
+
+    class RobotLimpiador(RobotAutonomo):
+        def __init__(self, nombre, habitacion, politica="segura", verbose=False):
+            super().__init__(nombre, verbose)
+            self.hab = habitacion
+            self.politica = politica            # "segura": regresa a tiempo; "ingenua": regresa con batería <= 20 como la plantilla
+            self.areas_limpias = set()
+            self.bateria = BATERIA_MAX
+            self.capacidad_basura = CAPACIDAD_MAX
+            self.posicion = list(habitacion.base)
+            self.cepillo = True
+            self.pasos = self.giros = self.recargas = 0
+            self.varado = False
+            self.ruta = [habitacion.base]
+            self.nivel_bateria = [BATERIA_MAX]
+            self.limpiar_area(*habitacion.base)
+
+        # --- limpieza -------------------------------------------------------
+        def limpiar_area(self, x, y):
+            """Limpia una celda (si está sucia y hay batería y espacio en el depósito)."""
+            if (x, y) in self.areas_limpias or self.bateria < COSTO_LIMPIEZA or self.capacidad_basura <= 0:
+                return False
+            self.bateria -= COSTO_LIMPIEZA
+            self.capacidad_basura -= 1
+            self.areas_limpias.add((x, y))
+            return True
+
+        # --- movimiento -----------------------------------------------------
+        def _paso(self, c):
+            dx, dy = c[0] - self.posicion[0], c[1] - self.posicion[1]
+            angulo = {(1, 0): 0, (0, 1): 90, (-1, 0): 180, (0, -1): 270}[(dx, dy)]
+            giro = (angulo - self.orientacion) % 360
+            self.giros += (360 - giro if giro > 180 else giro) // 90
+            self.orientacion = angulo
+            self.bateria -= COSTO_PASO
+            self.posicion = [c[0], c[1]]
+            self.pasos += 1
+            self.ruta.append(c)
+            if self.cepillo:
+                self.limpiar_area(*c)
+            self.nivel_bateria.append(self.bateria)
+            if self.bateria <= 0 and c != self.hab.base:
+                self.varado = True
+                raise Varado()
+
+        def _puede_avanzar(self, c):
+            """Política segura: avanzar sólo si después de entrar a c alcanza la batería para volver a la base."""
+            if self.politica == "ingenua":
+                return self.bateria > COSTO_PASO + COSTO_LIMPIEZA
+            sucia = c not in self.areas_limpias
+            if sucia and self.capacidad_basura <= 0:
+                return False
+            costo = COSTO_PASO + (COSTO_LIMPIEZA if sucia else 0)
+            return self.bateria - costo >= self.hab.dist_base[c[1], c[0]] * COSTO_PASO
+
+        def recargar(self):
+            self.bateria, self.capacidad_basura = BATERIA_MAX, CAPACIDAD_MAX
+            self.recargas += 1
+            self.nivel_bateria.append(self.bateria)
+
+        def volver_a_base(self):
+            """Regresa por el camino más corto con el cepillo apagado y recarga (y vacía el depósito)."""
+            self.cepillo = False
+            try:
+                camino, _ = astar(self.hab, tuple(self.posicion), self.hab.base)
+                for c in camino[1:]:
+                    self._paso(c)
+            finally:
+                self.cepillo = True
+            self.recargar()
+
+        def ir_a(self, destino):
+            """Navega con A* hasta una celda; si la batería o el depósito no alcanzan, pasa por la base primero."""
+            while tuple(self.posicion) != destino:
+                camino, _ = astar(self.hab, tuple(self.posicion), destino)
+                for c in camino[1:]:
+                    if not self._puede_avanzar(c):
+                        if tuple(self.posicion) == self.hab.base and self.bateria == BATERIA_MAX and self.capacidad_basura == CAPACIDAD_MAX:
+                            raise Inalcanzable()
+                        self.volver_a_base()
+                        break
+                    self._paso(c)
+                    if self.politica == "ingenua" and self.bateria <= UMBRAL_TEMA and tuple(self.posicion) != self.hab.base:
+                        self.volver_a_base()
+                        break
+
+        def navegar_a_destino(self, destino_x, destino_y):
+            """Misma interfaz que RobotAutonomo, pero con A* sobre el mapa: llega siempre que exista camino."""
+            if not self.hab.libre((destino_x, destino_y)) or self.hab.dist_base[destino_y, destino_x] < 0:
+                return False
+            self.ir_a((destino_x, destino_y))
+            return True
+
+        # --- cobertura ------------------------------------------------------
+        def planificar_ruta_limpieza(self, ancho=None, alto=None, metodo="serpentina"):
+            """Planifica una ruta de cobertura de toda la habitación, la ejecuta y vuelve a la base."""
+            ruta = PLANIFICADORES[metodo](self.hab)
+            try:
+                for c in ruta[1:]:
+                    self.ir_a(c)
+                self.volver_a_base()
+            except Varado:
+                pass
+            except Inalcanzable:
+                pass
+            return len(self.areas_limpias)
+
+        def resumen(self):
+            n = len(self.hab.limpiables)
+            return {"cobertura": len(self.areas_limpias & set(self.hab.limpiables)) / n, "pasos": self.pasos,
+                    "giros": self.giros, "recargas": self.recargas, "varado": self.varado}
+
+    return RobotLimpiador
+\end{codigo}
+
+Se comparó la política segura con la ingenua, con la misma ruta (serpentina) en las 180 habitaciones.
+
+\begin{consola}[label=out:bat]{Política de batería: plantilla contra segura}
+--- Batería: política de la plantilla (regresar con <= 20) contra política segura (serpentina) ---
+tamaño  densidad política  varado (%)  cobertura media  máx. distancia a la base
+ 12x10       0.0  ingenua        0.00             1.00                     20.00
+ 12x10       0.0   segura        0.00             1.00                     20.00
+ 12x10       0.1  ingenua        0.00             1.00                     19.93
+ 12x10       0.1   segura        0.00             1.00                     19.93
+ 12x10       0.2  ingenua       10.00             0.99                     20.30
+ 12x10       0.2   segura        0.00             1.00                     20.30
+ 20x15       0.0  ingenua      100.00             0.74                     33.00
+ 20x15       0.0   segura        0.00             1.00                     33.00
+ 20x15       0.1  ingenua      100.00             0.57                     33.10
+ 20x15       0.1   segura        0.00             1.00                     33.10
+ 20x15       0.2  ingenua       93.33             0.58                     32.13
+ 20x15       0.2   segura        0.00             1.00                     32.13
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26/img/bateria.png}
+\caption{Batería durante una limpieza de una habitación de 20$\times$15 con 10~\% de muebles (izquierda) y porcentaje de habitaciones donde el robot se queda varado (derecha).}
+\label{fig:bateria}
+\end{figure}
+
+La política segura limpió el 100~\% de las celdas alcanzables en las 180 habitaciones y nunca se quedó varada. La de la plantilla funciona en habitaciones chicas, donde la celda más lejana está a 20 pasos de la base, pero falla en cuanto la distancia a la base supera su umbral: en 12$\times$10 con 20~\% de muebles el robot se quedó varado en el 10~\% de las habitaciones, y en 20$\times$15, donde la celda más lejana está a unos 33 pasos, se quedó varado en el 100~\%, 100~\% y 93.3~\% de las habitaciones, con una cobertura media de sólo 0.74, 0.57 y 0.58. La razón es que un umbral fijo no sabe qué tan lejos está la base; la política segura sí, porque usa la distancia real por el mapa.
+
+\subsection{Tarea 2: Implementar navegación}
+
+Se comparó la navegación reactiva del tema con $A^*$ en 200 pares inicio-destino por densidad (25 habitaciones de 12$\times$10 y 8 pares por habitación, siempre entre celdas libres y alcanzables). Para el robot reactivo se contó como éxito llegar en los 50 pasos permitidos, y como éxito ``limpio'' llegar sin cruzar muebles ni salir del cuarto. Para $A^*$ también se contó cuántas celdas expande, contra una búsqueda en anchura sin heurística; en todos los pares los dos algoritmos encontraron caminos de la misma longitud.
+
+\begin{consola}[label=out:nav]{Navegación reactiva contra A*}
+--- Navegación reactiva del tema contra A* (200 pares inicio-destino por densidad, cuadrícula de 12x10) ---
+ densidad  reactivo llega  llega sin chocar  A* llega  celdas expandidas A*  celdas expandidas BFS
+      0.0           1.000              1.00       1.0                 8.355                 60.225
+      0.1           0.585              0.44       1.0                 9.190                 53.700
+      0.2           0.300              0.18       1.0                 9.935                 46.110
+      0.3           0.205              0.12       1.0                13.655                 40.400
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26/img/navegacion.png}
+\caption{Éxito de la navegación sin choques (izquierda) y celdas expandidas por camino (derecha).}
+\label{fig:nav}
+\end{figure}
+
+En una habitación vacía el robot reactivo siempre llega, pero con muebles su desempeño cae rápido: llega en el 58.5~\%, 30.0~\% y 20.5~\% de los pares con 10, 20 y 30~\% de muebles, y sin cruzar muebles ni salir del cuarto sólo en el 44~\%, 18~\% y 12~\%. $A^*$ llegó en el 100~\% de los pares por construcción (sólo se sortearon pares conectados) y siempre por un camino válido, porque trabaja sobre el mapa. Además, la heurística reduce el trabajo: expande entre 8 y 14 celdas por camino, contra entre 40 y 60 de la búsqueda en anchura (que baja con la densidad porque hay menos celdas libres).
+
+La navegación planificada necesita un mapa. Para ver cuánto importa, se probó la limpieza voraz con un sensor que sólo detecta si las cuatro celdas contiguas están ocupadas, sin conocer los muebles de antemano, contra la misma estrategia con el mapa completo.
+
+\begin{consola}[label=out:mapa]{Limpieza voraz sin mapa previo contra con mapa}
+--- Sin mapa previo (el robot sólo siente las celdas contiguas) contra con mapa conocido, búsqueda voraz ---
+tamaño  densidad  pasos sin mapa  pasos con mapa  replanificaciones  cobertura sin mapa
+ 12x10       0.0          119.00          119.00                0.0                 1.0
+ 12x10       0.1          116.97          116.97                0.0                 1.0
+ 12x10       0.2          107.10          107.10                0.0                 1.0
+ 20x15       0.0          299.00          299.00                0.0                 1.0
+ 20x15       0.1          290.60          290.60                0.0                 1.0
+ 20x15       0.2          266.93          266.93                0.0                 1.0
+\end{consola}
+
+No hubo diferencia: el robot con sensor contiguo nunca tuvo que replanificar y dio exactamente los mismos pasos. Esto se explica por cómo funciona la estrategia: siempre elige la celda sucia más cercana, que siempre está pegada a una celda ya visitada, y el sensor ya revisó los vecinos de toda celda visitada, de modo que el robot nunca va a una celda ocupada que no conozca. Es un resultado de este tipo de estrategia y de muebles fijos, y no significa que el mapa sea innecesario: la ruta de serpentina y la de $A^*$ hacia puntos lejanos sí lo requieren.
+
+\subsection{Tarea 3: Optimizar rutas}
+
+El Código~\ref{cod:rutas} contiene los cuatro planificadores. Cada uno devuelve la ruta celda por celda; una función verifica que todos los pasos sean válidos y que la ruta cubra todas las celdas alcanzables. El método 2-opt mide las distancias reales (en pasos, por el mapa) entre cada par de celdas con una búsqueda en anchura desde cada una.
+
+\begin{codigo}[label=cod:rutas]{Planificadores de cobertura}
+def unir(hab, objetivos):
+    """Ruta celda por celda que visita los objetivos en orden, usando A* entre cada par."""
+    ruta = [objetivos[0]]
+    for t in objetivos[1:]:
+        camino, _ = astar(hab, ruta[-1], t)
+        ruta += camino[1:]
+    return ruta
+
+
+def ruta_raster(hab):
+    """Lo que hace la plantilla del tema: fila por fila, siempre de izquierda a derecha."""
+    return unir(hab, [hab.base] + [c for c in hab.limpiables if c != hab.base])
+
+
+def ruta_serpentina(hab):
+    """Boustrophedon: las filas se recorren alternando el sentido, así no se regresa al inicio de cada fila."""
+    objetivos = [hab.base]
+    for y in range(hab.alto):
+        fila = [c for c in hab.limpiables if c[1] == y and c != hab.base]
+        objetivos += fila if y % 2 == 0 else fila[::-1]
+    return unir(hab, objetivos)
+
+
+def ruta_vecino(hab):
+    """Voraz: siempre ir a la celda sucia más cercana (por pasos), y contar como limpias las que se cruzan."""
+    actual, vistas, ruta = hab.base, {hab.base}, [hab.base]
+    faltan = set(hab.limpiables) - vistas
+    while faltan:
+        d = hab.bfs(actual)
+        meta = min(faltan, key=lambda c: (d[c[1], c[0]], c[1], c[0]))
+        camino, _ = astar(hab, actual, meta)
+        for c in camino[1:]:
+            vistas.add(c)
+            faltan.discard(c)
+        ruta += camino[1:]
+        actual = meta
+    return ruta
+
+
+def mejorar_2opt(orden, D, max_pasadas=100):
+    """2-opt sobre un camino abierto con el inicio fijo: invierte tramos mientras acorten el recorrido."""
+    o = np.array(orden)
+    n = len(o)
+    for _ in range(max_pasadas):
+        mejoro = False
+        for i in range(1, n - 1):
+            a, b = o[i - 1], o[i]
+            j = np.arange(i + 1, n)
+            sig = np.where(j < n - 1, o[np.minimum(j + 1, n - 1)], -1)
+            quitado = D[a, b] + np.where(sig >= 0, D[o[j], np.maximum(sig, 0)], 0)
+            puesto = D[a, o[j]] + np.where(sig >= 0, D[b, np.maximum(sig, 0)], 0)
+            delta = puesto - quitado
+            k = int(np.argmin(delta))
+            if delta[k] < 0:
+                o[i:j[k] + 1] = o[i:j[k] + 1][::-1].copy()
+                mejoro = True
+        if not mejoro:
+            break
+    return list(o)
+
+
+def ruta_2opt(hab):
+    """Parte de la ruta voraz y la mejora con 2-opt sobre las distancias reales (en pasos) entre celdas."""
+    inicial = list(dict.fromkeys(ruta_vecino(hab)))          # orden de primera visita de cada celda
+    D = matriz_distancias(hab, inicial)
+    orden = mejorar_2opt(list(range(len(inicial))), D)
+    return unir(hab, [inicial[i] for i in orden])
+\end{codigo}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26/img/rutas.png}
+\caption{Las cuatro rutas en una misma habitación de 12$\times$10 (muebles en gris, base con una estrella).}
+\label{fig:rutas}
+\end{figure}
+
+La Figura~\ref{fig:rutas} muestra una habitación: la ruta de la plantilla da 316 pasos y la serpentina 185, mientras que la del vecino más cercano da 125 y la mejorada con 2-opt 117. Para generalizar, se ejecutaron los cuatro métodos en las 180 habitaciones. La columna \texttt{ruta} es el número de pasos de la ruta planificada, \texttt{exceso\_\%} es cuánto se pasa del mínimo teórico de $n - 1$ pasos, y \texttt{pasos\_tot} son los pasos reales de la simulación con la política segura de batería, que incluyen los viajes a la base para recargar y el regreso final.
+
+\begin{consola}[label=out:rutas]{Rutas de cobertura en 180 habitaciones}
+--- Rutas de cobertura (30 habitaciones por condición; política segura de batería) ---
+tamaño  dens.     método  celdas  ruta  exceso_%  pasos_tot  recargas  cobert.   seg
+ 12x10    0.0     raster   120.0 218.0      83.2      322.0       5.0      1.0 0.001
+ 12x10    0.0 serpentina   120.0 119.0       0.0      158.0       3.0      1.0 0.000
+ 12x10    0.0     vecino   120.0 119.0       0.0      158.0       3.0      1.0 0.017
+ 12x10    0.0      2-opt   120.0 119.0       0.0      158.0       3.0      1.0 0.037
+ 12x10    0.1     raster   107.1 239.7     125.9      353.1       5.0      1.0 0.001
+ 12x10    0.1 serpentina   107.1 136.3      28.4      185.1       3.1      1.0 0.000
+ 12x10    0.1     vecino   107.1 115.1       8.5      171.7       3.0      1.0 0.014
+ 12x10    0.1      2-opt   107.1 113.5       6.9      172.7       3.0      1.0 0.030
+ 12x10    0.2     raster    94.4 251.5     169.1      356.0       4.8      1.0 0.001
+ 12x10    0.2 serpentina    94.4 147.0      57.3      204.9       3.3      1.0 0.000
+ 12x10    0.2     vecino    94.4 108.5      16.2      170.8       3.0      1.0 0.011
+ 12x10    0.2      2-opt    94.4 105.2      12.6      167.5       3.0      1.0 0.024
+ 20x15    0.0     raster   300.0 565.0      89.0     1166.0      15.0      1.0 0.001
+ 20x15    0.0 serpentina   300.0 299.0       0.0      486.0       8.0      1.0 0.001
+ 20x15    0.0     vecino   300.0 299.0       0.0      486.0       8.0      1.0 0.108
+ 20x15    0.0      2-opt   300.0 299.0       0.0      486.0       8.0      1.0 0.222
+ 20x15    0.1     raster   269.0 621.5     131.9     1155.7      14.6      1.0 0.002
+ 20x15    0.1 serpentina   269.0 340.4      27.0      581.3       8.7      1.0 0.001
+ 20x15    0.1     vecino   269.0 285.5       6.5      591.7       8.9      1.0 0.090
+ 20x15    0.1      2-opt   269.0 281.4       5.0      588.7       8.9      1.0 0.184
+ 20x15    0.2     raster   230.8 677.6     190.9     1172.1      14.4      1.0 0.002
+ 20x15    0.2 serpentina   230.8 386.8      66.7      667.6       9.2      1.0 0.001
+ 20x15    0.2     vecino   230.8 262.5      14.3      556.7       8.2      1.0 0.066
+ 20x15    0.2      2-opt   230.8 253.6      10.2      554.1       8.2      1.0 0.142
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26/img/cobertura.png}
+\caption{Pasos de más sobre el mínimo teórico, según el método y la densidad de muebles (media y desviación estándar de 30 habitaciones).}
+\label{fig:cobertura}
+\end{figure}
+
+En una habitación vacía, la serpentina, el vecino más cercano y 2-opt alcanzan el mínimo teórico (119 pasos en 12$\times$10 y 299 en 20$\times$15), mientras que la plantilla da 218 y 565 (83~\% y 89~\% de más), porque al terminar cada fila regresa al principio de la siguiente. Con muebles, las rutas se separan. En 12$\times$10 con 20~\% de muebles el exceso es de 169~\% para la plantilla, 57~\% para la serpentina, 16~\% para el vecino más cercano y 13~\% para 2-opt; en 20$\times$15 es de 191~\%, 67~\%, 14~\% y 10~\%. La serpentina se deteriora porque cada mueble corta las filas y obliga a rodear; el vecino más cercano se adapta a la forma de la habitación. La Figura~\ref{fig:rutas} lo muestra: la serpentina cruza varias veces la habitación para volver a zonas que dejó pendientes.
+
+Para saber si las diferencias son más que ruido se compararon los métodos habitación por habitación y se calculó un intervalo de confianza del 95~\% de la diferencia media por bootstrap (2\,000 remuestreos).
+
+\begin{consola}[label=out:dif]{Diferencias pareadas entre métodos}
+--- Diferencias pareadas por habitación (IC 95 % por bootstrap) ---
+                      medida tamaño         comparación  dif_media  IC_inf  IC_sup 2o_mejor
+            pasos de la ruta  12x10 raster - serpentina     102.30   99.77  105.03    90/90
+            pasos de la ruta  12x10 serpentina - vecino      19.88   15.30   24.73    60/90
+            pasos de la ruta  12x10      vecino - 2-opt       1.64    1.04    2.37    28/90
+            pasos de la ruta  12x10  serpentina - 2-opt      21.52   16.82   26.61    60/90
+            pasos de la ruta  20x15 raster - serpentina     279.31  271.00  285.84    90/90
+            pasos de la ruta  20x15 serpentina - vecino      59.71   48.05   71.94    59/90
+            pasos de la ruta  20x15      vecino - 2-opt       4.36    3.00    5.90    40/90
+            pasos de la ruta  20x15  serpentina - 2-opt      64.07   50.96   77.23    60/90
+pasos totales (con recargas)  12x10 raster - serpentina     161.04  156.18  165.71    90/90
+pasos totales (con recargas)  12x10 serpentina - vecino      15.82    9.95   22.56    44/90
+pasos totales (con recargas)  12x10      vecino - 2-opt       0.80   -0.69    2.02    21/90
+pasos totales (con recargas)  12x10  serpentina - 2-opt      16.62   10.87   23.00    50/90
+pasos totales (con recargas)  20x15 raster - serpentina     586.31  563.51  606.69    90/90
+pasos totales (con recargas)  20x15 serpentina - vecino      33.51   17.82   50.58    40/90
+pasos totales (con recargas)  20x15      vecino - 2-opt       1.87   -2.53    6.13    25/90
+pasos totales (con recargas)  20x15  serpentina - 2-opt      35.38   19.31   52.33    46/90
+\end{consola}
+
+En pasos de la ruta, todas las mejoras son significativas (los intervalos no contienen el cero): la serpentina ahorra 102 pasos (IC 99.8 a 105.0) frente a la plantilla en 12$\times$10 y 279 (IC 271.0 a 285.8) en 20$\times$15; el vecino más cercano ahorra otros 19.9 (IC 15.3 a 24.7) y 59.7 (IC 48.1 a 71.9) frente a la serpentina, y 2-opt ahorra un poco más, 1.6 (IC 1.0 a 2.4) y 4.4 (IC 3.0 a 5.9). Los empates en habitaciones vacías explican que el vecino más cercano sea mejor que la serpentina en 60 de 90 habitaciones y no en 90. La mejora de 2-opt sobre la voraz es real pero pequeña (de 1 a 4 pasos, de 1 a 3 \% de la ruta), lo que indica que la búsqueda voraz ya deja poco que mejorar con este tipo de movimiento.
+
+En los pasos totales la historia cambia. La serpentina y el vecino más cercano siguen siendo mejores que la plantilla por mucho (161 y 586 pasos menos, con intervalos lejos del cero), y el vecino más cercano mejora a la serpentina (15.8 pasos, IC 10.0 a 22.6, en 12$\times$10 y 33.5, IC 17.8 a 50.6, en 20$\times$15), pero 2-opt ya no mejora de forma demostrable al vecino más cercano (0.8 pasos, IC $-0.7$ a 2.0, y 1.9, IC $-2.5$ a 6.1): los intervalos contienen el cero. Además, el ahorro en la ruta no se traslada completo a los pasos totales: con 10~\% de muebles en 20$\times$15, la serpentina tuvo en promedio menos pasos totales que las rutas optimizadas (581 contra 592 y 589; diferencia que no se evaluó estadísticamente), a pesar de que su ruta era 55 pasos más larga. La razón probable es que los planificadores ignoran la batería: una ruta corta que deja una celda lejana para el final obliga a un viaje largo a la base, y la serpentina, al avanzar por filas, se aleja y regresa de forma más ordenada. No se probó esta explicación, pero sugiere que la ruta ideal debería planificarse junto con la recarga, por ejemplo dividiendo la habitación en zonas que se limpian con una carga de batería.
+
+El tiempo de planificación es despreciable: el promedio más alto por condición (columna \texttt{seg}) fue de 0.002 s para la serpentina, 0.017 s (12$\times$10) y 0.11 s (20$\times$15) para el vecino más cercano, y 0.037 s y 0.22 s para 2-opt, en una computadora personal.
+
+\subsection{Limitaciones}
+
+La habitación es una cuadrícula con movimientos en cuatro direcciones, sin cinemática del robot, sin ruido en los sensores ni en el movimiento, y con muebles que no se mueven; en una casa real habría personas, mascotas y errores de localización. Las habitaciones son aleatorias y los muebles rectangulares, no planos de viviendas reales. El modelo de energía (una unidad por paso y por celda limpiada) y la recarga instantánea son supuestos, y los resultados de pasos totales dependen de ellos. El mínimo teórico de $n - 1$ pasos no siempre es alcanzable en una habitación con muebles, así que el ``exceso'' sobreestima la distancia al óptimo. Los planificadores no consideran la batería. No se exploraron otras técnicas del tema, como el aprendizaje por refuerzo o la visión artificial \parencite{iae_u4_t46}, ni la Actividad 2 del Tema 4.6 (enjambres).
+
+\section{Conclusiones}
+
+La plantilla del tema, tal como viene, sólo funciona en una habitación vacía y pequeña: con muebles cubrió entre 9~\% y 13~\% de la habitación, y en una vacía de 12$\times$10 se detuvo en el 66.7~\%. Se completó la clase \texttt{RobotLimpiador} con tres cambios que explican la mejora: navegación con $A^*$ sobre un mapa (100~\% de los destinos alcanzados, contra 12~\% a 44~\% sin choques del robot reactivo con muebles, y 8 a 14 celdas expandidas por camino), una política de batería que regresa a tiempo según la distancia real a la base (cobertura completa en las 180 habitaciones, mientras que la política de la plantilla dejó varado al robot en casi todas las de 20$\times$15) y una ruta de cobertura menos ingenua que el recorrido fila por fila.
+
+Entre las rutas, la serpentina es una buena opción simple y la más predecible, pero con muebles el vecino más cercano recorre menos (de 7 a 14~\% de exceso contra 27 a 67~\% con 10 y 20~\% de muebles), y 2-opt añade una mejora real pero pequeña (1 a 4 pasos). Al incluir las recargas, el efecto de optimizar la ruta se reduce y 2-opt deja de ser distinguible del vecino más cercano, de modo que, para un robot con batería limitada, vale más la pena planificar la ruta junto con las recargas que seguir afinando el recorrido. Lo que aquí quedó sin comprobar son los supuestos del simulador (movimiento perfecto, mapa conocido, muebles fijos): la siguiente prueba sería un entorno con ruido y obstáculos que aparecen.
+
+\referencias
+
+\end{document}
