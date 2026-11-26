@@ -189,7 +189,7 @@ Para medir precisión y recall se necesitan imágenes con los objetos ya etiquet
 
 \subsection{Tarea 1: Implementación de YOLO}
 
-\textbf{Configuración.} El Código~\ref{cod:yolo} es el código base del tema con dos cambios necesarios. Primero, las capas de salida se obtienen con \texttt{.flatten()}, porque en las versiones actuales de OpenCV \texttt{getUnconnectedOutLayers()} devuelve un arreglo plano y el índice \texttt{i[0]} del código base provoca un error. Segundo, se separó la detección (que devuelve una lista de cajas, confianzas y clases) del dibujado, para poder medir cada parte y reutilizar la detección en el video y en la evaluación. Se añadió además la opción de aplicar la NMS por clase, de modo que dos objetos de clases distintas muy superpuestos (por ejemplo, una persona y su corbata) no se eliminen entre sí. Además, el código base se instaló con OpenCV 4.12: la versión 5 eliminó la lectura de modelos Darknet y no puede cargar YOLOv3.
+\textbf{Configuración.} El Código~\ref{cod:yolo} es el código base del tema con dos cambios necesarios. Primero, las capas de salida se obtienen con \texttt{.flatten()}. Segundo, se separó la detección (que devuelve una lista de cajas, confianzas y clases) del dibujado, para poder medir cada parte y reutilizar la detección en el video y en la evaluación. Se añadió además la opción de aplicar la NMS por clase, de modo que dos objetos de clases distintas muy superpuestos (por ejemplo, una persona y su corbata) no se eliminen entre sí. Además, el código base se instaló con OpenCV 4.12: la versión 5 eliminó la lectura de modelos Darknet y no puede cargar YOLOv3.
 
 \begin{codigo}[label=cod:yolo]{Configuración de YOLO, detección y dibujado}
 def configurar_yolo(modelo="yolov3"):

@@ -135,7 +135,7 @@
 
 El aprendizaje automático permite que un sistema aprenda patrones a partir de datos en lugar de programar reglas explícitas \parencite{iae_u4_t43, geron2022}. Una de sus aplicaciones más relevantes es el apoyo al diagnóstico médico: predecir, a partir de exámenes de rutina, qué pacientes tienen riesgo de una enfermedad cardíaca. El tema señala que en este tipo de aplicaciones no basta con predecir bien; también importa entender por qué el modelo decide lo que decide \parencite{iae_u4_t43}.
 
-En este reporte se desarrolla la actividad ``Diagnóstico Médico Asistido'' del Tema 4.3. A partir del código base del tema se explora un conjunto de 1\,000 pacientes con ocho características, se comparan cinco algoritmos de clasificación con validación cruzada y un conjunto de prueba reservado, se optimizan los mejores y se interpretan los resultados con tres técnicas distintas de importancia de características. Además, como los datos son simulados, se verifica lo que las técnicas de interpretación encuentran contra la estructura real con la que se generaron los datos.
+A partir del código base del tema se explora un conjunto de 1\,000 pacientes con ocho características, se comparan cinco algoritmos de clasificación con validación cruzada y un conjunto de prueba reservado, se optimizan los mejores y se interpretan los resultados con tres técnicas distintas de importancia de características. Además, como los datos son simulados, se verifica lo que las técnicas de interpretación encuentran contra la estructura real con la que se generaron los datos.
 
 \section{Marco conceptual}
 
@@ -328,7 +328,7 @@ print(tabla_te.round(3).to_string())
 \begin{consola}[label=out:cv]{Validación cruzada y prueba de los cinco modelos}
 Validación cruzada estratificada de 5 pliegues (sobre los 700 pacientes de entrenamiento):
                      exactitud CV  precisión CV  recall CV  F1 CV  AUC CV  F1 CV desv.  exactitud entren.
-modelo                                                                                                   
+modelo
 Regresión Logística         0.827         0.827      0.829  0.828   0.889        0.020              0.830
 Árbol de decisión           0.897         0.907      0.892  0.897   0.897        0.005              1.000
 Random Forest               0.926         0.920      0.937  0.927   0.977        0.025              1.000
@@ -337,7 +337,7 @@ K-Vecinos                   0.920         0.947      0.892  0.918   0.968       
 
 Desempeño en el conjunto de prueba (300 pacientes):
                      exactitud  precisión  recall     F1    AUC
-modelo                                                         
+modelo
 Regresión Logística      0.783      0.791   0.775  0.783  0.867
 Árbol de decisión        0.870      0.873   0.868  0.870  0.870
 Random Forest            0.930      0.922   0.940  0.931  0.972
@@ -377,7 +377,7 @@ SVM: mejores hiperparámetros {'svc__C': 10, 'svc__gamma': 'scale'}
 
 Modelos optimizados en el conjunto de prueba:
                           exactitud  precisión  recall     F1    AUC
-modelo                                                              
+modelo
 Random Forest optimizado      0.943      0.935   0.954  0.944  0.971
 SVM optimizado                0.923      0.910   0.940  0.925  0.971
 \end{consola}
@@ -402,6 +402,7 @@ imp_perm = pd.Series(perm.importances_mean, index=nombres)
 imp_perm_sd = pd.Series(perm.importances_std, index=nombres)
 \end{codigo}
 
+\newpage
 \section{Resultados}
 
 \subsection{Exploración: qué factores parecen predecir el riesgo}
@@ -504,7 +505,7 @@ print(f"\nMayor umbral con recall >= 0.97 en validación cruzada: {umbral_97:.2f
 Mayor umbral con recall >= 0.97 en validación cruzada: 0.31
 Efecto del umbral en el conjunto de prueba:
                              precisión  recall     F1  falsos neg.  falsos pos.
-umbral                                                                         
+umbral
 0.50 (por defecto)               0.922    0.94  0.931            9           12
 0.31 (recall >= 0.97 en CV)      0.841    0.98  0.905            3           28
 \end{consola}

@@ -10,6 +10,7 @@
 #   streamlit run app.py                    Interfaz web (Tarea 2)
 # Dependencias (en Colab anteponer "!"):  pip install "opencv-python<4.13" numpy pandas matplotlib
 # Los modelos YOLO (~280 MB) y 200 imágenes de validación de COCO se descargan solos la primera vez.
+# FVR: 2026-11-24
 # =============================================================================
 import argparse
 import io

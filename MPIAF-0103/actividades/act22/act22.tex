@@ -174,7 +174,7 @@ Los entregables son este reporte en PDF y el script \texttt{act22.py}, que reali
 
 \section{Desarrollo}
 
-El script \texttt{act22.py} usa \texttt{numpy}, \texttt{pandas}, \texttt{scikit-learn} y \texttt{matplotlib}. Descarga los datos del repositorio UCI, por lo que requiere conexión a internet. Los valores de este reporte se obtuvieron con \texttt{scikit-learn} 1.9.1; en otras versiones, sobre todo en los bosques aleatorios, pueden cambiar en la tercera cifra decimal. Las figuras se guardan en la carpeta \texttt{img/}, y las tablas y el reporte automático en \texttt{resultados/}. El Código~\ref{cod:comun} contiene las importaciones, la función \texttt{metricas()}, que calcula MAE, MSE, RMSE y $R^2$, la función \texttt{nuevos\_modelos()}, que define los dos regresores, y la función \texttt{a\_markdown()}, que da formato al reporte automático. El cuaderno interactivo puede consultarse en Google Colab:
+El script utiliza \texttt{numpy}, \texttt{pandas}, \texttt{scikit-learn} y \texttt{matplotlib}. Descarga los datos del repositorio UCI, por lo que requiere conexión a internet. Los valores de este reporte se obtuvieron con \texttt{scikit-learn} 1.9.1; en otras versiones, sobre todo en los bosques aleatorios, pueden cambiar en la tercera cifra decimal. Las figuras se guardan en la carpeta \texttt{img/}, y las tablas y el reporte automático en \texttt{resultados/}. El Código~\ref{cod:comun} contiene las importaciones, la función \texttt{metricas()}, que calcula MAE, MSE, RMSE y $R^2$, la función \texttt{nuevos\_modelos()}, que define los dos regresores, y la función \texttt{a\_markdown()}, que da formato al reporte automático. El cuaderno interactivo puede consultarse en Google Colab:
 
 \begin{center}
     \url{https://colab.research.google.com/drive/16LZQ9jHlJuqlMnFlMt0WcAQnzvH0vk9G?usp=sharing}
@@ -392,7 +392,7 @@ guardar('comparacion_metricas.png')
 \begin{consola}[label=out:t4]{Ejecución de \texttt{act22.py}: Tarea 2}
 === Tarea 2: comparación de métricas ===
                                           MAE      MSE    RMSE      R2  RMSE / desv. est. de y
-modelo           partición                                                                    
+modelo           partición
 Regresión lineal hold-out 80/20        3.6724  22.1286  4.7041  0.5583                  0.6819
                  10-fold               3.7524  23.3628  4.8335  0.5088                  0.7006
                  10-fold por montajes  3.7850  23.7832  4.8768  0.4999                  0.7069

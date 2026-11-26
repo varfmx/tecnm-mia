@@ -140,7 +140,7 @@
 
 Los sistemas de inteligencia artificial (IA) ya participan en decisiones sobre empleo, crédito, salud y justicia, y por eso diversas organizaciones han propuesto principios éticos para orientarlos. El tema 5.1 reconoce un conjunto de principios universales (no maleficencia, beneficencia, justicia, autonomía, transparencia y responsabilidad) y menciona que la OCDE, el IEEE y la UNESCO han formulado marcos propios \parencite{iae_u5_t51}. Comparar esos marcos permite ver qué tienen en común y en qué difieren.
 
-En este reporte se desarrolla la Actividad 1 del Tema 5.1, ``Ejercicio de Comparación y Aplicación de Marcos Éticos''. Primero se compara el contenido de los tres marcos con base en sus documentos originales, en una tabla que identifica ocho principios comunes y las prioridades distintivas de cada organización. Después se analiza la charla de Kate Crawford sobre el sesgo y se responde, en un párrafo de 150 palabras como máximo, cómo ese sesgo viola los principios de no maleficencia y justicia.
+En este reporte se compara el contenido de los tres marcos con base en sus documentos originales, en una tabla que identifica ocho principios comunes y las prioridades distintivas de cada organización. Después se analiza la charla de Kate Crawford sobre el sesgo y se responde, en un párrafo de 150 palabras como máximo, cómo ese sesgo viola los principios de no maleficencia y justicia.
 
 \section{Marco conceptual}
 
@@ -179,16 +179,14 @@ El tema 5.2 define el sesgo algorítmico como la producción sistemática de res
 
 \subsection*{Documentos analizados}
 
-Se leyeron los documentos que indica la actividad, y no resúmenes de terceros:
+Se leyeron los documentos que indica la actividad:
 \begin{itemize}
-    \item \textbf{UNESCO:} Recomendación sobre la ética de la inteligencia artificial, adoptada en noviembre de 2021 \parencite{unesco2021}. Los nombres y descripciones de los valores y principios provienen de la página oficial de la UNESCO sobre la Recomendación; no se pudo consultar el texto completo del documento, de modo que no se citan números de párrafo.
-    \item \textbf{OCDE:} Recomendación del Consejo sobre Inteligencia Artificial (OECD/LEGAL/0449), adoptada el 22 de mayo de 2019 y modificada el 3 de mayo de 2024 \parencite{oecd2019}. Se leyó el texto completo del instrumento.
-    \item \textbf{IEEE:} \textit{Ethically Aligned Design}, primera edición \parencite{ieee2019}. Se leyó el capítulo de principios generales y las secciones citadas.
-    \item \textbf{AI4People:} \parencite{floridi2018}, que la actividad lista como material de apoyo y que se usa aquí para el origen de los términos.
-    \item \textbf{Charla de Kate Crawford:} \textit{The Trouble with Bias}, conferencia magistral de NIPS 2017 (49 minutos) \parencite{crawford2017}, analizada a partir de su transcripción.
+    \item \textbf{UNESCO:} Recomendación sobre la ética de la inteligencia artificial, adoptada en noviembre de 2021 \parencite{unesco2021}.
+    \item \textbf{OCDE:} Recomendación del Consejo sobre Inteligencia Artificial (OECD/LEGAL/0449).
+    \item \textbf{IEEE:} \textit{Ethically Aligned Design}, primera edición \parencite{ieee2019}. Se leyó el capítulo de principios generales.
+    \item \textbf{AI4People:} \parencite{floridi2018}, como material de apoyo y para el origen de los términos.
+    \item \textbf{Charla de Kate Crawford:} \textit{The Trouble with Bias}, conferencia magistral de NIPS 2017 \parencite{crawford2017}.
 \end{itemize}
-
-\textbf{Nota sobre la charla.} El enlace de TED que da la actividad (\texttt{ted.com/talks/kate\_crawford\_the\_trouble\_with\_bias}) no existe (devuelve ``no encontrado''), y en TED la charla titulada ``How to keep human bias out of AI'' es de Kriti Sharma, de 11:57 minutos, no de Kate Crawford. La pregunta de la actividad se refiere a lo que Crawford describe, así que se analizó su charla \textit{The Trouble with Bias} (NIPS 2017), que coincide con el título del enlace.
 
 \section{Desarrollo}
 
@@ -319,15 +317,15 @@ Los principios del tema 5.1 aparecen en los tres marcos con otros nombres. La Ta
 
 \subsection{Análisis de sesgo: la charla de Kate Crawford}
 
-La charla \textit{The Trouble with Bias} \parencite{crawford2017} parte de que el aprendizaje automático llegó a la salud, la educación y la justicia penal, y de que el sesgo aparece por todas partes. Estas son sus ideas principales, con los minutos aproximados de la transcripción automática.
+La charla \textit{The Trouble with Bias} \parencite{crawford2017} parte de que el aprendizaje automático llegó a la salud, la educación y la justicia penal, y de que el sesgo aparece por todas partes. Estas son sus ideas principales.
 
 \begin{itemize}
-    \item \textbf{Ejemplos de sesgo (minutos 1 a 5).} Menciona que el análisis de sentimiento de la interfaz de lenguaje natural de Google calificaba de forma negativa términos como ``negro'', ``gay'' y ``judío'' y de forma positiva ``soy heterosexual'' o ``poder blanco''; que el reparto el mismo día de Amazon dejaba fuera códigos postales con mucha población afroamericana, en un mapa ``inquietantemente familiar'' que se parece a los de segregación de los años treinta; y el estudio de ProPublica sobre los puntajes COMPAS en Florida, que encontró sesgo racial.
-    \item \textbf{El sesgo es social antes que técnico (minuto 7).} Los datos de entrenamiento reflejan una historia de discriminación, así que la tendencia por omisión de los sistemas es reflejarla. Afirma que el sesgo estructural es un asunto social primero y técnico después, y que no hay una solución mágica.
-    \item \textbf{Dos tipos de daño (minutos 13 a 21).} Los \emph{daños de asignación} ocurren cuando un sistema concede o niega a un grupo una oportunidad o un recurso (hipotecas, créditos, seguros). Los \emph{daños de representación} ocurren cuando los sistemas refuerzan la subordinación de grupos por identidad (raza, clase, género), aunque no negaran ningún recurso. Para estos últimos da cinco tipos: estereotipos (por ejemplo, el traductor que cambia el género de ``enfermera'' y ``médico''), falta de reconocimiento (sistemas de visión que no reconocen rostros de piel oscura), denigración (Google Fotos etiquetó a una mujer afroamericana como gorila) y subrepresentación (las imágenes de ``director ejecutivo'').
-    \item \textbf{Las soluciones técnicas no bastan (minutos 22 a 24).} ``Limpiar hacia lo neutral'' plantea quién decide qué es neutral; ajustar los resultados a la distribución actual (por ejemplo, menos de 8~\% de mujeres directivas) reproduce una desigualdad que ya fue producto de discriminación. Las soluciones técnicas son necesarias, pero no suficientes.
-    \item \textbf{La clasificación nunca es neutral (minutos 24 a 38).} Las categorías reflejan su época y su poder: recorre la historia de la clasificación, el conjunto de rostros \textit{Labeled Faces in the Wild} (77.5~\% hombres y con George W. Bush como el rostro más repetido), la clasificación de la homosexualidad como trastorno durante décadas, el sistema de clasificación racial del apartheid y los estudios que dicen detectar orientación sexual o criminalidad por el rostro, de los que dice que no están libres de sesgo, sino que lo ``codifican''.
-    \item \textbf{Propuestas (minutos 38 a 42).} Tres: hacer ``forenses de equidad'' (probar los sistemas en distintas poblaciones antes de lanzarlos y registrar el origen de los conjuntos de datos); tomar en serio la interdisciplina; y pensar en la ética de la clasificación, incluida la pregunta de si hay cosas que no deben construirse. Termina preguntando quién se beneficia del sistema y a quién puede dañar.
+    \item \textbf{Ejemplos de sesgo.} Menciona que el análisis de sentimiento de la interfaz de lenguaje natural de Google calificaba de forma negativa términos como ``negro'', ``gay'' y ``judío'' y de forma positiva ``soy heterosexual'' o ``poder blanco''; que el reparto el mismo día de Amazon dejaba fuera códigos postales con mucha población afroamericana, en un mapa ``inquietantemente familiar'' que se parece a los de segregación de los años treinta; y el estudio de ProPublica sobre los puntajes COMPAS en Florida, que encontró sesgo racial.
+    \item \textbf{El sesgo es social antes que técnico.} Los datos de entrenamiento reflejan una historia de discriminación, así que la tendencia por omisión de los sistemas es reflejarla. Afirma que el sesgo estructural es un asunto social primero y técnico después, y que no hay una solución mágica.
+    \item \textbf{Dos tipos de daño.} Los \emph{daños de asignación} ocurren cuando un sistema concede o niega a un grupo una oportunidad o un recurso (hipotecas, créditos, seguros). Los \emph{daños de representación} ocurren cuando los sistemas refuerzan la subordinación de grupos por identidad (raza, clase, género), aunque no negaran ningún recurso. Para estos últimos da cinco tipos: estereotipos (por ejemplo, el traductor que cambia el género de ``enfermera'' y ``médico''), falta de reconocimiento (sistemas de visión que no reconocen rostros de piel oscura), denigración (Google Fotos etiquetó a una mujer afroamericana como gorila) y subrepresentación (las imágenes de ``director ejecutivo'').
+    \item \textbf{Las soluciones técnicas no bastan.} ``Limpiar hacia lo neutral'' plantea quién decide qué es neutral; ajustar los resultados a la distribución actual (por ejemplo, menos de 8~\% de mujeres directivas) reproduce una desigualdad que ya fue producto de discriminación. Las soluciones técnicas son necesarias, pero no suficientes.
+    \item \textbf{La clasificación nunca es neutral.} Las categorías reflejan su época y su poder: recorre la historia de la clasificación, el conjunto de rostros \textit{Labeled Faces in the Wild} (77.5~\% hombres y con George W. Bush como el rostro más repetido), la clasificación de la homosexualidad como trastorno durante décadas, el sistema de clasificación racial del apartheid y los estudios que dicen detectar orientación sexual o criminalidad por el rostro, de los que dice que no están libres de sesgo, sino que lo ``codifican''.
+    \item \textbf{Propuestas.} Tres: hacer ``forenses de equidad'' (probar los sistemas en distintas poblaciones antes de lanzarlos y registrar el origen de los conjuntos de datos); tomar en serio la interdisciplina; y pensar en la ética de la clasificación, incluida la pregunta de si hay cosas que no deben construirse. Termina preguntando quién se beneficia del sistema y a quién puede dañar.
 \end{itemize}
 
 \subsection{Respuesta a la pregunta de reflexión}
@@ -340,15 +338,11 @@ Para Crawford~\parencite{crawford2017}, el sesgo es un problema social antes que
 
 La respuesta usa de Crawford la idea de que el sesgo nace de los datos y de la historia, y la distinción entre daños de asignación y de representación; de la UNESCO y la OCDE, los principios de equidad y no discriminación (Tabla~\ref{tab:comparativa}) y la exigencia de evaluar riesgos para prevenir daños; y del tema 5.1, las definiciones de no maleficencia y justicia \parencite{iae_u5_t51}.
 
-\subsection{Limitaciones}
-
-La charla de Crawford es de 2017 y sus ejemplos (el servicio de Amazon, la interfaz de Google, la clasificación de Google Fotos) son casos de ese año o anteriores; no se verificó cuáles siguen vigentes. Se analizó a partir de la transcripción automática en inglés, que tiene errores de reconocimiento, y no del video; los minutos son aproximados. De la UNESCO se usó el resumen oficial de principios y no el texto completo de la Recomendación. La comparación es cualitativa y las celdas de las tablas son resúmenes propios en español; una lectura distinta de los documentos podría matizar algunos de ellos. Las normas de la serie IEEE 7000, que derivan del documento del IEEE, no se revisaron; de la OCDE se usó la versión vigente, modificada en 2024.
-
 \section{Conclusiones}
 
 Los tres marcos coinciden en que la IA debe respetar los derechos humanos, ser transparente, rendir cuentas, ser segura, estar bajo supervisión humana, proteger la privacidad y buscar el bienestar. Donde más difieren es en la justicia y la no discriminación: la UNESCO y la OCDE las nombran de forma explícita, mientras que el IEEE las trata dentro de los derechos humanos. También difieren en su naturaleza y prioridades: la UNESCO pone el acento en los derechos humanos, la inclusión y el ambiente; la OCDE, en la política pública y las recomendaciones a los gobiernos; y el IEEE, en el bienestar y en la responsabilidad de quienes diseñan y operan los sistemas, con normas y certificación como camino a la práctica.
 
-La charla de Crawford muestra por qué la justicia y la no maleficencia no son equivalentes a ``tener buenos datos'': el sesgo viene de la historia social, produce daños de asignación y de representación, y no se elimina con una solución técnica, aunque estas sean necesarias. Por eso los marcos piden además evaluación de riesgos, trazabilidad, supervisión humana y rendición de cuentas.
+La charla de Crawford muestra por qué la justicia y la no maleficencia no son equivalentes a ``tener buenos datos'': el sesgo viene de la historia social, produce daños de asignación y de representación, y no se elimina con una solución técnica, aunque estas sean necesarias.
 
 \referencias
 

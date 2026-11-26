@@ -204,7 +204,7 @@ La actividad consta de cuatro tareas:
 
 \section{Desarrollo}
 
-Las tareas 1 a 3 se resolvieron en el script \texttt{act10.py}, que usa \texttt{numpy}, \texttt{pandas}, \texttt{scipy} y \texttt{matplotlib}. Se implementaron las cinco distribuciones, cada una con dos conjuntos de parámetros, en lugar de las dos mínimas que pide la actividad. Las simulaciones usan la semilla 10 para que los resultados sean reproducibles, y las figuras se guardan como imágenes PNG en la carpeta \texttt{img/}. El Código~\ref{cod:comun} contiene las importaciones y la función auxiliar \texttt{guardar()}, que además muestra las figuras en pantalla cuando el código se ejecuta en un cuaderno. La tarea 4 es una reflexión y se desarrolla en la sección de resultados. El cuaderno interactivo puede consultarse en Google Colab:
+Las tareas se resolvieron en el script que utiliza \texttt{numpy}, \texttt{pandas}, \texttt{scipy} y \texttt{matplotlib}. Se implementaron las cinco distribuciones, cada una con dos conjuntos de parámetros, en lugar de las dos mínimas que pide la actividad. Las simulaciones usan la semilla 10 para que los resultados sean reproducibles, y las figuras se guardan como imágenes PNG en la carpeta \texttt{img/}. El Código~\ref{cod:comun} contiene las importaciones y la función auxiliar \texttt{guardar()}, que además muestra las figuras en pantalla cuando el código se ejecuta en un cuaderno. La tarea 4 es una reflexión y se desarrolla en la sección de resultados. El cuaderno interactivo puede consultarse en Google Colab:
 
 \begin{center}
     \url{https://colab.research.google.com/drive/1egz1s02WVbF143TfA3ad5c6462J49HrY?usp=sharing}
@@ -528,6 +528,7 @@ print(pd.DataFrame(errores, index=tamanos).rename_axis('N').round(4).to_string()
 print(f"\nFiguras guardadas en {os.path.basename(CARPETA_IMG)}/")
 \end{codigo}
 
+\newpage
 \section{Resultados}
 
 \subsection{Tareas 1 y 2: Simulación y visualización}
@@ -631,7 +632,7 @@ Las probabilidades teóricas de la hipergeométrica con $N = 53$, $K = 6$ y $n =
 \begin{consola}[label=out:t3e]{Ejecución de \texttt{act10.py}: error según el número de simulaciones}
 === Tarea 3e: error máximo según el número de simulaciones ===
         Binomial  Poisson  Geométrica
-N                                    
+N
 100       0.0449   0.0996      0.0350
 300       0.0251   0.0407      0.0200
 1000      0.0311   0.0237      0.0240

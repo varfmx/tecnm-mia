@@ -103,6 +103,14 @@ cd actividades/act26
 python act26.py
 ```
 
+Actividad 26a (simulador de enjambre de robots de búsqueda y rescate: coordinación, mensajes y estrategia
+colectiva; zonas simuladas, sin descargas; ~3 min, imprime las tablas del reporte y guarda las figuras):
+
+```bash
+cd actividades/act26a
+python act26a.py
+```
+
 Compilar el reporte PDF (requiere `latexmk` y `biber`):
 
 ```bash

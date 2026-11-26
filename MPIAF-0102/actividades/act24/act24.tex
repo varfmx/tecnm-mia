@@ -136,7 +136,7 @@
 
 El analista responde preguntas que ya conoce; el minero de datos descubre preguntas que no sabía hacer, y lo hace con un proceso sistemático (KDD o CRISP-DM) y no sólo con algoritmos \parencite{iae_u4_t45}. Un supermercado es un caso natural: guarda miles de tickets de compra y quiere saber qué productos conviene acomodar juntos, qué clientes se parecen entre sí y qué transacciones no encajan.
 
-En este reporte se desarrolla la Actividad 1 del Tema 4.5, ``Detective de Datos: Descubriendo Patrones Ocultos''. Como consultor de un supermercado, se aplican tres técnicas del tema: reglas de asociación (análisis de canasta), \textit{clustering} (segmentación de clientes) y detección de anomalías (transacciones sospechosas). Como el código base del tema deja los datos por simular y pide descubrir tres patrones conocidos, se construyó un conjunto simulado donde se conoce la respuesta, lo que permite además medir qué tan bien funciona cada método, y no sólo mostrar resultados.
+En este reporte se desarrolla la actividad como si se tratase de un consultor de un supermercado, se aplican tres técnicas del tema: reglas de asociación (análisis de canasta), \textit{clustering} (segmentación de clientes) y detección de anomalías (transacciones sospechosas). Como el código base del tema deja los datos por simular y pide descubrir tres patrones conocidos, se construyó un conjunto simulado donde se conoce la respuesta, lo que permite además medir qué tan bien funciona cada método, y no sólo mostrar resultados.
 
 \section{Marco conceptual}
 
@@ -616,7 +616,7 @@ Para ver si los resultados dependen de una simulación en particular, se repiti�
 \begin{consola}[label=out:rob]{Resultados con 10 simulaciones distintas}
 --- Robustez: 10 simulaciones con semillas distintas ---
             patrones  lift_min  ARI_KMeans  AP_IForest
-simulación                                            
+simulación
 0                  3     2.858       0.542       0.848
 1                  3     2.874       0.609       0.832
 2                  3     2.769       0.672       0.774
@@ -646,7 +646,7 @@ Los datos son simulados y los patrones, segmentos y fraudes se diseñaron con un
 
 Los tres métodos del tema se aplicaron a un supermercado simulado con 5\,000 tickets. Con reglas de asociación se descubrieron los tres patrones pedidos (confianza de 82~\% a 88~\%, lift cercano a 3), lo que requirió un soporte mínimo menor al de los patrones (9.3~\%), y se observó que ordenar sólo por confianza o por lift destaca variantes redundantes con productos de más y que el valor práctico está más en acomodar los productos que en promociones, porque el 88~\% de quienes compran los antecedentes ya compra el consecuente. Con \textit{clustering} se identificaron cuatro segmentos interpretables (familias, jóvenes, saludables y abasto) y 86~\% de los clientes quedó en el grupo correcto; la silueta favorece dos grupos y el codo cuatro, y DBSCAN no resultó adecuado para una nube continua de clientes. En detección de anomalías la exactitud no sirve (98~\% con marcar todo como normal), Isolation Forest fue el mejor de los tres algoritmos del tema (precisión y recall de 0.78) y LOF pasó de fallar a ser el mejor con sólo cambiar el número de vecinos.
 
-Para el supermercado, las recomendaciones son acomodar mantequilla junto a pan y leche, y dulces junto a cervezas y papas; diseñar acciones distintas por segmento (por ejemplo, el de abasto visita poco y compra mucho: lo valioso es aumentar su frecuencia); y revisar cada semana los tickets de mayor puntaje de Isolation Forest, empezando por 50 (precisión de 100~\% en la simulación) y ajustando según el costo de la revisión. Antes de usarlo con datos reales hay que repetir el análisis con tickets verdaderos, validar los fraudes marcados con una persona y ajustar los umbrales de cada segmento.
+Para el supermercado, las recomendaciones son acomodar mantequilla junto a pan y leche, y dulces junto a cervezas y papas; diseñar acciones distintas por segmento (por ejemplo, el de abasto visita poco y compra mucho: lo valioso es aumentar su frecuencia); y revisar cada semana los tickets de mayor puntaje de Isolation Forest, empezando por 50 (precisión de 100~\% en la simulación) y ajustando según el costo de la revisión.
 
 \referencias
 
