@@ -1,0 +1,606 @@
+%% =======================================================
+%% Actividad 26a: "Simulador de Enjambre de Robots"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  after={\par\normalcolor},
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 4.6. Robótica \\ Actividad 26a - Simulador de \\ Enjambre de Robots}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+En este tema se describe la robótica de enjambre (\emph{swarm robotics}) como ``enjambres de robots simples que colaboran'', con tres beneficios: robustez, escalabilidad y capacidad de realizar tareas colectivas complejas; sus ejemplos son los enjambres de drones y los robots de almacén colaborativos \parencite{iae_u4_t46}. La actividad que se pide es desarrollar un sistema de enjambre para robots de búsqueda y rescate, con tres retos: coordinar varios robots, implementar un sistema de mensajes entre ellos y desarrollar algoritmos de búsqueda eficiente en equipo \parencite{iae_u4_t46}.
+
+En este reporte se construye ese simulador. Una zona de desastre de 30$\times$30 celdas tiene escombros y 8 víctimas escondidas; varios robots salen de una base, perciben sólo lo que tienen cerca y deben encontrar a todas las víctimas en el menor número de pasos. Se comparan cinco estrategias que se distinguen por cuánto se coordinan y cuánto se comunican, y con ellas se responden cuatro preguntas: ¿gana el enjambre a robots que trabajan por separado?, ¿cuánto aporta comunicar el mapa y cuánto repartirse el trabajo?, ¿qué pasa al añadir robots? y ¿qué pasa cuando algunos se descomponen? Todo se mide en 30 zonas generadas al azar, con medidas de dispersión y, en la comparación principal, intervalos de confianza.
+
+\section{Marco conceptual}
+
+\subsection{Enjambre, coordinación y comunicación}
+
+Por ``enjambre'' el tema entiende robots simples que colaboran \parencite{iae_u4_t46}. En este simulador, ``simple'' significa que cada robot sólo conoce su propio mapa (lo que percibió y lo que le contaron), no hay un controlador central y todos usan la misma política. Conviene distinguir dos ideas que a veces se confunden. La \textbf{comunicación} es el intercambio de información entre robots (qué celdas ya se vieron, dónde hay una víctima). La \textbf{coordinación} es decidir quién hace qué para no duplicar esfuerzo, y puede lograrse con o sin comunicación: un reparto fijo del terreno coordina sin que los robots se hablen, y dos robots pueden compartir un mapa y aun así ir a la misma zona. Las cinco estrategias que se comparan separan esos dos ingredientes.
+
+\subsection{Exploración por fronteras}
+
+Para buscar víctimas hay que explorar. La técnica que se usa aquí (no está en el tema, y no se cita ninguna fuente para ella) es la exploración por fronteras: una \textbf{frontera} es una celda libre conocida que tiene al menos una vecina desconocida. Ir a una frontera revela terreno nuevo, y cuando no quedan fronteras el robot ya vio todo lo que puede alcanzar. Cada robot elige una frontera, calcula el camino más corto hasta ella sobre su mapa con una búsqueda en anchura y avanza una celda por paso. Las estrategias sólo cambian \emph{cómo puntúan} las fronteras.
+
+\section{Descripción de la actividad}
+
+\textbf{Contexto:} se desarrolla un sistema de enjambre para robots de búsqueda y rescate \parencite{iae_u4_t46}.
+
+\subsection*{Desafío}
+
+\begin{description}
+    \item[Tarea 1: Coordinación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Programar múltiples robots que colaboren.
+    \end{enumerate}
+    \item[Tarea 2: Comunicación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Implementar un sistema de mensajes entre robots.
+    \end{enumerate}
+    \item[Tarea 3: Estrategia colectiva.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Desarrollar algoritmos para una búsqueda eficiente en equipo.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Datos utilizados}
+
+El simulador extiende el robot del enjambre, es decir hereda de \texttt{RobotMovil} y usa sus métodos \texttt{rotar} y \texttt{mover\_adelante} \parencite{iae_u4_t46}. Las zonas de desastre se generaron al azar con semilla fija: cuadrículas de 30$\times$30 con muebles rectangulares de 1$\times$1 a 3$\times$3 celdas (los ``escombros'') hasta ocupar aproximadamente 15~\% del área, una base en la esquina $(0, 0)$ y 8 víctimas en celdas alcanzables desde la base. Como los escombros pueden aislar celdas, en promedio hay 763 celdas alcanzables de las 900. Se generaron 30 zonas para la evaluación (semillas 42 a 71) y otras 10 con semillas distintas (1000 a 1009) para elegir los parámetros del enjambre.
+
+\newpage
+
+\section{Desarrollo}
+
+\subsection{El simulador}
+
+La Tabla~\ref{tab:param} resume el escenario. El código completo de la actividad está en Google Colab:\newline
+\url{https://colab.research.google.com/drive/1m1bYp3l8uGoh6-2pD7FrNRjqYyds64us?usp=sharing}.
+
+
+\begin{table}[H]
+\centering
+\caption{Parámetros del escenario (fijados antes de evaluar).}
+\label{tab:param}
+\small
+\begin{tabular}{@{}p{5.2cm}p{7.5cm}@{}}
+\toprule
+Parámetro & Valor \\
+\midrule
+Zona & 30$\times$30 celdas, 15~\% de escombros, 8 víctimas \\
+Sensor de cada robot & cuadrado de 5$\times$5 celdas centrado en el robot (sin línea de visión) \\
+Movimiento & una celda por paso en cuatro direcciones; los robots pueden compartir celda \\
+Radio de comunicación & 10 celdas (distancia euclidiana), salvo que se indique \\
+Retraso de un mensaje & 1 paso \\
+Aviso periódico de posición (``baliza'') & un robot lo envía cada 3 pasos \\
+Vigencia de lo dicho por otro & 15 pasos \\
+Tope por misión & 800 pasos \\
+Zonas por condición & 30 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Una misión termina cuando alguien detecta a la octava víctima (o al llegar al tope). La medida principal es el número de \textbf{pasos hasta hallar a todas las víctimas}, y se mide también la mitad de las víctimas, los \textbf{pasos redundantes} (aproximadamente, los pasos de robot en los que no se descubrió ninguna celda nueva para nadie; la observación inicial en la base cuenta como útil), los mensajes enviados y las celdas transmitidas. Un registro global, que sólo ve el simulador y no los robots, lleva la cuenta de qué se ha observado y cuándo se detectó a cada víctima.
+
+\subsection{Tarea 1: Coordinación}
+
+Se programaron cinco estrategias (Tabla~\ref{tab:estrategias}). Las tres últimas completan la comparación entre comunicar y coordinar: \texttt{bandas fijas} coordina sin comunicar, \texttt{mapa compartido} comunica sin repartir objetivos y \texttt{enjambre} hace las dos cosas.
+
+\begin{table}[H]
+\centering
+\caption{Estrategias comparadas.}
+\label{tab:estrategias}
+\small
+\begin{tabular}{@{}p{2.6cm}p{1.6cm}p{1.8cm}p{6.6cm}@{}}
+\toprule
+Estrategia & Se coordina & Se comunica & Cómo elige a dónde ir \\
+\midrule
+aleatorio & no & no & Camina al azar a una celda vecina libre. \\
+independiente & no & no & La frontera más cercana de su propio mapa. \\
+bandas fijas & sí & no & Cada robot tiene una franja horizontal fija (según su número) y prefiere las fronteras dentro de ella; si no quedan, va a la más cercana a su franja. \\
+mapa compartido & no & sí & La frontera más cercana, pero con el mapa que comparte con los demás. \\
+enjambre & sí & sí & Mapa compartido y, además, penaliza las fronteras cercanas al objetivo que otro anunció. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El enjambre completo usa el Código~\ref{cod:enjambre}. Cada frontera recibe un costo igual a la distancia hasta ella más una penalización por cada objetivo ajeno vigente que esté a menos de \texttt{SEP} celdas; gana la de menor costo. Además hay una regla de subasta: si otro robot reclama un objetivo a dos celdas o menos del propio y está más cerca (o igual de cerca y con menor número), el robot cede y elige otro. Los robots se comprometen con su objetivo hasta alcanzarlo, hasta que deje de ser frontera o hasta que pierdan un conflicto (Código~\ref{cod:plan}).
+
+\begin{codigo}[label=cod:plan]{Fronteras, elección de objetivo y movimiento}
+    def fronteras(self):
+        k = self.conocido
+        desc = k == -1
+        vec = np.zeros_like(desc)
+        vec[1:, :] |= desc[:-1, :]
+        vec[:-1, :] |= desc[1:, :]
+        vec[:, 1:] |= desc[:, :-1]
+        vec[:, :-1] |= desc[:, 1:]
+        return (k == 0) & vec
+
+    def pierde_conflicto(self, t):
+        return False
+
+    def puntaje(self, xs, ys, d, t):
+        """Costo de cada frontera (menor = mejor). La política base: la más cercana."""
+        return d.astype(float)
+
+    def planificar(self, t):
+        dist, padre = self.bfs()
+        ys, xs = np.nonzero(self.fronteras() & (dist >= 0))
+        self.ultimo_plan = t
+        if len(xs) == 0:
+            self.objetivo, self.ruta, self.ocioso = None, [], True
+            return
+        self.ocioso = False
+        s = self.puntaje(xs, ys, dist[ys, xs], t) + self.rng.random(len(xs)) * 1e-3     # desempate al azar
+        i = int(np.argmin(s))
+        obj = (int(xs[i]), int(ys[i]))
+        ruta = [obj]
+        while ruta[-1] != self.celda:
+            ruta.append(padre[ruta[-1]])
+        self.objetivo, self.ruta = obj, ruta[::-1][1:]
+
+    def decidir_y_mover(self, t):
+        if self.ocioso and t - self.ultimo_plan < REINTENTO:
+            return
+        # compromiso: se conserva el objetivo hasta alcanzarlo (o hasta que deje de ser frontera o pierda un conflicto)
+        if self.objetivo is None or not self.es_frontera(self.objetivo) or self.pierde_conflicto(t):
+            self.planificar(t)
+        if self.ruta:
+            self.mover_a(self.ruta.pop(0))
+\end{codigo}
+
+\begin{codigo}[label=cod:enjambre]{Política del enjambre completo}
+class RobotEnjambreCompleto(RobotMapaCompartido):
+    """Comparte el mapa y además penaliza las fronteras cercanas a donde está o a donde va otro compañero."""
+    SEP, PEN_OBJ, PEN_POS = 6, 1.5, 0.0     # elegidos con las semillas de ajuste
+
+    def pierde_conflicto(self, t):
+        """Subasta simple: si un compañero reclama (casi) mi mismo objetivo y está más cerca, lo cedo (desempata el menor id)."""
+        for j, (celda, obj, tt) in self.otros.items():
+            if obj is None or t - tt > VIGENCIA:
+                continue
+            if abs(obj[0] - self.objetivo[0]) + abs(obj[1] - self.objetivo[1]) <= 2:
+                mia = abs(self.celda[0] - self.objetivo[0]) + abs(self.celda[1] - self.objetivo[1])
+                suya = abs(celda[0] - obj[0]) + abs(celda[1] - obj[1])
+                if (suya, j) < (mia, self.id):
+                    return True
+        return False
+
+    def puntaje(self, xs, ys, d, t):
+        s = d.astype(float)
+        for celda, obj, tt in self.otros.values():
+            if t - tt > VIGENCIA:
+                continue
+            if obj is not None:
+                s += self.PEN_OBJ * np.maximum(0, self.SEP - (abs(xs - obj[0]) + abs(ys - obj[1])))
+            s += self.PEN_POS * np.maximum(0, self.SEP - (abs(xs - celda[0]) + abs(ys - celda[1])))
+        return s
+\end{codigo}
+
+\textbf{Ajuste de parámetros.} Los valores de la penalización se eligieron con 10 zonas distintas de las de evaluación, para no ajustar sobre lo que luego se mide. Se probaron ocho combinaciones con 4 y con 8 robots (Salida~\ref{out:ajuste}) y se fijaron \texttt{SEP}~=~6, \texttt{PEN\_OBJ}~=~1.5 y \texttt{PEN\_POS}~=~0, que dieron 69.9 y 60.3 pasos; fue el mejor compromiso entre los dos tamaños (otras combinaciones eran mejores para uno y peores para el otro; por ejemplo, no penalizar nada dio 97.3 pasos con 4 robots y 58.4 con 8). La diferencia entre las mejores combinaciones es pequeña con sólo 10 zonas, así que la elección no es fina.
+
+\begin{consola}[label=out:ajuste]{Ajuste de la penalización del enjambre}
+ SEP  PEN_OBJ  PEN_POS  t_todas (4 robots)  t_todas (8 robots)  completa % (8)
+  10      0.0      0.0                97.3                58.4           100.0
+  10      1.5      0.0                70.4                67.8           100.0
+  10      1.5      0.7                72.2                76.3           100.0
+  10      3.0      0.0                80.1                81.1           100.0
+   6      1.5      0.0                69.9                60.3           100.0
+   6      1.5      0.7                69.6                62.1           100.0
+  14      1.5      0.0                72.9                86.7           100.0
+  14      3.0      0.7                98.9               109.4           100.0
+\end{consola}
+
+\textbf{Un fallo de la primera versión.} En una primera versión (que no se conserva en el código final) los robots volvían a elegir objetivo cada 6 pasos y la penalización sumaba la posición y el objetivo de todos los compañeros. Con 4 robots funcionaba, pero con 8 sólo completaba la misión el 86.7~\% de las zonas (201 pasos en promedio) y con 16 el 43.3~\% (525 pasos), y empeoraba al ampliar el radio de comunicación. La causa probable es que, con muchos compañeros, la penalización crecía tanto que los robots huían unos de otros y cambiaban de objetivo antes de alcanzarlo. No se aisló cuál de los dos cambios (compromiso o regla de subasta) fue el decisivo, pero juntos resolvieron el problema: la versión final completa el 100~\% de las misiones en todas las condiciones probadas.
+
+\subsection{Tarea 2: Comunicación}
+
+El sistema de mensajes (Código~\ref{cod:canal}) tiene un canal de radio de alcance limitado: un mensaje llega a los robots que estén a una distancia menor o igual al radio cuando se envía, y se entrega un paso después. Un robot caído no envía ni recibe. Hay tres tipos de mensaje (Tabla~\ref{tab:mensajes}). El primero es la \emph{baliza}, nombre que se usa en el resto del reporte: un aviso corto que cada robot emite a intervalos fijos, sin que nadie lo pida, para decir dónde está y a dónde va (como la señal luminosa de un faro o una boya); los demás lo usan para saber quién está cerca y repartirse los objetivos. La información se contagia de robot en robot: lo que un robot aprendió de otro también entra en lo que cuenta a un tercero (sin devolvérselo a quien se lo dijo), de modo que un hallazgo puede cruzar la zona aunque no todos estén a la vista de todos.
+
+\begin{table}[H]
+\centering
+\caption{Tipos de mensaje.}
+\label{tab:mensajes}
+\small
+\begin{tabular}{@{}p{2.1cm}p{2.3cm}p{4.6cm}p{3.2cm}@{}}
+\toprule
+Tipo & Destino & Contenido & Cuándo \\
+\midrule
+\texttt{POSICION} & difusión (a todo el que esté en alcance) & Su celda y el objetivo que eligió (su ``reclamo''). & Cada 3 pasos. \\
+\texttt{MAPA} & un compañero que acaba de oírse & Las celdas que ese compañero aún no tiene (desde el último envío). & Tras oír su baliza. \\
+\texttt{VICTIMA} & difusión & Las celdas con víctima que acaba de detectar. & Al detectarla. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{codigo}[label=cod:canal]{Mensajes y canal de radio}
+@dataclass
+class Mensaje:
+    tipo: str        # POSICION (baliza), MAPA (celdas nuevas) o VICTIMA (hallazgo urgente)
+    de: int
+    a: object        # id del destinatario o "*" (difusión a todo el que esté en alcance)
+    carga: object
+    t: int
+
+
+class Canal:
+    """Radio de alcance limitado: un mensaje llega a quien esté a distancia <= rc cuando se envía, con un paso de retraso."""
+
+    def __init__(self, rc, traza=0):
+        self.rc = rc                      # 0 = sin radio; 999 = alcance práctico infinito
+        self.activo = rc != 0
+        self.cuenta = Counter()
+        self.celdas = 0
+        self.en_vuelo = []
+        self.traza, self.max_traza = [], traza
+
+    def enviar(self, msg, emisor, robots):
+        if not self.activo:
+            return
+        dest = [r for r in robots if r.vivo and r.id != emisor.id and (msg.a == "*" or msg.a == r.id)
+                and math.dist(r.celda, emisor.celda) <= self.rc]
+        self.cuenta[msg.tipo] += 1
+        if msg.tipo in ("MAPA", "VICTIMA"):
+            self.celdas += len(msg.carga)
+        if len(self.traza) < self.max_traza:
+            self.traza.append((msg, emisor.celda, [r.id for r in dest]))
+        self.en_vuelo += [(r, msg) for r in dest]
+
+    def entregar(self):
+        pendientes, self.en_vuelo = self.en_vuelo, []
+        for r, msg in pendientes:
+            if r.vivo:
+                r.recibir(msg)
+
+    @property
+    def total(self):
+        return sum(self.cuenta.values())
+\end{codigo}
+
+\begin{codigo}[label=cod:robot]{Comunicación del robot: balizas, mapas y avisos}
+    def comunicar(self, t):
+        if not (self.usa_radio and self.canal.activo):
+            return
+        if t % PERIODO_BALIZA == self.id % PERIODO_BALIZA:
+            self.canal.enviar(Mensaje("POSICION", self.id, "*", (self.celda, self.objetivo), t), self, self.robots)
+        if self.nuevas_victimas:
+            carga = [(x, y, 2, self.id) for x, y in self.nuevas_victimas]
+            self.canal.enviar(Mensaje("VICTIMA", self.id, "*", carga, t), self, self.robots)
+        self.nuevas_victimas = []
+        for j in sorted(self.escuchados):
+            delta = [f for f in self.log[self.enviado.get(j, 0):] if f[3] != j]
+            self.enviado[j] = len(self.log)
+            if delta:
+                self.canal.enviar(Mensaje("MAPA", self.id, j, delta, t), self, self.robots)
+        self.escuchados = set()
+
+    def recibir(self, msg):
+        if msg.tipo == "POSICION":
+            self.otros[msg.de] = (*msg.carga, msg.t)
+            self.escuchados.add(msg.de)
+        else:                                   # MAPA o VICTIMA: celdas nuevas para mí
+            for x, y, v, _ in msg.carga:
+                self.aprender(x, y, v, msg.de)
+\end{codigo}
+
+La Salida~\ref{out:traza} muestra el comienzo de una misión de 3 robots. En $t = 0$ el robot 0 anuncia su posición; en $t = 1$ los robots 1 y 2 le mandan 12 celdas cada uno (lo que ya vieron), y en $t = 2$ él le devuelve 18 al robot 1 (las suyas y las del robot 2, no las que el robot 1 mismo le había dado). A partir de ahí casi todo el tráfico son balizas con el objetivo que cada uno eligió. La misión completa duró 100 pasos y envió 100 balizas, 61 mensajes de mapa y 7 avisos de víctima (3\,417 celdas transmitidas); son 7 avisos para 8 víctimas porque la misión termina al detectar la octava, antes de que se anuncie, y porque un aviso puede cubrir varias víctimas detectadas en el mismo paso. El primer aviso de víctima salió en $t = 19$ y sólo llegó al robot 0, porque los otros dos estaban fuera de alcance.
+
+\begin{consola}[label=out:traza]{Traza de mensajes de una misión de 3 robots}
+Misión completa en 100 pasos; mensajes por tipo: {'POSICION': 100, 'MAPA': 61, 'VICTIMA': 7}; celdas transmitidas: 3417
+t=  0  R0 ->  *  POSICION  posición (0, 0), objetivo None   [llega a [1, 2]]
+t=  1  R1 ->  *  POSICION  posición (0, 1), objetivo (0, 2)   [llega a [0, 2]]
+t=  1  R1 ->  0  MAPA      12 celdas   [llega a [0]]
+t=  1  R2 ->  0  MAPA      12 celdas   [llega a [0]]
+t=  2  R0 ->  1  MAPA      18 celdas   [llega a [1]]
+t=  2  R2 ->  *  POSICION  posición (2, 0), objetivo (3, 0)   [llega a [0, 1]]
+t=  3  R0 ->  *  POSICION  posición (1, 2), objetivo (3, 0)   [llega a [1, 2]]
+t=  4  R1 ->  *  POSICION  posición (0, 4), objetivo (0, 5)   [llega a [0, 2]]
+t=  5  R2 ->  *  POSICION  posición (5, 0), objetivo (6, 2)   [llega a [0, 1]]
+t=  6  R0 ->  *  POSICION  posición (3, 3), objetivo (4, 3)   [llega a [1, 2]]
+t=  7  R1 ->  *  POSICION  posición (1, 6), objetivo (2, 6)   [llega a [0, 2]]
+t=  8  R2 ->  *  POSICION  posición (7, 1), objetivo (8, 1)   [llega a [0, 1]]
+t=  9  R0 ->  *  POSICION  posición (4, 5), objetivo (4, 6)   [llega a [1, 2]]
+t= 10  R1 ->  *  POSICION  posición (1, 9), objetivo (1, 10)   [llega a [0]]
+Primer aviso de víctima: t=19, R1, llega a [0]
+\end{consola}
+
+\subsection{Tarea 3: Estrategia colectiva}
+
+\textbf{Estrategias con 4 robots.} El Código~\ref{cod:simular} es el simulador de una misión. La Salida~\ref{out:exp1} compara las cinco estrategias en 30 zonas con 4 robots y radio 10. \texttt{completa~\%} es el porcentaje de misiones que hallaron a las 8 víctimas dentro de 800 pasos; si una misión no termina, cuenta como 800 pasos, de modo que el promedio del aleatorio es una cota inferior.
+
+\begin{codigo}[label=cod:simular]{Simulador de una misión}
+def simular(mundo, estrategia, n, rc=10, semilla=0, fallas=0, t_falla=15, max_pasos=MAX_PASOS, traza=0, clase=None):
+    """Una misión: n robots salen de la base; termina cuando todas las víctimas fueron detectadas (por alguien)."""
+    rng = np.random.default_rng(semilla)
+    canal, reg, robots = Canal(rc, traza), Registro(mundo), []
+    clase = clase or ESTRATEGIAS[estrategia]
+    for i in range(n):
+        robots.append(clase(i, n, mundo, canal, reg, np.random.default_rng(int(rng.integers(2 ** 31))), robots))
+    caidos = set(int(i) for i in rng.choice(n, fallas, replace=False)) if fallas else set()
+    t_todas = None
+    for t in range(max_pasos):
+        if t == t_falla:
+            for i in caidos:
+                robots[i].vivo = False
+        vivos = [r for r in robots if r.vivo]
+        if not vivos:
+            break
+        canal.entregar()
+        for r in vivos:
+            r.percibir(t)
+        if len(reg.detectadas) == len(mundo.victimas):
+            t_todas = t
+            break
+        for r in vivos:
+            r.comunicar(t)
+        for r in vivos:
+            r.decidir_y_mover(t)
+        if all(r.ocioso for r in vivos) and not canal.en_vuelo:
+            break
+    tiempos = sorted(reg.detectadas.values())
+    pasos_robot = sum(r.movimientos for r in robots)
+    nv = len(mundo.victimas)
+    return {
+        "completa": t_todas is not None,
+        "t_todas": t_todas if t_todas is not None else max_pasos,
+        "t_mitad": tiempos[nv // 2 - 1] if len(tiempos) >= nv // 2 else max_pasos,
+        "halladas": len(reg.detectadas) / nv,
+        "cobertura": float((reg.obs & mundo.alcanzable).sum()) / mundo.n_alcanzables,
+        "redundancia": 1 - sum(r.pasos_utiles for r in robots) / max(1, pasos_robot),
+        "mensajes": canal.total,
+        "celdas_tx": canal.celdas,
+        "pasos_robot": pasos_robot,
+        "_robots": robots, "_canal": canal, "_registro": reg,
+    }
+\end{codigo}
+
+\begin{consola}[label=out:exp1]{Cinco estrategias, 4 robots, radio 10}
+Celdas alcanzables por zona: media 763 de 900
+                 compl. %  t_todas  desv  mediana  t_mitad  redund. %  mensajes  celdas
+aleatorio            10.0    788.3  40.5    800.0    367.8       92.8       0.0     0.0
+independiente       100.0    116.2  41.2    121.0     40.9       47.5       0.0     0.0
+bandas fijas        100.0     76.3  19.5     71.0     32.4       31.1       0.0     0.0
+mapa compartido     100.0     95.2  27.5     94.0     38.2       36.4     342.4  5517.6
+enjambre            100.0     70.8  16.5     69.0     34.7       27.4     252.8  4087.1
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26a/img/estrategias.png}
+\caption{Pasos hasta hallar a las 8 víctimas (izquierda; la línea punteada es el tope de 800 pasos) y porcentaje de pasos de robot sin descubrir nada nuevo (derecha), con 4 robots en 30 zonas.}
+\label{fig:estrategias}
+\end{figure}
+
+El robot aleatorio es inservible: sólo el 10~\% de las misiones terminó en 800 pasos y el 93~\% de sus pasos no descubre nada nuevo. Los robots independientes, aunque son cuatro, necesitan 116.2 pasos en promedio (desviación 41.2) y desperdician el 47.5~\% de sus pasos, porque todos salen de la misma esquina y van a las mismas fronteras. Repartir las franjas reduce el tiempo a 76.3 pasos (31.1~\% redundantes) sin ningún mensaje. Compartir sólo el mapa baja el tiempo a 95.2 pasos con 342 mensajes. El enjambre completo es la mejor: 70.8 pasos (desviación 16.5), 27.4~\% de pasos redundantes y 253 mensajes. En la mitad de las víctimas las estrategias se parecen más (32.4 a 40.9 pasos), lo que indica que las diferencias se acumulan sobre todo al terminar, cuando quedan víctimas en rincones lejanos.
+
+\begin{consola}[label=out:dif]{Diferencias pareadas entre estrategias (4 robots)}
+Diferencias pareadas por zona en t_todas (IC 95 % por bootstrap, 2000 remuestreos)
+                    comparación  dif_media  IC_inf  IC_sup 2o_mejor
+       independiente - enjambre       45.4    28.0    61.2    24/30
+        bandas fijas - enjambre        5.4    -3.4    13.1    19/30
+     mapa compartido - enjambre       24.4    14.3    36.4    25/30
+independiente - mapa compartido       21.0     3.9    38.8    20/30
+   independiente - bandas fijas       40.0    24.9    55.3    24/30
+\end{consola}
+
+La Salida~\ref{out:dif} compara zona por zona, con intervalos de confianza del 95~\% por bootstrap. El enjambre supera a los independientes por 45.4 pasos (IC 28.0 a 61.2; mejor en 24 de 30 zonas) y al mapa compartido por 24.4 (IC 14.3 a 36.4; 25 de 30). Compartir el mapa por sí solo ayuda (21.0 pasos menos que los independientes, IC 3.9 a 38.8), pero repartir los objetivos aporta más que eso. Contra las bandas fijas, el enjambre es 5.4 pasos mejor en promedio, pero el intervalo incluye el cero (IC $-3.4$ a 13.1) y sólo gana en 19 de 30 zonas, de manera que \textbf{con 4 robots no se puede afirmar que el enjambre sea mejor que el reparto fijo}; sí lo es respecto a no coordinarse.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26a/img/misiones.png}
+\caption{Una misma zona (30$\times$30) con 4 robots y tres estrategias; cada color es un robot, el cuadro negro es la base, el gris son escombros y las estrellas rojas son víctimas. Es un solo caso ilustrativo, no un promedio.}
+\label{fig:misiones}
+\end{figure}
+
+La Figura~\ref{fig:misiones} muestra un caso: los robots independientes se cruzan y recorren las mismas zonas (121 pasos); con franjas fijas cada uno barre su región (85 pasos); en el enjambre las trayectorias se reparten y se cruzan poco (80 pasos).
+
+\textbf{Escalabilidad.} Se repitió la comparación con 1, 2, 4, 8 y 16 robots (Salida~\ref{out:exp2}). La aceleración es el tiempo con un robot dividido entre el tiempo con $n$ robots, y la eficiencia es la aceleración dividida entre $n$. Con un solo robot las tres estrategias son idénticas (240.7 pasos).
+
+\begin{consola}[label=out:exp2]{Escalabilidad con el número de robots (radio 10)}
+   estrategia  robots  t_todas  completa %  redund. %  mensajes  aceleración  eficiencia
+independiente       1   240.73       100.0      18.12      0.00         1.00        1.00
+independiente       2   169.17       100.0      35.53      0.00         1.42        0.71
+independiente       4   116.23       100.0      47.48      0.00         2.07        0.52
+independiente       8    76.87       100.0      57.97      0.00         3.13        0.39
+independiente      16    62.13       100.0      71.57      0.00         3.87        0.24
+ bandas fijas       1   240.73       100.0      18.12      0.00         1.00        1.00
+ bandas fijas       2   134.57       100.0      21.62      0.00         1.79        0.89
+ bandas fijas       4    76.27       100.0      31.07      0.00         3.16        0.79
+ bandas fijas       8    58.93       100.0      48.16      0.00         4.08        0.51
+ bandas fijas      16    50.57       100.0      61.46      0.00         4.76        0.30
+     enjambre       1   240.73       100.0      18.12     87.47         1.00        1.00
+     enjambre       2   126.27       100.0      21.59    124.03         1.91        0.95
+     enjambre       4    70.83       100.0      27.41    252.80         3.40        0.85
+     enjambre       8    60.57       100.0      50.56    900.03         3.97        0.50
+     enjambre      16    60.87       100.0      74.24   3799.60         3.96        0.25
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26a/img/escalabilidad.png}
+\caption{Pasos hasta hallar a las 8 víctimas (izquierda) y aceleración respecto a un solo robot (derecha) según el número de robots; ambos ejes en escala logarítmica.}
+\label{fig:escalabilidad}
+\end{figure}
+
+Con 4 robots el enjambre alcanza una aceleración de 3.40 (eficiencia 0.85), contra 3.16 de las bandas fijas y 2.07 de los independientes. Con más robots ninguna estrategia escala bien: la aceleración con 16 robots es de 3.96 (enjambre), 4.76 (bandas) y 3.87 (independientes), es decir, una eficiencia de 0.24 a 0.30. Del paso de 8 a 16 robots el enjambre no mejora (60.6 contra 60.9 pasos) mientras que las bandas pasan de 58.9 a 50.6, y con 16 robots las bandas fijas son las más rápidas en promedio (50.6 contra 60.9 pasos), diferencia que no se evaluó con intervalos de confianza. Una explicación probable, que no se probó, es que todos los robots salen de la misma esquina y el tiempo lo domina llegar a los rincones lejanos, no el número de robots; en consecuencia, los pasos redundantes suben (74~\% con 16 robots en el enjambre). El costo de comunicar crece más rápido que el número de robots: de 253 mensajes con 4 robots a 900 con 8 y a 3\,800 con 16 (de 63 a 112 y 237 por robot), porque cada robot tiene más vecinos a quienes enviar mapa. Escalar, en este diseño, sale cada vez más caro en comunicación y rinde cada vez menos en tiempo.
+
+\textbf{Alcance de la radio.} Con 8 robots se varió el radio de comunicación del enjambre (Salida~\ref{out:exp3}); un alcance de 0 significa que no hay radio, y ``999'' es un alcance prácticamente infinito.
+
+\begin{consola}[label=out:exp3]{Alcance de la radio del enjambre (8 robots)}
+ alcance  compl. %  t_todas  desv  mediana  t_mitad  redund. %  mensajes  celdas
+       0     100.0     76.9  23.6     71.5     32.2       58.0       0.0     0.0
+       3     100.0     79.4  22.2     74.5     35.1       61.7     537.5  9361.8
+       6     100.0     64.6  20.3     59.5     33.0       53.8     710.0 15617.7
+      10     100.0     60.6  16.7     57.0     33.9       50.6     900.0 21629.2
+      20     100.0     60.9  18.1     55.0     34.4       50.7    1179.6 34260.4
+     999     100.0     62.9  18.0     58.5     34.1       51.4    1302.9 37698.1
+\end{consola}
+
+Sin radio el enjambre tarda 76.9 pasos (equivale a los independientes). Con alcance 3 no mejora (79.4); con 6 baja a 64.6 y con 10 a 60.6, es decir, 16 pasos menos (21~\%). Más alcance ya no ayuda: con 20 son 60.9 y con ``infinito'' 62.9, pero los mensajes pasan de 900 a 1\,180 y 1\,303 y las celdas transmitidas de 21\,600 a 34\,300 y 37\,700. Un radio moderado captura casi todo el beneficio. Al principio de la misión la comunicación casi no cambia el tiempo en que se halla a la mitad de las víctimas (32.2 sin radio, de 33.0 a 35.1 con radio), así que su aporte llega después: el tiempo entre la mitad y la última víctima baja de 44.7 pasos sin radio a 26.7 con radio 10. Las diferencias entre alcances no se evaluaron con intervalos de confianza.
+
+\textbf{Robustez.} En el paso 15 de cada misión con 8 robots se les ``descompone'' $f$ robots elegidos al azar: dejan de moverse, de percibir y de comunicar (Salida~\ref{out:exp4}).
+
+\begin{consola}[label=out:exp4]{Robustez ante la pérdida de robots (8 robots)}
+   estrategia  robots caídos  completa %  halladas %  t_todas
+independiente              0       100.0       100.0     76.9
+independiente              2       100.0       100.0     88.1
+independiente              4       100.0       100.0    119.5
+independiente              6       100.0       100.0    154.5
+ bandas fijas              0       100.0       100.0     58.9
+ bandas fijas              2       100.0       100.0    112.0
+ bandas fijas              4       100.0       100.0    249.1
+ bandas fijas              6       100.0       100.0    506.5
+     enjambre              0       100.0       100.0     60.6
+     enjambre              2       100.0       100.0     68.3
+     enjambre              4       100.0       100.0     85.9
+     enjambre              6       100.0       100.0    137.4
+\end{consola}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{act26a/img/radio_robustez.png}
+\caption{Pasos hasta hallar a las 8 víctimas según el alcance de la radio del enjambre, con el número de mensajes (izquierda), y según el número de robots caídos de 8 (derecha).}
+\label{fig:radio}
+\end{figure}
+
+Todas las estrategias terminaron la misión en el 100~\% de las zonas en cualquier condición, de modo que la diferencia está en el tiempo. Las bandas fijas son las más afectadas: pasan de 58.9 pasos sin fallas a 506.5 con 6 robots caídos (8.6 veces más), porque la franja de un robot caído sólo se explora cuando los vecinos terminan la suya (por la regla de ir a la frontera más cercana a su franja; sin esa regla las franjas de los caídos nunca se explorarían, aunque eso no se probó). Los independientes pasan de 76.9 a 154.5 (2.0 veces), y el enjambre de 60.6 a 137.4 (2.3 veces); con 2 y 4 caídos el enjambre es el más rápido (68.3 y 85.9 pasos, contra 88.1 y 119.5 de los independientes y 112.0 y 249.1 de las bandas), y con 6 caídos queda parecido a los independientes (137.4 contra 154.5). Es decir, un reparto fijo del trabajo da buen resultado mientras todos los robots funcionen, y el enjambre, que reparte según lo que se sabe en cada momento, se degrada de forma más gradual, en línea con la robustez que el tema lista como beneficio de los enjambres \parencite{iae_u4_t46}. No se calcularon intervalos de confianza para este experimento.
+
+\subsection{Limitaciones}
+
+Es una simulación en cuadrícula: sin cinemática ni ruido, con sensores perfectos de 5$\times$5 celdas y sin línea de visión (un escombro no tapa lo que hay detrás), comunicación sin pérdidas dentro del radio y robots que pueden ocupar la misma celda. Una víctima cuenta como hallada cuando algún robot la percibe, aunque ese robot se descomponga antes de avisar; el simulador no modela que el aviso llegue a la base, ni el rescate. Todas las estrategias parten de la base en la esquina, lo que favorece al reparto por franjas y perjudica a los robots independientes. Sólo se probó una zona de 30$\times$30 con 8 víctimas y una densidad de escombros; los resultados podrían cambiar con otro tamaño, con otra posición de salida o con otra densidad. Los parámetros del enjambre se ajustaron con 10 zonas, con pocas combinaciones, y las bandas fijas y los independientes no se ajustaron, así que la comparación favorece algo al enjambre. Los intervalos de confianza sólo se calcularon para el experimento con 4 robots. El conteo de mensajes cuenta transmisiones, aunque no haya nadie en alcance (por eso con un solo robot hay mensajes). Los límites de tiempo del Colab son una estimación. No se leyó la revisión de Brambilla et al. \parencite{brambilla2013}, de modo que la comparación con lo que se sabe de enjambres reales no está hecha.
+
+\section{Conclusiones}
+
+El simulador cumple los tres retos: varios robots que colaboran, un sistema de mensajes con radio limitado y una estrategia colectiva evaluada con 30 zonas. El resultado principal es que, con 4 robots, coordinarse importa mucho: el enjambre halla a las 8 víctimas en 70.8 pasos contra 116.2 de los robots independientes (45.4 pasos menos, IC 28.0 a 61.2), y repartir objetivos aporta más que sólo compartir el mapa (24.4 pasos, IC 14.3 a 36.4). Lo que no se puede afirmar es que el enjambre supere a un reparto fijo del terreno cuando todos los robots funcionan: con 4 robots la diferencia (5.4 pasos) no es distinguible de cero, y con 16 las bandas fijas fueron más rápidas.
+
+La ventaja del enjambre aparece cuando algo falla: con 2 a 4 robots caídos de 8 es el más rápido y con 6 caídos las bandas fijas se vuelven 8.6 veces más lentas, mientras que el enjambre sólo 2.3 veces. En comunicación, un radio de 10 celdas dio casi todo el beneficio (21~\% menos pasos que sin radio con 8 robots), y ampliarlo sólo aumentó el tráfico. En escalabilidad, el diseño rinde cada vez menos (eficiencia de 0.85 con 4 robots y 0.25 con 16) y comunica cada vez más, por lo que el siguiente paso sería probar otra posición de salida y una regla de reparto que no dependa de que todos salgan de la misma esquina. Lo que quedó sin comprobar es cuánto de esto se sostiene con sensores ruidosos, comunicación con pérdidas y un aviso que debe llegar a la base.
+
+\referencias
+
+\end{document}

@@ -1,0 +1,205 @@
+%% =======================================================
+%% Actividad 32: "Análisis de las leyes de protección de datos personales y sensibles"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 6.1. Protección de datos personales \\ Actividad 32 - Análisis de las leyes de protección \\ de datos personales y sensibles}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+México tiene leyes para proteger los datos personales y los sensibles. La pregunta de esta actividad es qué oportunidades ofrece tenerlas y qué riesgos habría si no existieran. El tema 6.1 señala que, si se seguirán usando enormes conjuntos de datos para automatizar decisiones importantes, hay que fijar límites al uso de datos y algoritmos, y las leyes y organizaciones que los hagan cumplir \parencite{iae_u6_t61}.
+
+La actividad de este reporte se basa en los documentos que se mencionan en la Tabla 1: la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados \parencite{lgpdppso2025}, el Reglamento de la Ley Federal de Protección de Datos Personales en Posesión de los Particulares \parencite{reglamento2011} y el documento de CONBIOÉTICA sobre datos de salud \parencite{conbioetica2014}.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}p{3cm}X@{}}
+\toprule
+\textbf{Instrumento} & \textbf{Ámbito} & \textbf{Qué aporta} \\
+\midrule
+Ley General (sujetos obligados) \parencite{lgpdppso2025} & Poderes, órganos autónomos, partidos, entidades y municipios & Principios, deberes de seguridad, derechos ARCO, recurso de revisión, verificación y sanciones. \\
+Ley Federal (particulares) \parencite{lfpdppp2025} & Empresas y personas físicas o morales privadas & Los mismos principios, consentimiento, aviso de privacidad, derechos ARCO, procedimiento de protección de derechos, multas y delitos. \\
+Reglamento de 2011 \parencite{reglamento2011} & Particulares & Detalla consentimiento, aviso de privacidad, encargados, cómputo en la nube y medidas de seguridad. \\
+CONBIOÉTICA, 2014 \parencite{conbioetica2014} & Salud & No es una norma: es un estudio sobre datos de salud, confidencialidad, expedientes clínicos y muestras biológicas. \\
+\bottomrule
+\end{tabularx}
+\caption{Instrumentos analizados.}\label{tab:marco}
+\end{table}
+
+\section{Oportunidades de tener leyes}
+
+\subsection{Ventajas}
+
+\begin{enumerate}
+    \item \textbf{Derechos exigibles.} La persona puede acceder a sus datos, rectificarlos, cancelarlos y oponerse a su tratamiento, y ejercerlos es gratuito \parencite[arts.~37 a 41 y 44]{lgpdppso2025}\parencite[arts.~21 a 26]{lfpdppp2025}. Sin una ley, pedir a una empresa que corrija o borre un dato sería una cortesía, no un derecho.
+    \item \textbf{Límites al uso de los datos.} Los ocho principios obligan a usar los datos solo para la finalidad avisada, solo los necesarios, sin engaño y respondiendo por ellos \parencite{iae_u6_t61}\parencite[art.~10]{lgpdppso2025}.
+    \item \textbf{Protección reforzada de lo sensible.} Consentimiento expreso y por escrito, justificación para crear bases con datos sensibles, y sanciones \parencite[arts.~8, 59 y 64]{lfpdppp2025}.
+    \item \textbf{Seguridad y aviso de fugas.} El responsable debe aplicar medidas de seguridad y avisar a la persona cuando una vulneración afecta de forma significativa sus derechos \parencite[arts.~18 y 19]{lfpdppp2025}\parencite[art.~34]{lgpdppso2025}.
+    \item \textbf{Vías de reclamo y sanciones.} La persona puede acudir a la Secretaría con una solicitud de protección de datos \parencite[art.~40]{lfpdppp2025} o a un recurso de revisión \parencite[art.~86]{lgpdppso2025}. Las multas llegan a 320,000 veces la Unidad de Medida y Actualización (UMAs) y hay prisión de tres meses a cinco años por ciertos usos indebidos \parencite[arts.~59, 62 y 63]{lfpdppp2025}.
+    \item \textbf{Salud.} Se reconoce la confidencialidad como eje y se protegen los expedientes clínicos, los datos psiquiátricos y los genéticos \parencite{conbioetica2014,iae_u6_t61}.
+    \item \textbf{Frente a decisiones automatizadas.} Ambas leyes permiten oponerse al tratamiento automatizado que produzca efectos jurídicos no deseados o afecte de manera significativa los intereses de la persona y que busque evaluar o predecir, sin intervención humana, aspectos como su situación económica o su estado de salud \parencite[art.~41]{lgpdppso2025}\parencite[art.~26]{lfpdppp2025}. Además, los sujetos obligados que pongan en operación tecnologías que impliquen un tratamiento intensivo de datos deben presentar una evaluación de impacto \parencite[arts.~3, fr.~XV, y 71]{lgpdppso2025}.
+\end{enumerate}
+
+\subsection{Desventajas y límites}
+
+\begin{enumerate}
+    \item \textbf{Consentimiento débil para lo no sensible.} En el sector privado el consentimiento tácito vale por regla general, y hay excepciones, como datos en fuentes públicas o disociados \parencite[arts.~7 y 9]{lfpdppp2025}.
+    \item \textbf{Excepciones amplias en salud.} CONBIOÉTICA recoge la crítica de que las excepciones al consentimiento en la atención médica pueden interpretarse de manera tan amplia que cubran casi cualquier actuación profesional \parencite{conbioetica2014}.
+    \item \textbf{Conflicto con la atención y la investigación.} Hay que proteger la intimidad sin entorpecer la labor sanitaria ni la investigación \parencite{conbioetica2014}.
+    \item \textbf{Límites al propio derecho.} La Ley General permite limitarlo por razones de seguridad nacional, orden público, seguridad y salud públicas o derechos de terceros \parencite[art.~6]{lgpdppso2025}.
+    \item \textbf{Independencia del supervisor.} El tema cita la recomendación de la CIDH de establecer mecanismos de supervisión efectivos e independientes \parencite{iae_u6_t61}.
+\end{enumerate}
+
+\section{Conclusión}
+
+Qué podría pasar si no hubiera leyes:
+
+\begin{itemize}
+    \item \textbf{Sin límites de finalidad ni proporcionalidad}, un responsable podría reunir todos los datos posibles y usarlos para fines distintos al original. El tema advierte que los datos pueden usarse para responder casi cualquier pregunta sobre las personas, y que somos quienes proporcionamos esos datos, consciente o inconscientemente, para tomar decisiones sobre nosotros \parencite{iae_u6_t61}.
+    \item \textbf{Sin derechos ARCO ni derecho de oposición}, nadie podría exigir corregir, borrar o frenar el uso de sus datos, ni objetar una decisión de un sistema automatizado, por ejemplo, que un algoritmo niegue un crédito sin revisión humana \parencite{iae_u6_t61}.
+    \item \textbf{Sin protección de lo sensible}, los datos de salud, genéticos, étnicos o de orientación sexual podrían divulgarse sin consentimiento. CONBIOÉTICA señala que su divulgación indebida puede dañar a la persona, a su familia y a su comunidad, con peligro de discriminación o exclusión \parencite{conbioetica2014}.
+    \item \textbf{Sin obligación de seguridad ni de avisar fugas}, quien sufra una filtración no se enteraría ni podría defenderse \parencite[art.~19]{lfpdppp2025}.
+    \item \textbf{Sin autoridad ni sanciones}, no habría dónde reclamar ni consecuencias; los principios quedarían como buena voluntad.
+    \item \textbf{Para la IA}, los conjuntos de datos de entrenamiento podrían armarse sin consentimiento ni límite de uso, y el sesgo contra grupos vulnerables. El tema añade que la regulación del tratamiento de datos no se limita al ámbito nacional por la naturaleza transfronteriza de internet \parencite{iae_u6_t61}.
+\end{itemize}
+
+En resumen, tener leyes ofrece derechos exigibles, límites al uso de datos, protección reforzada de lo sensible y vías de reclamo, y los riesgos de no tenerlas son la pérdida de control sobre los datos, la discriminación por datos de salud y otros sensibles, decisiones automatizadas sin recurso y ausencia de responsables. Las leyes mexicanas tienen límites (consentimiento tácito, excepciones en salud, un marco recién reformado y un supervisor dentro del Ejecutivo), por lo que son una condición necesaria pero no suficiente.
+
+\referencias
+
+\end{document}

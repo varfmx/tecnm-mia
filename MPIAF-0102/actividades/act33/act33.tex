@@ -1,0 +1,187 @@
+%% =======================================================
+%% Actividad 33: "Ventajas y desventajas de la IA en la sociedad"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 6.2. IA en la sociedad \\ Actividad 33 - Ventajas y desventajas \\ de la IA en la sociedad}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+La inteligencia artificial ya no se limita a los videojuegos o a la ciencia ficción: hoy está integrada de forma generalizada en la vida cotidiana, muchas veces sin que se note, como parte de sistemas tecnológicos complejos \parencite{iae_u6_t62}. El tema 6.2 está presente en transporte, marketing, salud, finanzas, seguridad y defensa, educación, gestión administrativa, entretenimiento, agricultura y manufactura \parencite{iae_u6_t62}.
+
+Este documento responde a la Actividad 1 del tema 6.2: identificar ventajas y desventajas del uso de la IA en la sociedad (se piden al menos dos de cada una; presento tres de cada una). Todo se apoya en el material del tema \parencite{iae_u6_t62}; no uso otras fuentes. Los libros que el tema cita no los leí, solo recojo lo que el tema dice de ellos.
+
+\section{Desarrollo}
+
+\subsection{Ventajas}
+
+\begin{enumerate}
+    \item \textbf{Mejores diagnósticos en salud.} El reconocimiento de imágenes ha permitido avances significativos en el diagnóstico de enfermedades como el cáncer y el Alzheimer \parencite{iae_u6_t62}. Un diagnóstico más preciso o más temprano beneficia directamente a las personas atendidas.
+    \item \textbf{Servicios más eficientes y más productividad.} El tema menciona la optimización de servicios públicos y el impulso de aplicaciones comerciales, y señala que el desarrollo tecnológico genera nuevos empleos, impulsa la productividad y promueve el crecimiento económico \parencite{iae_u6_t62}. En la práctica, los algoritmos asumen tareas que antes requerían intervención humana.
+    \item \textbf{Educación personalizada.} Con el análisis de grandes volúmenes de datos, la IA permite diseñar estrategias pedagógicas ajustadas a las necesidades individuales de cada estudiante y facilita buscar y adecuar materiales didácticos \parencite{iae_u6_t62}.
+\end{enumerate}
+
+\subsection{Desventajas}
+
+\begin{enumerate}
+    \item \textbf{Desigualdad y desempleo.} A diferencia de la Revolución Industrial, en la que las máquinas complementaban el trabajo humano, la IA empieza a reemplazarlo, con efectos desproporcionados en ciertos sectores de la población \parencite{iae_u6_t62}. La fuerza laboral tiene que adaptarse y adquirir nuevas habilidades; quien no pueda hacerlo queda en desventaja.
+    \item \textbf{Sesgos y discriminación que se refuerzan.} Los datos de entrenamiento reflejan estructuras sociales con sesgos históricos, por lo que aun con algoritmos matemáticamente sólidos esos sesgos se perpetúan y afectan a comunidades vulnerables. Además, las decisiones basadas en datos sesgados pueden generar ciclos de retroalimentación que refuerzan la discriminación, y muchos algoritmos no son de dominio público \parencite{iae_u6_t62}.
+    \item \textbf{Privacidad y libertad de expresión.} Personalizar el aprendizaje exige recopilar y analizar grandes volúmenes de datos personales de los estudiantes, lo que genera inquietudes sobre su seguridad y protección. En los medios, el uso de algoritmos para eliminar contenidos sin una evaluación reflexiva preocupa por la libertad de expresión \parencite{iae_u6_t62}. En política, los sesgos y la proliferación de bots pueden comprometer la diversidad y la equidad del debate público \parencite{iae_u6_t62}.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{3cm}XX@{}}
+\toprule
+\textbf{Ámbito} & \textbf{Ventaja} & \textbf{Desventaja} \\
+\midrule
+Salud & Diagnóstico de cáncer y Alzheimer por reconocimiento de imágenes. & Datos de salud muy delicados; el sesgo puede afectar a comunidades vulnerables. \\
+Educación & Aprendizaje personalizado y búsqueda ágil de materiales. & Recopilación masiva de datos de estudiantes y riesgo para su privacidad. \\
+Trabajo y economía & Productividad, crecimiento y nuevos empleos. & Reemplazo de funciones, desempleo y desigualdad. \\
+Medios y política & Información acorde con los intereses del usuario; detección de noticias falsas. & Eliminación automática de contenidos, bots y amplificación de sesgos. \\
+\bottomrule
+\end{tabularx}
+\caption{Ventajas y desventajas por ámbito, según el tema 6.2 \parencite{iae_u6_t62}.}\label{tab:ambitos}
+\end{table}
+
+\section{Conclusión}
+
+Las ventajas y las desventajas aparecen en los mismos ámbitos: la personalización que mejora la enseñanza es la misma que exige datos personales, y la automatización que da productividad es la que reemplaza empleos. Por eso, más que preguntar si la IA es buena o mala, el tema propone preguntar quién se beneficia y quién decide su rumbo \parencite{iae_u6_t62}. Mi conclusión es que sus ventajas son reales, pero que su reparto depende de decisiones humanas: quién aplica modelos más equitativos, con qué propósito y bajo qué reglas. El tema lo resume diciendo que ser conscientes de estas implicaciones permite decidir hasta dónde queremos que la IA cambie nuestra forma de vida \parencite{iae_u6_t62}.
+
+\referencias
+
+\end{document}

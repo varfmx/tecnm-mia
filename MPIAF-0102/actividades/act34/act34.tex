@@ -1,0 +1,196 @@
+%% =======================================================
+%% Actividad 34: "Análisis de argumentos para el debate sobre la IA en la sociedad"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 6.2. IA en la sociedad \\ Actividad 34 - Análisis de argumentos \\ para el debate}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+En esta actividad se analiza el uso de la IA en la sociedad, las consecuencias negativas de permitirla en todos los ámbitos del quehacer diario \parencite{iae_u6_t62}.
+
+Se menciona que la IA está presente en prácticamente todos los sectores, con mejoras en servicios públicos, aplicaciones comerciales y diagnóstico médico, pero también con dilemas éticos que no se pueden ignorar: aumento de la desigualdad y el desempleo, efectos desproporcionados en ciertos sectores y redefinición de la seguridad y la estrategia militar \parencite{iae_u6_t62}. Se plantea además, que lo central no es la tecnología sino las estructuras de poder que determinan su uso: quién se beneficia y quién decide su rumbo \parencite{iae_u6_t62}.
+
+\section{Postura a favor del uso de la IA}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{0.6cm}p{3.1cm}Xp{3.6cm}@{}}
+\toprule
+\textbf{N.º} & \textbf{Argumento} & \textbf{Respaldo en el tema} & \textbf{Límite que hay que reconocer} \\
+\midrule
+1 & Salva vidas con mejores diagnósticos. & El reconocimiento de imágenes ha permitido avances significativos en el diagnóstico de cáncer y Alzheimer. & El tema no da cifras de mejora. \\
+2 & Hace más eficientes los servicios. & Optimización de servicios públicos y aplicaciones comerciales; asistencia personal. & Depende de que los servicios sean accesibles para todos. \\
+3 & Impulsa la productividad y el crecimiento. & El desarrollo tecnológico genera empleos nuevos, aumenta la productividad y promueve el crecimiento económico. & También reemplaza funciones tradicionales. \\
+4 & Personaliza la educación. & Estrategias ajustadas a las necesidades individuales de los estudiantes. & Exige datos personales de los estudiantes. \\
+5 & Los sesgos se pueden corregir. & Los modelos más equitativos son científicamente posibles y su implementación técnica es relativamente accesible. & El reto es quién está dispuesto a aplicarlos y con qué propósito. \\
+\bottomrule
+\end{tabularx}
+\caption{Cinco argumentos a favor, uno por intervención.}\label{tab:favor}
+\end{table}
+
+\textbf{Estrategia.} Defender el uso de la IA no exige negar sus riesgos. Conviene aceptarlos y sostener que cada uno es corregible con regulación y buenas prácticas, y que prohibir o frenar la IA también tiene un costo, el de no lograr los beneficios de los puntos 1 a 4.
+
+\section{Postura en contra de permitirla en todos los ámbitos}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{0.6cm}p{3.1cm}Xp{3.6cm}@{}}
+\toprule
+\textbf{N.º} & \textbf{Argumento} & \textbf{Respaldo en el tema} & \textbf{Límite que hay que reconocer} \\
+\midrule
+1 & Reemplaza trabajo humano y aumenta la desigualdad. & Las máquinas ya no solo complementan el trabajo humano, empiezan a reemplazarlo; el efecto es desproporcionado en ciertos sectores. & El tema también dice que genera empleos nuevos. \\
+2 & Los sesgos se perpetúan y se amplifican. & Los datos reflejan sesgos históricos; aun con algoritmos sólidos se afecta a comunidades vulnerables; hay ciclos de retroalimentación. & Son corregibles en teoría. \\
+3 & Hay opacidad y falta de control. & Muchos algoritmos no son de dominio público y no se sabe cómo estiman sus resultados. & Es un problema de transparencia, no de la IA en sí. \\
+4 & Amenaza derechos: privacidad y expresión. & Datos personales de estudiantes; eliminación automatizada de contenidos sin evaluación reflexiva. & Se puede regular. \\
+5 & Distorsiona la política y puede escalar en lo militar. & Sesgos y bots pueden comprometer la diversidad y la equidad del debate público; la IA redefine la seguridad y la estrategia militar. & El tema no desarrolla el caso militar. \\
+\bottomrule
+\end{tabularx}
+\caption{Cinco argumentos en contra, uno por intervención.}\label{tab:contra}
+\end{table}
+
+\textbf{Estrategia.} Sostener que la IA es útil, pero que su uso debe estar limitado a ciertos ámbitos. Conviene aceptar que la IA puede mejorar la vida de las personas, pero que también puede reforzar inequidades y vulnerar derechos si se permite en todos los ámbitos.
+
+\section{Conclusión. Postura personal}
+
+Con el material del tema, mi posición es que el uso de la IA conviene, con condiciones. Los beneficios en salud, educación y servicios son concretos, pero los riesgos de sesgo, opacidad, desempleo y pérdida de derechos aparecen justo donde la IA decide sobre personas. El tema lo plantea como una encrucijada: las decisiones que se tomen determinarán si la tecnología contribuye a una sociedad más justa o refuerza inequidades preexistentes \parencite{iae_u6_t62}. Por eso considero más defendible una IA con reglas (equidad, transparencia, supervisión humana y protección de datos) que una IA libre en todos los ámbitos.
+
+\referencias
+
+\end{document}

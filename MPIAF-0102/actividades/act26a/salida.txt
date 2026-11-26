@@ -1,0 +1,102 @@
+==============================================================================
+AJUSTE de la penalización del enjambre (10 zonas con semillas distintas de las de evaluación)
+==============================================================================
+ SEP  PEN_OBJ  PEN_POS  t_todas (4 robots)  t_todas (8 robots)  completa % (8)
+  10      0.0      0.0                97.3                58.4           100.0
+  10      1.5      0.0                70.4                67.8           100.0
+  10      1.5      0.7                72.2                76.3           100.0
+  10      3.0      0.0                80.1                81.1           100.0
+   6      1.5      0.0                69.9                60.3           100.0
+   6      1.5      0.7                69.6                62.1           100.0
+  14      1.5      0.0                72.9                86.7           100.0
+  14      3.0      0.7                98.9               109.4           100.0
+
+==============================================================================
+EXPERIMENTO 1: cinco estrategias, 4 robots, radio 10, 30 zonas de 30x30 con 8 víctimas
+==============================================================================
+Celdas alcanzables por zona: media 763 de 900
+                 compl. %  t_todas  desv  mediana  t_mitad  redund. %  mensajes  celdas
+aleatorio            10.0    788.3  40.5    800.0    367.8       92.8       0.0     0.0
+independiente       100.0    116.2  41.2    121.0     40.9       47.5       0.0     0.0
+bandas fijas        100.0     76.3  19.5     71.0     32.4       31.1       0.0     0.0
+mapa compartido     100.0     95.2  27.5     94.0     38.2       36.4     342.4  5517.6
+enjambre            100.0     70.8  16.5     69.0     34.7       27.4     252.8  4087.1
+
+Diferencias pareadas por zona en t_todas (IC 95 % por bootstrap, 2000 remuestreos)
+                    comparación  dif_media  IC_inf  IC_sup 2o_mejor
+       independiente - enjambre       45.4    28.0    61.2    24/30
+        bandas fijas - enjambre        5.4    -3.4    13.1    19/30
+     mapa compartido - enjambre       24.4    14.3    36.4    25/30
+independiente - mapa compartido       21.0     3.9    38.8    20/30
+   independiente - bandas fijas       40.0    24.9    55.3    24/30
+
+==============================================================================
+EXPERIMENTO 2: escalabilidad con el número de robots (radio 10)
+==============================================================================
+   estrategia  robots  t_todas  completa %  redund. %  mensajes  aceleración  eficiencia
+independiente       1   240.73       100.0      18.12      0.00         1.00        1.00
+independiente       2   169.17       100.0      35.53      0.00         1.42        0.71
+independiente       4   116.23       100.0      47.48      0.00         2.07        0.52
+independiente       8    76.87       100.0      57.97      0.00         3.13        0.39
+independiente      16    62.13       100.0      71.57      0.00         3.87        0.24
+ bandas fijas       1   240.73       100.0      18.12      0.00         1.00        1.00
+ bandas fijas       2   134.57       100.0      21.62      0.00         1.79        0.89
+ bandas fijas       4    76.27       100.0      31.07      0.00         3.16        0.79
+ bandas fijas       8    58.93       100.0      48.16      0.00         4.08        0.51
+ bandas fijas      16    50.57       100.0      61.46      0.00         4.76        0.30
+     enjambre       1   240.73       100.0      18.12     87.47         1.00        1.00
+     enjambre       2   126.27       100.0      21.59    124.03         1.91        0.95
+     enjambre       4    70.83       100.0      27.41    252.80         3.40        0.85
+     enjambre       8    60.57       100.0      50.56    900.03         3.97        0.50
+     enjambre      16    60.87       100.0      74.24   3799.60         3.96        0.25
+
+==============================================================================
+EXPERIMENTO 3: alcance de la radio del enjambre (8 robots)
+==============================================================================
+ alcance  compl. %  t_todas  desv  mediana  t_mitad  redund. %  mensajes  celdas
+       0     100.0     76.9  23.6     71.5     32.2       58.0       0.0     0.0
+       3     100.0     79.4  22.2     74.5     35.1       61.7     537.5  9361.8
+       6     100.0     64.6  20.3     59.5     33.0       53.8     710.0 15617.7
+      10     100.0     60.6  16.7     57.0     33.9       50.6     900.0 21629.2
+      20     100.0     60.9  18.1     55.0     34.4       50.7    1179.6 34260.4
+     999     100.0     62.9  18.0     58.5     34.1       51.4    1302.9 37698.1
+
+==============================================================================
+EXPERIMENTO 4: robustez ante la pérdida de robots (8 robots; los caídos dejan de moverse y de hablar en el paso 15)
+==============================================================================
+   estrategia  robots caídos  completa %  halladas %  t_todas
+independiente              0       100.0       100.0     76.9
+independiente              2       100.0       100.0     88.1
+independiente              4       100.0       100.0    119.5
+independiente              6       100.0       100.0    154.5
+ bandas fijas              0       100.0       100.0     58.9
+ bandas fijas              2       100.0       100.0    112.0
+ bandas fijas              4       100.0       100.0    249.1
+ bandas fijas              6       100.0       100.0    506.5
+     enjambre              0       100.0       100.0     60.6
+     enjambre              2       100.0       100.0     68.3
+     enjambre              4       100.0       100.0     85.9
+     enjambre              6       100.0       100.0    137.4
+
+==============================================================================
+TRAZA: primeros mensajes de una misión de 3 robots (zona 0, radio 10)
+==============================================================================
+Misión completa en 100 pasos; mensajes por tipo: {'POSICION': 100, 'MAPA': 61, 'VICTIMA': 7}; celdas transmitidas: 3417
+t=  0  R0 ->  *  POSICION  posición (0, 0), objetivo None   [llega a [1, 2]]
+t=  1  R1 ->  *  POSICION  posición (0, 1), objetivo (0, 2)   [llega a [0, 2]]
+t=  1  R1 ->  0  MAPA      12 celdas   [llega a [0]]
+t=  1  R2 ->  0  MAPA      12 celdas   [llega a [0]]
+t=  2  R0 ->  1  MAPA      18 celdas   [llega a [1]]
+t=  2  R2 ->  *  POSICION  posición (2, 0), objetivo (3, 0)   [llega a [0, 1]]
+t=  3  R0 ->  *  POSICION  posición (1, 2), objetivo (3, 0)   [llega a [1, 2]]
+t=  4  R1 ->  *  POSICION  posición (0, 4), objetivo (0, 5)   [llega a [0, 2]]
+t=  5  R2 ->  *  POSICION  posición (5, 0), objetivo (6, 2)   [llega a [0, 1]]
+t=  6  R0 ->  *  POSICION  posición (3, 3), objetivo (4, 3)   [llega a [1, 2]]
+t=  7  R1 ->  *  POSICION  posición (1, 6), objetivo (2, 6)   [llega a [0, 2]]
+t=  8  R2 ->  *  POSICION  posición (7, 1), objetivo (8, 1)   [llega a [0, 1]]
+t=  9  R0 ->  *  POSICION  posición (4, 5), objetivo (4, 6)   [llega a [1, 2]]
+t= 10  R1 ->  *  POSICION  posición (1, 9), objetivo (1, 10)   [llega a [0]]
+Primer aviso de víctima: t=19, R1, llega a [0]
+
+Listo en 165 s. Figuras guardadas en /Users/fvalde/projects/fernando/mia/MPIAF-0102/actividades/act26a/img
+python act26a.py  163.04s user 0.94s system 99% cpu 2:45.40 total

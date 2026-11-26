@@ -1,0 +1,239 @@
+%% =======================================================
+%% Actividad 28: "Ejercicio de Síntesis y Aplicación Práctica"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 5.2. Diseño ético de sistemas para evitar sesgos \\ Actividad 28 - Síntesis y Aplicación Práctica}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Un sistema de aprendizaje automático puede producir resultados sistemáticamente peores para ciertos grupos aunque nadie lo haya programado para discriminar. El tema 5.2 distingue tres posibles orígenes de ese sesgo (los datos, el diseño del modelo y la interpretación o el uso de los resultados) y tres momentos para mitigarlo: antes, durante y después del entrenamiento \parencite{iae_u5_t52}.
+
+En este reporte se desarrolla la actividad ``Ejercicio de Síntesis y Aplicación Práctica'' del Tema 5.2. Se toma un caso real de sesgo algorítmico, se diagnostica de dónde viene y se proponen tres estrategias de mitigación, una de cada tipo, con base en Barocas, Hardt y Narayanan \parencite{barocas2023}, en el survey de Mehrabi et al. \parencite{mehrabi2021} y en la guía del Ministerio de Trabajo de España \parencite{mites2022}.
+
+\section{Marco conceptual}
+
+\subsection{Fuentes del sesgo}
+
+Mehrabi et al. \parencite{mehrabi2021} clasifican el sesgo según dónde aparece en el ciclo de vida del sistema. Los sesgos que van de los datos al algoritmo incluyen el \textbf{sesgo de medición} (cómo se eligen y miden las variables), el \textbf{sesgo de variable omitida}, el \textbf{sesgo de representación} (cómo se muestrea la población) y el \textbf{sesgo de agregación}. Entre los sesgos que van del algoritmo al usuario está el \textbf{sesgo de evaluación}, y entre los que van del usuario a los datos, el \textbf{sesgo histórico}, que es el que ya existe en el mundo y entra en los datos aun con un muestreo perfecto.
+
+\subsection{Tres momentos para mitigar}
+
+Los métodos para reducir el sesgo se agrupan en tres categorías \parencite{mehrabi2021,barocas2023}. El \textbf{preprocesamiento} transforma los datos para quitar la discriminación subyacente, y se puede usar si se permite modificar los datos de entrenamiento. El \textbf{procesamiento durante el entrenamiento} cambia el algoritmo, ya sea modificando la función objetivo o imponiendo una restricción. El \textbf{postprocesamiento} actúa sobre un modelo ya entrenado, que se trata como caja negra, y reasigna sus resultados con una función. Barocas et al. añaden una ventaja y un costo para cada uno: el preprocesamiento es independiente del modelo que se use después; entrenar con la restricción puede dar la mayor utilidad pero exige acceso a los datos crudos y al proceso de entrenamiento; y el postprocesamiento no necesita ninguno de los dos, pero ajusta los resultados con el atributo sensible de forma explícita.
+
+\subsection{Criterios de equidad}
+
+Barocas et al. \parencite{barocas2023} estudian tres criterios estadísticos de no discriminación: \textbf{independencia} (la decisión no depende del grupo), \textbf{separación} (los grupos tienen las mismas tasas de error, lo que Hardt et al. llaman \textit{equalized odds}) y \textbf{suficiencia}, que se relaciona con la \textbf{calibración} (que el puntaje signifique lo mismo en cada grupo). Mehrabi et al. recuerdan que, según Kleinberg et al., la calibración y el equilibrio de las tasas de error no pueden cumplirse a la vez salvo en casos muy particulares, por lo que hay que elegir el criterio según el contexto \parencite{mehrabi2021}.
+
+\section{Descripción de la actividad}
+
+\textbf{Objetivo:} sintetizar las fuentes del sesgo y aplicar críticamente las estrategias de mitigación en el contexto de un caso real.
+
+\subsection*{Instrucciones}
+
+\begin{description}
+    \item[Visualización y análisis de caso (individual).]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Mirar uno de los videos recomendados: \textit{Coded Bias} o \textit{Cómo los algoritmos refuerzan la discriminación}.
+        \item Identificar un ejemplo de sesgo algorítmico presentado en el material.
+    \end{enumerate}
+    \item[Diagnóstico y propuesta de mitigación.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Diagnosticar la fuente del sesgo: datos, diseño del modelo o interpretación y uso de los resultados.
+        \item Proponer tres estrategias: una de preprocesamiento, una de modelos justos (\textit{fairness-aware ML}) y una de postprocesamiento, citando conceptos clave del material extra.
+    \end{enumerate}
+    \item[Entrega.]\mbox{}\\[-1.3\baselineskip]
+    \begin{enumerate}
+        \item Un informe breve (máximo 400 palabras) con el diagnóstico y las tres estrategias, justificado con las referencias del material extra.
+    \end{enumerate}
+\end{description}
+
+\subsection*{Fuentes consultadas y cambios respecto a lo pedido}
+
+\begin{itemize}
+    \item \textbf{Videos.} A la fecha de este reporte ninguno de los dos videos está disponible: el documental de DW en YouTube aparece como ``Este vídeo ya no está disponible'' y \textit{Coded Bias} solo se encuentra en Netflix y no se pudo ver. Por eso el caso no se toma de un video, sino de las fuentes académicas de la actividad, donde está descrito: el caso COMPAS, que abre el survey de Mehrabi et al. y que Barocas et al. analizan en su capítulo sobre clasificación. El informe no afirma nada sobre el contenido de los videos.
+    \item \textbf{Barocas, Hardt y Narayanan} \parencite{barocas2023}: se leyeron la introducción y el capítulo de clasificación del libro en línea, no el libro completo.
+    \item \textbf{Mehrabi et al.} \parencite{mehrabi2021}: se leyó el survey completo (versión de arXiv 1908.09635v3).
+    \item \textbf{Guía del Gobierno de España.} El enlace del cuaderno (BOE-A-2022-7634) lleva a un convenio del CSIC con la Universidad Pompeu Fabra, no a una guía de sesgos. No se encontró un documento del Gobierno de España con el título ``Guía para prevenir sesgos algorítmicos''. Se usó la guía publicada en mayo de 2022 por el Ministerio de Trabajo y Economía Social, \textit{Información algorítmica en el ámbito laboral} \parencite{mites2022}, que es la guía práctica oficial sobre algoritmos de ese año. No trata la mitigación del sesgo en términos técnicos, sino la supervisión humana, la evaluación de impacto y la auditoría; por eso se usa solo para la tercera estrategia.
+    \item \textbf{AI Now Institute.} No se consultaron sus reportes, y la actividad pide usar Barocas o Mehrabi.
+\end{itemize}
+
+\section{Desarrollo}
+
+\subsection{Caso: COMPAS}
+
+COMPAS (\textit{Correctional Offender Management Profiling for Alternative Sanctions}) es un programa que estima el riesgo de que una persona reincida y que los jueces de Estados Unidos usan para decidir si dejan a alguien en libertad antes del juicio o lo mantienen detenido. Una investigación de ProPublica encontró que tenía más falsos positivos para personas afroamericanas que para personas blancas: las clasificaba como de alto riesgo y luego no reincidían \parencite{mehrabi2021}. Barocas et al. cuentan que ProPublica adoptó la igualdad de tasas de falsos positivos como criterio de justicia, mientras que Northpointe, la empresa que lo fabrica, respondió que el sistema está calibrado por grupo \parencite{barocas2023}.
+
+\subsection{Diagnóstico de la fuente del sesgo}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{2.8cm}X p{3cm}@{}}
+\toprule
+\textbf{Fuente posible} & \textbf{Evidencia en el caso COMPAS} & \textbf{Peso} \\
+\midrule
+Datos & Los arrestos previos, y los de familiares y amigos, se usan como indicadores del ``riesgo''; las comunidades minoritarias son vigiladas más y tienen más arrestos \parencite{mehrabi2021}. Es un sesgo de medición, sobre una base histórica. & Principal \\
+Diseño del modelo & Quitar la raza no basta: otras variables se correlacionan con ella y la reconstruyen (``no hay equidad por desconocimiento'') \parencite{barocas2023}. Además, en un estudio citado por Mehrabi et al., COMPAS no superó a personas sin experiencia ni a una regresión logística sencilla. & Secundaria \\
+Uso de los resultados & Los jueces usan el puntaje para decidir sobre la libertad; la guía del Ministerio exige que la intervención humana sea significativa y no se limite a repetir lo que dice el algoritmo \parencite{mites2022}. & Agravante \\
+\bottomrule
+\end{tabularx}
+\caption{Diagnóstico de COMPAS según la fuente del sesgo.}\label{tab:diagnostico}
+\end{table}
+
+\subsection{Informe (máximo 400 palabras)}
+
+\begin{quote}
+\textbf{Caso y diagnóstico.} COMPAS, el programa que estima el riesgo de reincidencia para decidir sobre la libertad antes del juicio, produce más falsos positivos con personas afroamericanas \parencite{mehrabi2021}. La fuente principal son los \textbf{datos}: los arrestos previos funcionan como medida del riesgo, pero las comunidades minoritarias son vigiladas más y acumulan más arrestos, de modo que hay un sesgo de medición sobre un sesgo histórico \parencite{mehrabi2021}. Barocas et al. añaden que un modelo bien calibrado reproduce fielmente las disparidades de los datos, y que quitar la raza no sirve porque otras variables la reconstruyen \parencite{barocas2023}. El uso es un agravante: un puntaje aceptado sin criterio traslada el sesgo a la decisión.
+
+\textbf{1. Preprocesamiento: muestreo preferencial.} Transformar los datos para quitar la discriminación subyacente, por ejemplo con el muestreo preferencial de Kamiran y Calders, que crea un conjunto de entrenamiento sin discriminación \parencite{mehrabi2021}. Primero habría que revisar los arrestos como variable, porque miden la vigilancia y no la conducta, y documentar el conjunto con una hoja de datos (\textit{datasheet}). Se justifica porque se puede modificar el conjunto, y la mejora vale para cualquier modelo posterior \parencite{barocas2023}. La guía exige además informar qué datos se usaron para entrenar y qué patrones se encontraron en ellos \parencite{mites2022}.
+
+\textbf{2. Modelo justo: restricción de separación.} Entrenar con una restricción de \textit{equalized odds} o de igualdad de oportunidades, es decir, con tasas de falsos positivos y de verdaderos positivos iguales entre grupos \parencite{mehrabi2021}. Es el criterio que ProPublica usó, y aquí el costo del error es alto: un falso positivo es una persona detenida sin razón. Como la calibración y la igualdad de errores no se cumplen a la vez salvo en casos especiales, hay que decir cuál se prioriza y por qué \parencite{mehrabi2021,barocas2023}.
+
+\textbf{3. Postprocesamiento: umbrales y revisión humana.} Ajustar el umbral de decisión por grupo sobre un modelo ya entrenado \parencite{barocas2023}. Barocas et al. advierten que esto usa el grupo de forma explícita, por lo que debe justificarse. Se complementa con revisión humana significativa, hecha por quien tiene la autoridad para apartarse del resultado, con auditoría o evaluación de impacto periódicas y con métricas de error separadas por perfil \parencite{mites2022}.
+\end{quote}
+
+\subsection{Limitaciones}
+
+El caso no sale de los videos, como se explicó antes, y no se verificó contra los documentos originales de ProPublica ni de Northpointe: se cita lo que dicen Mehrabi et al. y Barocas et al. de ellos. Las estrategias son una propuesta, no se probaron con datos de COMPAS ni se midió cuánto reducirían el sesgo. La guía del Ministerio de Trabajo trata de empleo en España y no de justicia penal; se usa solo como marco de supervisión y auditoría, no como regla aplicable a COMPAS.
+
+\section{Conclusiones}
+
+El caso COMPAS muestra que el sesgo de un sistema suele empezar en los datos, porque estos reflejan quién fue vigilado y no solo quién cometió un delito, y que quitar el atributo sensible no resuelve el problema. Cada momento de mitigación tiene un costo distinto: el preprocesamiento exige poder modificar los datos, el entrenamiento con restricciones exige acceso al modelo, y el postprocesamiento usa el grupo de forma explícita. Además, no existe un criterio de equidad único: ProPublica y Northpointe defendían criterios distintos y los dos tenían razones, así que elegirlo es una decisión ética y no solo técnica.
+
+\referencias
+
+\end{document}

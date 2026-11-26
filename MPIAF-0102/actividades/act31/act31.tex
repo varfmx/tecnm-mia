@@ -1,0 +1,202 @@
+%% =======================================================
+%% Actividad 31: "Protección de datos personales vs. datos sensibles (resumen)"
+%% =======================================================
+
+%% ---- CONFIGURACIÓN ------------------------
+
+\documentclass[11pt,letterpaper]{article}
+
+\usepackage[indice]{tecnm}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox} % Carga tcolorbox con soporte para listings y saltos de página
+\tcbuselibrary{listings, skins, breakable}
+
+% Paleta de colores (estilo GitHub Light / VS Code)
+\definecolor{codebg}{HTML}{F8F9FA}       % Fondo del código
+\definecolor{codehead}{HTML}{E9ECEF}     % Fondo de la barra de título
+\definecolor{codeborder}{HTML}{CED4DA}   % Borde de la tarjeta
+\definecolor{codetitle}{HTML}{212529}    % Texto del título
+\definecolor{codekw}{HTML}{0550AE}       % Palabras clave (import, def, for...)
+\definecolor{codefunc}{HTML}{8250DF}     % Funciones y métodos (describe, groupby...)
+\definecolor{codestr}{HTML}{0A3069}      % Strings
+\definecolor{codecomm}{HTML}{6E7781}     % Comentarios
+\definecolor{codenum}{HTML}{8C959F}      % Números de línea
+\definecolor{codeid}{HTML}{24292F}       % Texto general
+
+% Configuración base de listings
+\lstdefinestyle{pythonestilo}{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codeid},
+  keywordstyle=\color{codekw}\bfseries,
+  keywordstyle=[2]\color{codefunc}, % Estilo secundario para métodos de datos
+  stringstyle=\color{teal!80!black},
+  commentstyle=\color{codecomm}\itshape,
+  morekeywords={as, True, False, None, with, yield, lambda},
+  morekeywords=[2]{read_csv, head, tail, info, describe, groupby, mean, value_counts, to_csv, print, len, range},
+  numbers=left,
+  numberstyle=\tiny\ttfamily\color{codenum},
+  stepnumber=1,
+  numbersep=10pt,
+  showstringspaces=false,
+  morestring=[b]{"""},
+  tabsize=4,
+  breaklines=true,
+  breakatwhitespace=true,
+  columns=flexible,
+  keepspaces=true,
+  literate=
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% Definición del entorno personalizado \begin{codigo}{Título}{etiqueta}
+% \newtcblisting[auto counter, number within=section]{codigo}[2][]{
+\newtcblisting[auto counter]{codigo}[2][]{
+  listing only,
+  breakable,                    % Permite que el bloque se divida si pasa de página
+  enhanced,
+  colback=codebg,
+  colframe=codeborder,
+  colbacktitle=codehead,
+  coltitle=codetitle,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,                      % Bordes redondeados
+  left=20pt,                    % Espacio izquierdo para los números de línea
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={style=pythonestilo},
+  title={Código \thetcbcounter: #2},
+  #1
+}
+
+% Paleta para salida de consola (estilo terminal limpia)
+\definecolor{termbg}{HTML}{212529}      % Fondo oscuro tipo terminal
+\definecolor{termhead}{HTML}{343A40}    % Barra superior
+\definecolor{termtext}{HTML}{F8F9FA}    % Texto claro de alta legibilidad
+\definecolor{termborder}{HTML}{495057}  % Borde
+
+% Entorno \begin{consola}[label=out:iris]{Título}
+\newtcblisting[auto counter]{consola}[2][]{
+  listing only,
+  breakable,
+  colback=termbg,
+  colframe=termborder,
+  colbacktitle=termhead,
+  coltitle=termtext,
+  colupper=termtext,
+  fonttitle=\bfseries\small\sffamily,
+  boxrule=0.6pt,
+  arc=4pt,
+  left=8pt,
+  right=8pt,
+  top=6pt,
+  bottom=6pt,
+  toptitle=4pt,
+  bottomtitle=4pt,
+  before skip=12pt,
+  after skip=12pt,
+  listing options={
+    basicstyle=\ttfamily\scriptsize\color{termtext}, % \scriptsize evita que las tablas de Pandas se partan de línea
+    breaklines=true,
+    columns=fixed,        % Mantiene alineadas las columnas de Pandas
+    keepspaces=true,
+    showstringspaces=false,
+    literate=
+      {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+      {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+      {¿}{{?`}}1 {¡}{{!`}}1 {ü}{{\char252}}1 {«}{{\guillemotleft}}1 {»}{{\guillemotright}}1 {·}{{\textperiodcentered}}1 {ñ}{{\~n}}1 {→}{{$\rightarrow$}}1 {Ñ}{{\~N}}1
+  },
+  title={Salida \thetcbcounter: #2},
+  #1
+}
+
+%% ---- DATOS DE LA MATERIA ------------------------
+
+\materia{Inteligencia Artificial y su Ética}
+\actividad{Tema 6.1. Protección de datos personales \\ Actividad 31 - Datos personales y datos sensibles}
+\profesor{M. Lilia Ureña Lugo}
+
+
+\usepackage{etoolbox}
+% ltablex convierte tabularx en longtable, que avanza el contador de tablas una vez de más
+\AtEndEnvironment{tabularx}{\addtocounter{table}{-1}}
+\newlength{\anchocol}
+
+
+\begin{document}
+\portada
+\indicegeneral
+
+\section{Introducción}
+
+Los algoritmos de inteligencia artificial se alimentan de grandes cantidades de datos sobre las personas, y con ellos pueden decidir, por ejemplo, si se aprueba o se niega una tarjeta de crédito sin que un ser humano revise la solicitud \parencite{iae_u6_t61}. Por eso el tema 6.1 pide entender qué se protege y por qué.
+
+Este resumen explica con mis palabras qué entiendo por protección de datos personales y por protección de datos personales sensibles, en qué se distinguen y qué ventajas y desventajas tiene proteger unos y otros. Me apoyo en el material del tema \parencite{iae_u6_t61} y en los textos legales que el tema recomienda leer: la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados \parencite{lgpdppso2025}, el Reglamento de la Ley Federal de Protección de Datos Personales en Posesión de los Particulares \parencite{reglamento2011} y el documento de la Comisión Nacional de Bioética sobre datos de salud \parencite{conbioetica2014}.
+
+\subsection*{Nota sobre las versiones de las leyes}
+
+El tema lista la ley de sujetos obligados de 2017 y el reglamento de 2011. Revisé los textos oficiales publicados por la Cámara de Diputados y encontré que la ley de 2017 y la ley federal de 2010 fueron abrogadas por el decreto del 20 de marzo de 2025, que expidió una nueva Ley General y una nueva Ley Federal \parencite{lgpdppso2025}. Por eso cito el texto vigente de la Ley General \parencite{lgpdppso2025} y, para el sector privado, la nueva Ley Federal \parencite{lfpdppp2025}, que el tema no lista pero que el reglamento necesita para entenderse. El documento de CONBIOÉTICA es de 2014 y habla de la ley de 2010, así que lo uso por sus ideas sobre salud y no como texto legal vigente.
+
+\section{Qué entiendo por protección de datos personales}
+
+Un \textbf{dato personal} es cualquier información sobre una persona identificada o identificable, es decir, aquella cuya identidad se puede determinar directa o indirectamente \parencite[art.~3, fr.~IX]{lgpdppso2025}. Un nombre, un teléfono o un correo son ejemplos; también lo es un dato que, junto con otros, permite saber quién es la persona.
+
+La \textbf{protección de datos personales} es el conjunto de reglas que obligan a quien trata esos datos (el responsable) a hacerlo bajo ocho principios: licitud, consentimiento, información, calidad, finalidad, lealtad, proporcionalidad y responsabilidad \parencite{iae_u6_t61,lgpdppso2025}. En pocas palabras: se pueden usar mis datos solo para lo que me avisaron, con mi autorización cuando corresponde, usando únicamente los datos necesarios, y el responsable responde si los usa mal. Además, la persona titular tiene los derechos ARCO (acceso, rectificación, cancelación y oposición) \parencite[art.~3, fr.~XI]{lgpdppso2025}, y el responsable debe mantener medidas de seguridad administrativas, técnicas y físicas \parencite[art.~25]{lgpdppso2025}.
+
+\section{Qué entiendo por protección de datos sensibles}
+
+Los \textbf{datos personales sensibles} son los que se refieren a la esfera más íntima de la persona o cuyo mal uso puede causar discriminación o un riesgo grave. La ley da como ejemplos el origen racial o étnico, el estado de salud presente o futuro, la información genética, las creencias religiosas, filosóficas y morales, las opiniones políticas y la preferencia sexual, y aclara que la lista no es limitativa \parencite[art.~3, fr.~X]{lgpdppso2025}. El tema añade los datos biométricos y la afiliación sindical \parencite{iae_u6_t61}.
+
+La \textbf{protección de datos sensibles} usa las mismas reglas que la de datos personales, pero más estrictas. Entiendo la diferencia así: en los datos personales el riesgo es sobre todo la privacidad; en los sensibles, el riesgo es que me traten distinto por lo que soy o por mi salud. Los textos lo reflejan en lo siguiente:
+
+\begin{itemize}
+    \item \textbf{Consentimiento.} En el sector privado, el consentimiento tácito es válido por regla general, pero para los datos sensibles se necesita consentimiento expreso y por escrito, con firma autógrafa, electrónica o un mecanismo de autenticación \parencite[arts.~7 y 8]{lfpdppp2025}. En el sector público, por regla general no pueden tratarse datos sensibles sin consentimiento expreso, salvo los casos que prevé la ley \parencite[art.~7]{lgpdppso2025}.
+    \item \textbf{Bases de datos.} No pueden crearse bases con datos sensibles si no se justifican para finalidades legítimas, concretas y acordes con las actividades del responsable \parencite[art.~8]{lfpdppp2025}; el reglamento añade que solo se crean por mandato legal o para esas finalidades \parencite[art.~56]{reglamento2011}.
+    \item \textbf{Sanciones.} Las multas por infracciones con datos sensibles pueden llegar al doble, y las penas de prisión por tratamiento indebido se duplican \parencite[arts.~59 y 64]{lfpdppp2025}.
+\end{itemize}
+
+Los \textbf{datos de salud} son el caso que más trabaja el tema. CONBIOÉTICA parte de que son sensibles y advierte que su divulgación indebida puede causar un daño moral y, sobre todo, discriminación o exclusión, lo que va contra la igualdad entre las personas \parencite{conbioetica2014}. En salud, el principio central es la confidencialidad \parencite{conbioetica2014,iae_u6_t61}.
+
+\section{Ventajas y desventajas de la protección}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{2.6cm}XX@{}}
+\toprule
+ & \textbf{Ventajas} & \textbf{Desventajas o límites} \\
+\midrule
+\textbf{Datos personales} &
+La persona controla sus datos con los derechos ARCO, que son gratuitos \parencite[art.~44]{lgpdppso2025}. Debe recibir un aviso de privacidad \parencite[art.~14]{lfpdppp2025}. Hay medidas de seguridad obligatorias y aviso inmediato cuando una vulneración afecta de forma significativa sus derechos \parencite[arts.~18 y 19]{lfpdppp2025}. Puede oponerse a decisiones tomadas solo por un sistema automatizado con efectos significativos \parencite[art.~26]{lfpdppp2025}. &
+En el sector privado el consentimiento tácito basta por regla general \parencite[art.~7]{lfpdppp2025}, y hay varias excepciones al consentimiento, como los datos en fuentes de acceso público o los que se disocian \parencite[art.~9]{lfpdppp2025}. Cumplir implica costos para el responsable (aviso de privacidad, medidas y documento de seguridad); esto es una inferencia mía a partir de las obligaciones, que las fuentes no cuantifican. \\
+\addlinespace
+\textbf{Datos sensibles} &
+Consentimiento expreso y por escrito. Mayor sanción si se usan mal. Se reduce el riesgo de discriminación y exclusión por salud, origen étnico, creencias u orientación sexual \parencite{conbioetica2014}. En salud se refuerza la confidencialidad del expediente clínico y de las muestras biológicas \parencite{iae_u6_t61}. &
+Puede chocar con la atención médica y la investigación; CONBIOÉTICA pide proteger la intimidad sin entorpecer la labor sanitaria. En salud, el consentimiento puede omitirse cuando es necesario para la atención médica y la persona no puede darlo, y el propio documento recoge la crítica de que esas excepciones se pueden interpretar tan ampliamente que cubran casi cualquier actuación médica \parencite{conbioetica2014}. El tema señala que muchas disposiciones sanitarias solo enuncian la confidencialidad sin definir su alcance \parencite{iae_u6_t61}. \\
+\bottomrule
+\end{tabularx}
+\caption{Ventajas y desventajas de proteger los datos personales y los sensibles.}\label{tab:ventajas}
+\end{table}
+
+\section{Conclusión}
+
+Entiendo la protección de datos personales como el control que cada persona conserva sobre la información que la identifica, y la de datos sensibles como una versión reforzada para los datos cuyo mal uso puede discriminarla. Las ventajas son el control del titular, la seguridad obligatoria y las sanciones. Las desventajas están en los límites de la norma (consentimiento tácito, excepciones) y en el equilibrio con la atención médica y la investigación. Para quien diseña sistemas de IA esto importa porque los datos de entrenamiento suelen ser datos personales, y a veces sensibles, y el tema plantea que hay que fijar límites al uso de datos y algoritmos \parencite{iae_u6_t61}.
+
+\subsection*{Limitaciones}
+
+Los libros que el tema cita (Kearns y Roth; Coeckelbergh; la CIDH) no los leí, y solo uso lo que el tema dice de ellos. El documento de CONBIOÉTICA es un escaneo de 2014; lo leí con reconocimiento de texto y citó leyes que ya no están vigentes. No revisé jurisprudencia ni casos de aplicación de las leyes.
+
+\referencias
+
+\end{document}
